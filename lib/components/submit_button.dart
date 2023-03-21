@@ -4,8 +4,9 @@ import 'package:frontend/constants.dart';
 class SubmitButton extends StatelessWidget {
   final VoidCallback onPressed;
   final String title;
-  const SubmitButton({Key? key, required this.onPressed, required this.title})
-      : super(key: key);
+  const SubmitButton(
+      {Key? formKey, required this.onPressed, required this.title})
+      : super(key: formKey);
 
   @override
   Widget build(BuildContext context) {

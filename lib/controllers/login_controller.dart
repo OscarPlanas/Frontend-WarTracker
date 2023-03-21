@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:frontend/screens/home.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/login.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,7 +12,7 @@ class LoginController extends GetxController {
   TextEditingController passwordController = TextEditingController();
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
-  Future<void> loginWithEmail() async {
+  Future<String> loginWithEmail() async {
     try {
       var headers = {'Content-Type': 'application/json'};
 
@@ -42,11 +43,14 @@ class LoginController extends GetxController {
           print("correcto");
           Get.off(HomeScreen());
         } else if (json['auth'] == false) {
-          throw jsonDecode(response.body)['message'];
+          var message = jsonDecode(response.body)['message'];
+          return message;
         }
       } else {
-        throw jsonDecode(response.body)["Message"] ?? "Unknown Error Occured";
+        var message2 = jsonDecode(response.body)['message'];
+        return message2;
       }
+      return "Unknown Error Occured";
     } catch (error) {
       Get.back();
       showDialog(
@@ -58,6 +62,7 @@ class LoginController extends GetxController {
               children: [Text(error.toString())],
             );
           });
+      return "Unknown Error Occured";
     }
   }
 }

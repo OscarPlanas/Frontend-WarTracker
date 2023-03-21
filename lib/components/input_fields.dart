@@ -9,18 +9,29 @@ class InputTextFieldWidget extends StatelessWidget {
   final IconData icon;
   final String title;
   final bool hiddenText = true;
+  bool _obscureText = false;
+
+  //setState(() {});
+
+  //final _formKey = GlobalKey<FormState>();
 
   InputTextFieldWidget(
       this.textEditingController, this.hintText, this.icon, this.title);
+
   @override
   Widget build(BuildContext context) {
     return Container(
+      //key: _formKey,
+
       height: 46,
-      child: TextField(
+      child: TextFormField(
         obscureText: hintText == "password" ? true : false,
 
         controller: textEditingController,
+        validator: (value) => value!.isEmpty ? 'Please enter some text' : null,
+        onSaved: (value) => textEditingController.text = value!,
         //_userPasswordController,
+
         decoration: InputDecoration(
             prefixIcon: Icon(
               icon,

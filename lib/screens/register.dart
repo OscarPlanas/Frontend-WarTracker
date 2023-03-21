@@ -28,14 +28,13 @@ class Body extends StatefulWidget {
 }
 
 class _BodyState extends State<Body> {
-  RegistrationController registerController = Get.put(RegistrationController());
+  RegistrationController registrationController =
+      Get.put(RegistrationController());
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    String email;
-    String password;
-    DateTime date = DateTime.now();
+    bool emailValid = true;
 
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: 40, vertical: 140),
@@ -48,136 +47,80 @@ class _BodyState extends State<Body> {
                 fontWeight: FontWeight.bold, fontSize: 24, color: ButtonBlack),
           ),
           SizedBox(height: size.height * 0.10),
-          // RoundedInputField(
-          //   hintText: "Correo",
-          //   onChanged: (value) {
-          //     email = value;
-          //   },
-          // ),
-          InputTextFieldWidget(registerController.nameController, 'name',
+          InputTextFieldWidget(registrationController.nameController, 'name',
               Icons.person, "Nombre"),
           SizedBox(height: size.height * 0.03),
-          InputTextFieldWidget(registerController.usernameController,
+          InputTextFieldWidget(registrationController.usernameController,
               'username', Icons.person_2_outlined, "Nombre de usuario"),
-          /*SizedBox(
-            width: 330,
-            child: TextFormField(
-                controller: registerController.dateController,
-                decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.calendar_today_rounded),
-                  hintText: 'Fecha de nacimiento',
-                  hintStyle: TextStyle(
-                      color: ButtonBlack,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold),
-                  fillColor: ButtonBlack,
-                  prefixIconConstraints: BoxConstraints(minWidth: 64),
-                  prefixIconColor: ButtonBlack,
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Background2, width: 1.0),
-                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Background2, width: 1.0),
-                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                  ),
-                ),
-                onTap: () async {
-                  DateTime? pickeddate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(1950),
-                      lastDate: DateTime.now());
-
-                  if (pickeddate != null) {
-                    //setState(() {
-
-                    //date.text = DateFormat('dd-MM-yyyy').format(pickeddate);
-
-                    //});
-                  }
-                }
-
-                //setState(() => date = newDate);
-                ),
-          ),*/
           SizedBox(height: size.height * 0.03),
-          InputTextFieldWidget(registerController.emailController, 'email',
+          InputTextFieldWidget(registrationController.emailController, 'email',
               Icons.email, "Correo"),
           SizedBox(height: size.height * 0.03),
-          InputTextFieldWidget(registerController.passwordController,
+          InputTextFieldWidget(registrationController.passwordController,
               'password', Icons.lock, "Contraseña"),
           SizedBox(height: size.height * 0.03),
-
-          InputTextFieldWidget(registerController.repeatPasswordController,
+          InputTextFieldWidget(registrationController.repeatPasswordController,
               'password', Icons.lock, "Repetir Contraseña"),
-
-          // TextField(
-          //     obscureText: true,
-          //     decoration: InputDecoration(
-          //       hintText: "AAAAA",
-          //       filled: false,
-          //     )),
-          // SizedBox(height: size.height * 0.15),
-          // RoundedPasswordField(
-          //   onChanged: (value) {
-          //     password = value;
-          //   },
-          // ),
-          // SizedBox(height: size.height * 0.03),
-          // RoundedButton(
-          //   margin: 10,
-          //   text: "INICIAR SESIÓN",
-          //   color: ButtonBlack,
-          //   textColor: Background,
-          //   width: size.width * 0.8,
-          //   height: 20.0,
-          //   press: () async {
-          // await saveUser('$email', '$password');
-          // await getUserByEmail();
-          // await login('$email', '$password');
-          // return Future.delayed(
-          // const Duration(seconds: 1),
-          // () => Navigator.push(
-          //       context,
-          //       MaterialPageRoute(
-          //         builder: (context) {
-          //           if (currentUser.email == null ||
-          //               currentUser.email == "") {
-          //             return LoginScreen();
-          //           } else if (storage.getItem('token') != null) {
-          //             checkLike(currentUser.id);
-          //             return MapScreen();
-          //           } else {
-          //             return LoginScreen();
-          //           }
-          //           //return MapScreen();
-          //         },
-          //       ),
-          //     ));
-          //     loginController.loginWithEmail();
-          //   },
-          // ),
           SizedBox(height: size.height * 0.08),
           SubmitButton(
-            onPressed: () => registerController.registerWithEmail(),
+            onPressed: () async => {
+              if (registrationController.nameController.text.isEmpty ||
+                  registrationController.usernameController.text.isEmpty ||
+                  registrationController.emailController.text.isEmpty ||
+                  registrationController.passwordController.text.isEmpty ||
+                  registrationController.repeatPasswordController.text.isEmpty)
+                {
+                  openDialog("Fill all the fields"),
+                }
+              else if (registrationController.passwordController.text !=
+                  registrationController.repeatPasswordController.text)
+                {
+                  openDialog("Passwords don't match"),
+                }
+              else if (emailValid !=
+                  RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(
+                      registrationController.emailController.text.toString()))
+                {
+                  openDialog("Email is not valid"),
+                }
+              else if (registrationController.passwordController.text.length <
+                  6)
+                {
+                  openDialog("Password must be at least 6 characters"),
+                }
+              else
+                {
+                  await registrationController.registerWithEmail(),
+                }
+            },
             title: 'SignUp',
           )
-          //   AlreadyHaveAnAccountCheck(
-          //     press: () {
-          //       Navigator.push(
-          //         context,
-          //         MaterialPageRoute(
-          //           builder: (context) {
-          //             return SignUpScreen();
-          //           },
-          //         ),
-          //       );
-          //     },
-          //   ),
         ],
       ),
     );
+  }
+
+  Future openDialog(String text) => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: Color.fromARGB(255, 230, 241, 248),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          title: Text("WarTracker", style: TextStyle(fontSize: 17)),
+          content: Text(
+            text,
+            style: TextStyle(fontSize: 15),
+          ),
+          actions: [
+            TextButton(
+              child: const Text('OK'),
+              onPressed: submit,
+            ),
+          ],
+        ),
+      );
+  void submit() {
+    Navigator.of(context, rootNavigator: true).pop();
   }
 }
 

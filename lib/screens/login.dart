@@ -33,13 +33,14 @@ class _BodyState extends State<Body> {
 
   LoginController loginController = Get.put(LoginController());
 
+  final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    String email;
-    String password;
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: 40, vertical: 140),
+      key: _formKey,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
@@ -49,85 +50,61 @@ class _BodyState extends State<Body> {
                 fontWeight: FontWeight.bold, fontSize: 24, color: ButtonBlack),
           ),
           SizedBox(height: size.height * 0.20),
-          // RoundedInputField(
-          //   hintText: "Correo",
-          //   onChanged: (value) {
-          //     email = value;
-          //   },
-          // ),
-
           InputTextFieldWidget(loginController.emailController, 'email address',
               Icons.email, "Correo"),
           SizedBox(height: size.height * 0.07),
           InputTextFieldWidget(loginController.passwordController, 'password',
               Icons.lock, "Contraseña"),
-
-          // TextField(
-          //     obscureText: true,
-          //     decoration: InputDecoration(
-          //       hintText: "AAAAA",
-          //       filled: false,
-          //     )),
-          // SizedBox(height: size.height * 0.15),
-          // RoundedPasswordField(
-          //   onChanged: (value) {
-          //     password = value;
-          //   },
-          // ),
-          // SizedBox(height: size.height * 0.03),
-          // RoundedButton(
-          //   margin: 10,
-          //   text: "INICIAR SESIÓN",
-          //   color: ButtonBlack,
-          //   textColor: Background,
-          //   width: size.width * 0.8,
-          //   height: 20.0,
-          //   press: () async {
-          // await saveUser('$email', '$password');
-          // await getUserByEmail();
-          // await login('$email', '$password');
-          // return Future.delayed(
-          // const Duration(seconds: 1),
-          // () => Navigator.push(
-          //       context,
-          //       MaterialPageRoute(
-          //         builder: (context) {
-          //           if (currentUser.email == null ||
-          //               currentUser.email == "") {
-          //             return LoginScreen();
-          //           } else if (storage.getItem('token') != null) {
-          //             checkLike(currentUser.id);
-          //             return MapScreen();
-          //           } else {
-          //             return LoginScreen();
-          //           }
-          //           //return MapScreen();
-          //         },
-          //       ),
-          //     ));
-          //     loginController.loginWithEmail();
-          //   },
-          // ),
           SizedBox(height: size.height * 0.08),
           SubmitButton(
-            onPressed: () => loginController.loginWithEmail(),
+            onPressed: () async {
+              if (loginController.emailController.text.isEmpty) {
+                openDialog("Enter your email");
+              } else if (loginController.passwordController.text.isEmpty) {
+                openDialog("Enter your password");
+              } else {
+                var result = await loginController.loginWithEmail();
+                if (loginController.emailController.text.isNotEmpty &&
+                    (result == "The email does not exist")) {
+                  openDialog("The email does not exist");
+                } else if (loginController.passwordController.text.isNotEmpty &&
+                    (result == "Invalid Password")) {
+                  openDialog("Invalid Password");
+                } else if (result == "The email does not exist") {
+                  openDialog("The email does not exist");
+                } else if (result == "Invalid Password") {
+                  openDialog("Invalid Password");
+                }
+              }
+            },
             title: 'Login',
           )
-          //   AlreadyHaveAnAccountCheck(
-          //     press: () {
-          //       Navigator.push(
-          //         context,
-          //         MaterialPageRoute(
-          //           builder: (context) {
-          //             return SignUpScreen();
-          //           },
-          //         ),
-          //       );
-          //     },
-          //   ),
         ],
       ),
     );
+  }
+
+  Future openDialog(String text) => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: Color.fromARGB(255, 230, 241, 248),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          title: Text("WarTracker", style: TextStyle(fontSize: 17)),
+          content: Text(
+            text,
+            style: TextStyle(fontSize: 15),
+          ),
+          actions: [
+            TextButton(
+              child: const Text('OK'),
+              onPressed: submit,
+            ),
+          ],
+        ),
+      );
+  void submit() {
+    Navigator.of(context, rootNavigator: true).pop();
   }
 }
 

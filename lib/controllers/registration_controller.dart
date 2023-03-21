@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:frontend/screens/home.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/register.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,7 +17,7 @@ class RegistrationController extends GetxController {
 
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
-  Future<void> registerWithEmail() async {
+  Future<String> registerWithEmail() async {
     try {
       var headers = {'Content-Type': 'application/json'};
       print('por aqui');
@@ -25,29 +26,31 @@ class RegistrationController extends GetxController {
       Map body = {
         'name': nameController.text,
         'username': usernameController.text,
-        'email': emailController.text.trim(),
+        'email': emailController.text,
         'password': passwordController.text,
         'repeatPassword': repeatPasswordController.text,
       };
-      if (passwordController.text != repeatPasswordController.text) {
-        print("error");
-        showDialog(
+      // if (passwordController.text != repeatPasswordController.text) {
+      //   print("error");
+
+      /*showDialog(
             context: Get.context!,
-            builder: (context) {
+            builder: (BuildContext context) {
               return AlertDialog(
-                title: Text('Error'),
+                title: new Text('Error'),
                 content: new Text("Las contraseñas no coinciden."),
                 actions: <Widget>[
                   new TextButton(
                     child: new Text("Cerrar"),
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      RegisterScreen();
                     },
                   ),
                 ],
               );
-            });
-      }
+            });*/
+      //throw "Las contraseñas no coinciden";
+      //}
       /*if (passwordController.text.length < 6) {
         throw "La contraseña debe tener al menos 6 caracteres";
       }
@@ -78,14 +81,21 @@ class RegistrationController extends GetxController {
           passwordController.clear();
           nameController.clear();
           usernameController.clear();
+          repeatPasswordController.clear();
           print("correcto");
           Get.off(HomeScreen());
+
+          return "correcto";
+          //Get.off(HomeScreen());
         } else if (json['auth'] == false) {
-          throw jsonDecode(response.body)['message'];
+          var message = jsonDecode(response.body)['message'];
+          return message;
         }
       } else {
-        throw jsonDecode(response.body)["Message"] ?? "Unknown Error Occured";
+        var message2 = jsonDecode(response.body)['message'];
+        return message2;
       }
+      return "Unknown Error Occured";
     } catch (error) {
       Get.back();
       showDialog(
@@ -97,6 +107,7 @@ class RegistrationController extends GetxController {
               children: [Text(error.toString())],
             );
           });
+      return "Unknown Error Occured";
     }
   }
 }
