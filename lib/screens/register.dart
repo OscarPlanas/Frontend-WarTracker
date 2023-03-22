@@ -10,12 +10,15 @@ import 'package:frontend/components/rounded_button.dart';
 import 'package:frontend/components/rounded_input_field.dart';
 import 'package:frontend/components/input_fields.dart';
 import 'package:frontend/components/submit_button.dart';
+import 'package:frontend/components/already_have_an_account_acheck.dart';
+
 // import 'package:flutter_auth/components/rounded_password_field.dart';
 import 'package:frontend/constants.dart';
 // import 'package:flutter_auth/data/data.dart';
 // import 'package:localstorage/localstorage.dart';
 import 'package:frontend/controllers/login_controller.dart';
 import 'package:frontend/controllers/registration_controller.dart';
+import 'package:frontend/screens/login.dart';
 import 'package:get/get.dart';
 
 class Body extends StatefulWidget {
@@ -37,7 +40,7 @@ class _BodyState extends State<Body> {
     bool emailValid = true;
 
     return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 140),
+      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 100),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
@@ -94,7 +97,21 @@ class _BodyState extends State<Body> {
                 }
             },
             title: 'SignUp',
-          )
+          ),
+          SizedBox(height: size.height * 0.02),
+          AlreadyHaveAnAccountCheck(
+            login: false,
+            press: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return LoginScreen();
+                  },
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
