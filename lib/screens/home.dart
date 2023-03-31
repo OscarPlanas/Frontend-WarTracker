@@ -3,7 +3,8 @@ import 'package:frontend/screens/welcome.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:frontend/constants.dart';
-
+import 'package:localstorage/localstorage.dart';
+import 'package:frontend/models/blog.dart';
 import 'package:frontend/screens/login.dart';
 
 //import 'package:frontend/screens/register.dart';
@@ -22,13 +23,15 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(color: ButtonBlack),
-        title: const Text(('Home'), style: TextStyle(color: ButtonBlack)),
+        title:
+            const Text(('Latest News'), style: TextStyle(color: ButtonBlack)),
         backgroundColor: Background,
         actions: [
           TextButton(
               onPressed: () async {
                 final SharedPreferences? prefs = await _prefs;
                 prefs?.clear();
+                // setItem('token', null);
                 Get.offAll(WelcomeScreen());
               },
               child: Text(
@@ -38,8 +41,20 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       drawer: NavigationDrawer(),
-      body: Center(
-        child: Column(
+      body: ListView.builder(
+          itemCount: blogList.length,
+          itemBuilder: (context, index) {
+            Blog blog = blogList[index];
+            return Card(
+              child: ListTile(
+                title: Text(blog.title),
+                subtitle: Text(blog.description),
+                leading: Image.network(blog.image),
+                trailing: Icon(Icons.arrow_forward_ios),
+              ),
+            );
+
+            /*child: ListView(
           children: [
             //Text('Welcome home'),
             TextButton(
@@ -49,8 +64,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
                 child: Text('print token'))
           ],
-        ),
-      ),
+        ),*/
+          }),
     );
   }
 }

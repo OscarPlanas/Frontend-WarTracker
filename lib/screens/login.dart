@@ -18,8 +18,11 @@ import 'package:frontend/components/already_have_an_account_acheck.dart';
 // import 'package:localstorage/localstorage.dart';
 import 'package:frontend/controllers/login_controller.dart';
 import 'package:frontend/controllers/registration_controller.dart';
+import 'package:frontend/screens/home.dart';
 import 'package:frontend/screens/register.dart';
 import 'package:get/get.dart';
+import 'package:localstorage/localstorage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Body extends StatefulWidget {
   const Body({
@@ -31,6 +34,7 @@ class Body extends StatefulWidget {
 }
 
 class _BodyState extends State<Body> {
+  String? token = "";
   RegistrationController registrationController =
       Get.put(RegistrationController());
 
@@ -40,6 +44,8 @@ class _BodyState extends State<Body> {
 
   @override
   Widget build(BuildContext context) {
+    final LocalStorage storage = new LocalStorage('My App');
+
     Size size = MediaQuery.of(context).size;
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: 40, vertical: 100),
@@ -61,6 +67,9 @@ class _BodyState extends State<Body> {
           SizedBox(height: size.height * 0.08),
           SubmitButton(
             onPressed: () async {
+              // if (storage.getItem('token') != null) {
+              //   Get.offAllNamed('/home');
+              // }
               if (loginController.emailController.text.isEmpty) {
                 openDialog("Enter your email");
               } else if (loginController.passwordController.text.isEmpty) {

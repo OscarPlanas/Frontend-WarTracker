@@ -6,11 +6,13 @@ import 'package:frontend/screens/login.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:localstorage/localstorage.dart';
 
 class LoginController extends GetxController {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  final LocalStorage storage = new LocalStorage('My App');
 
   Future<String> loginWithEmail() async {
     try {
@@ -41,6 +43,9 @@ class LoginController extends GetxController {
           emailController.clear();
           passwordController.clear();
           print("correcto");
+          storage.setItem('token', token);
+          print("el token es: ");
+          print(token);
           Get.off(HomeScreen());
         } else if (json['auth'] == false) {
           var message = jsonDecode(response.body)['message'];
