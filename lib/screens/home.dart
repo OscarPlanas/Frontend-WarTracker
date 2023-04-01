@@ -6,6 +6,7 @@ import 'package:frontend/constants.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:frontend/models/blog.dart';
 import 'package:frontend/screens/login.dart';
+import 'package:frontend/screens/blog.dart';
 
 //import 'package:frontend/screens/register.dart';
 class HomeScreen extends StatefulWidget {
@@ -48,9 +49,12 @@ class _HomeScreenState extends State<HomeScreen> {
             return Card(
               child: ListTile(
                 title: Text(blog.title),
-                subtitle: Text(blog.description),
+                subtitle: Text(blog.shortoverview),
                 leading: Image.network(blog.image),
                 trailing: Icon(Icons.arrow_forward_ios),
+                onTap: () {
+                  Get.to(BlogScreen(blog));
+                },
               ),
             );
 
