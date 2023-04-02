@@ -20,7 +20,7 @@ class BlogScreen extends StatelessWidget {
           child: ListView(
             //  mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.network(blog.image),
+              Image.network("https://picsum.photos/250?image=9", height: 300),
               /*Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
@@ -30,9 +30,9 @@ class BlogScreen extends StatelessWidget {
                 ),
               ),*/
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(4.0),
                 child: Text(
-                  blog.description,
+                  blog.body_text,
                   textAlign: TextAlign.justify,
                   style: TextStyle(fontSize: 18),
                 ),
