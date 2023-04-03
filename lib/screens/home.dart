@@ -9,6 +9,7 @@ import 'package:frontend/models/blog.dart';
 import 'package:frontend/screens/login.dart';
 import 'package:frontend/screens/blog.dart';
 import 'package:frontend/controllers/blog_controller.dart';
+import 'package:frontend/sidebar.dart';
 
 //import 'package:frontend/screens/register.dart';
 class HomeScreen extends StatefulWidget {
@@ -20,12 +21,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  final BlogController blogController = Get.put(BlogController());
+  //final BlogController blogController = Get.put(BlogController());
   //final Future<List<Blog>> blogs = BlogController().getBlogs();
   Future<List<Blog>> blogsFuture = BlogController().getBlogs();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Sidebar(),
       appBar: AppBar(
         iconTheme: IconThemeData(color: ButtonBlack),
         title:
@@ -45,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ))
         ],
       ),
-      drawer: NavigationDrawer(),
+      //drawer: NavigationDrawer(),
       body: Center(
         child: FutureBuilder<List<Blog>>(
           future: blogsFuture,
@@ -105,81 +107,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-}
-
-class NavigationDrawer extends StatelessWidget {
-  NavigationDrawer({Key? key}) : super(key: key);
-
-  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-
-  @override
-  Widget build(BuildContext context) => Drawer(
-          child: SingleChildScrollView(
-              child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          buildHeader(context),
-          buildMenuItems(context),
-        ],
-      )));
-
-  Widget buildHeader(BuildContext context) => Container(
-        color: Background,
-        padding: EdgeInsets.only(
-          top: MediaQuery.of(context).padding.top,
-        ),
-        child: Column(
-          children: const [
-            CircleAvatar(
-              radius: 52,
-              backgroundImage: AssetImage('assets/images/logoWelcome.png'),
-            ),
-            SizedBox(height: 8),
-            Text('PlaceholderProfile',
-                style: TextStyle(color: ButtonBlack, fontSize: 22)),
-            Text('PlaceholderEmail',
-                style: TextStyle(color: ButtonBlack, fontSize: 14)),
-          ],
-        ),
-      );
-
-  Widget buildMenuItems(BuildContext context) => Container(
-        padding: const EdgeInsets.all(24),
-        child: Wrap(
-          //runSpacing: 2,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.home_outlined),
-              title: const Text('Home'),
-              onTap: () => Get.offAll(HomeScreen()),
-            ),
-            const Divider(color: Colors.black54),
-            ListTile(
-              leading: const Icon(Icons.person_outline),
-              title: const Text('Profile'),
-              onTap: () => Get.offAll(HomeScreen()),
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings_outlined),
-              title: const Text('Settings'),
-              onTap: () => Get.offAll(HomeScreen()),
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout_outlined),
-              title: const Text('Logout'),
-              onTap: () async {
-                final SharedPreferences? prefs = await _prefs;
-                prefs?.clear();
-                Get.offAll(WelcomeScreen());
-              },
-            ),
-            const Divider(color: Colors.black54),
-            ListTile(
-              leading: const Icon(Icons.info_outline),
-              title: const Text('About'),
-              onTap: () => Get.offAll(HomeScreen()),
-            ),
-          ],
-        ),
-      );
 }
