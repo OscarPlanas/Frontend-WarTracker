@@ -8,15 +8,20 @@ import 'package:localstorage/localstorage.dart';
 import 'package:frontend/models/blog.dart';
 import 'package:frontend/screens/login.dart';
 import 'package:frontend/screens/home.dart';
-
+import 'package:frontend/screens/tournaments.dart';
 import 'package:frontend/screens/blog.dart';
 import 'package:frontend/controllers/blog_controller.dart';
 import 'package:frontend/screens/profile.dart';
+import 'package:frontend/controllers/user_controller.dart';
+import 'package:frontend/models/user.dart';
+import 'package:frontend/data/data.dart';
 
 class Sidebar extends StatelessWidget {
   Sidebar({Key? key}) : super(key: key);
 
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  //final userFuture = UserController().getUser();
+  //Future<User> user = UserController().getUser();
 
   @override
   Widget build(BuildContext context) => Drawer(
@@ -35,15 +40,16 @@ class Sidebar extends StatelessWidget {
           top: MediaQuery.of(context).padding.top,
         ),
         child: Column(
-          children: const [
+          children: [
             CircleAvatar(
               radius: 52,
-              backgroundImage: AssetImage('assets/images/logoWelcome.png'),
+              backgroundImage: NetworkImage(
+                  "https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/baby-yoda-nombre-1606753349.jpg?crop=0.75xw:1xh;center,top&resize=1200:*"),
             ),
-            SizedBox(height: 8),
-            Text('PlaceholderProfile',
+            SizedBox(height: 6),
+            Text(currentUser.username,
                 style: TextStyle(color: ButtonBlack, fontSize: 22)),
-            Text('PlaceholderEmail',
+            Text(currentUser.email,
                 style: TextStyle(color: ButtonBlack, fontSize: 14)),
           ],
         ),
@@ -57,6 +63,21 @@ class Sidebar extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.home_outlined),
               title: const Text('Home'),
+              onTap: () => Get.offAll(HomeScreen()),
+            ),
+            ListTile(
+              leading: const Icon(Icons.article_outlined),
+              title: const Text('Blog'),
+              onTap: () => Get.offAll(HomeScreen()),
+            ),
+            ListTile(
+              title: const Text('Tournaments'),
+              leading: const Icon(Icons.sports_esports_outlined),
+              onTap: () => Get.offAll(TournamentsScreen()),
+            ),
+            ListTile(
+              title: const Text('Leaderboard'),
+              leading: const Icon(Icons.leaderboard_outlined),
               onTap: () => Get.offAll(HomeScreen()),
             ),
             const Divider(color: Colors.black54),

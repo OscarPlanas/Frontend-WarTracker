@@ -23,6 +23,8 @@ import 'package:frontend/screens/register.dart';
 import 'package:get/get.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:frontend/data/data.dart';
+import 'package:frontend/controllers/user_controller.dart';
 
 class Body extends StatefulWidget {
   const Body({
@@ -39,7 +41,7 @@ class _BodyState extends State<Body> {
       Get.put(RegistrationController());
 
   LoginController loginController = Get.put(LoginController());
-
+  UserController userController = Get.put(UserController());
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -75,6 +77,9 @@ class _BodyState extends State<Body> {
               } else if (loginController.passwordController.text.isEmpty) {
                 openDialog("Enter your password");
               } else {
+                await userController.saveUser(
+                    loginController.emailController.text,
+                    loginController.passwordController.text);
                 var result = await loginController.loginWithEmail();
                 if (loginController.emailController.text.isNotEmpty &&
                     (result == "The email does not exist")) {

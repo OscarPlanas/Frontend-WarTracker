@@ -40,6 +40,8 @@ dependencies:
   get: ^4.6.5
   shared_preferences: ^2.0.15
   localstorage: ^4.0.0+1
+  dart_jsonwebtoken: ^2.7.1
+  jwt_decoder: ^2.0.1
 
 dev_dependencies:
   flutter_test:

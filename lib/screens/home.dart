@@ -105,6 +105,13 @@ class _HomeScreenState extends State<HomeScreen> {
           // }),
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pop(context);
+        },
+        child: Icon(Icons.add, color: ButtonBlack),
+        backgroundColor: Background,
+      ),
     );
   }
 }

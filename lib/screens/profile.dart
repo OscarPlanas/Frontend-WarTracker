@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:frontend/components/numbers_widget.dart';
 import 'package:frontend/sidebar.dart';
 import 'package:frontend/constants.dart';
+import 'package:frontend/data/data.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -37,15 +38,23 @@ class _ProfileState extends State<Profile> {
         children: [
           const SizedBox(height: 8),
           Text(
-            'PlaceholderName',
+            currentUser.name,
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 2),
           Text(
-            'PlaceholderEmail',
+            currentUser.username,
+            style: TextStyle(
+              fontSize: 22,
+              color: Colors.black.withOpacity(0.6),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            currentUser.email,
             style: TextStyle(
               fontSize: 20,
               color: Colors.black.withOpacity(0.3),
