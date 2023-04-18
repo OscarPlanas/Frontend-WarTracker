@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:frontend/controllers/blog_controller.dart';
+import 'package:frontend/models/user.dart';
 
 class BlogController extends GetxController {
   TextEditingController titleController = TextEditingController();
@@ -76,17 +77,17 @@ class BlogController extends GetxController {
     for (var u in jsonData) {
       print(data.body);
       Blog blog = Blog(
-        //id: u["id"],
-        title: u["title"],
-        description: u["description"],
-        body_text: u["body_text"],
-        //author: u["author"],
+          //id: u["id"],
+          title: u["title"],
+          description: u["description"],
+          body_text: u["body_text"],
+          author: u["author"],
+          //image: u["image"],
 
-        //image: u["image"],
-        //author: u["author"],
-        //date: u["date"]
-      );
-
+          date: u["date"]);
+      //var owner = json.decode(blog.author.toString());
+      print("VEmOS AUTHOR " + blog.author['username']);
+      print("VEMOS DATE" + blog.date);
       blogs.add(blog);
     }
     print(blogs.length);

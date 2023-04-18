@@ -76,6 +76,9 @@ class UserController extends GetxController {
   }
 
   Future<void> saveUser(String email, String password) async {
+    getUser();
+    print('saveUser');
+
     final User user = User(
       //id: currentUser.id,
       username: currentUser.username,

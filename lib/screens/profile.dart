@@ -38,7 +38,7 @@ class _ProfileState extends State<Profile> {
         children: [
           const SizedBox(height: 8),
           Text(
-            currentUser.name,
+            currentUser.username,
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -46,13 +46,13 @@ class _ProfileState extends State<Profile> {
           ),
           const SizedBox(height: 2),
           Text(
-            currentUser.username,
+            currentUser.name,
             style: TextStyle(
               fontSize: 22,
-              color: Colors.black.withOpacity(0.6),
+              color: Colors.black,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Text(
             currentUser.email,
             style: TextStyle(

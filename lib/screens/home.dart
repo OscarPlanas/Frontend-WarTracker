@@ -10,6 +10,8 @@ import 'package:frontend/screens/login.dart';
 import 'package:frontend/screens/blog.dart';
 import 'package:frontend/controllers/blog_controller.dart';
 import 'package:frontend/sidebar.dart';
+import 'package:frontend/controllers/user_controller.dart';
+import 'package:frontend/screens/create_blog.dart';
 
 //import 'package:frontend/screens/register.dart';
 class HomeScreen extends StatefulWidget {
@@ -24,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   //final BlogController blogController = Get.put(BlogController());
   //final Future<List<Blog>> blogs = BlogController().getBlogs();
   Future<List<Blog>> blogsFuture = BlogController().getBlogs();
+  Future user = UserController().getUser();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pop(context);
+          Get.offAll(CreateBlog());
         },
         child: Icon(Icons.add, color: ButtonBlack),
         backgroundColor: Background,
