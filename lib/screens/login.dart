@@ -69,9 +69,6 @@ class _BodyState extends State<Body> {
           SizedBox(height: size.height * 0.08),
           SubmitButton(
             onPressed: () async {
-              // if (storage.getItem('token') != null) {
-              //   Get.offAllNamed('/home');
-              // }
               if (loginController.emailController.text.isEmpty) {
                 openDialog("Enter your email");
               } else if (loginController.passwordController.text.isEmpty) {

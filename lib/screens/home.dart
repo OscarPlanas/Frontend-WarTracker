@@ -36,19 +36,6 @@ class _HomeScreenState extends State<HomeScreen> {
         title:
             const Text(('Latest News'), style: TextStyle(color: ButtonBlack)),
         backgroundColor: Background,
-        actions: [
-          TextButton(
-              onPressed: () async {
-                final SharedPreferences? prefs = await _prefs;
-                prefs?.clear();
-                // setItem('token', null);
-                Get.offAll(WelcomeScreen());
-              },
-              child: Text(
-                'logout',
-                style: TextStyle(color: Colors.white),
-              ))
-        ],
       ),
       //drawer: NavigationDrawer(),
       body: Center(
@@ -65,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         title: Text(blog.title),
                         subtitle: Text(blog.description),
                         leading:
-                            Image.network("https://picsum.photos/250?image=9"),
+                            Image.asset("assets/images/laptopplaceholder.png"),
                         trailing: Icon(Icons.arrow_forward_ios),
                         onTap: () {
                           Get.to(BlogScreen(blog));
@@ -78,34 +65,6 @@ class _HomeScreenState extends State<HomeScreen> {
             }
             return const CircularProgressIndicator();
           },
-          //itemCount: blog.length,
-          /*itemBuilder: (context, index) {
-            //Blog blog = blogController[index];
-            return Card(
-              child: ListTile(
-                
-                title: Text(blogs.),
-                subtitle: Text(blogs.shortoverview),
-                leading: Image.network(blog.image),
-                trailing: Icon(Icons.arrow_forward_ios),
-                onTap: () {
-                  Get.to(BlogScreen(blog));
-                },
-              ),
-            );*/
-
-          /*child: ListView(
-          children: [
-            //Text('Welcome home'),
-            TextButton(
-                onPressed: () async {
-                  final SharedPreferences? prefs = await _prefs;
-                  print(prefs?.get('token'));
-                },
-                child: Text('print token'))
-          ],
-        ),*/
-          // }),
         ),
       ),
       floatingActionButton: FloatingActionButton(

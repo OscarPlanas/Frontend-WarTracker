@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:frontend/controllers/blog_controller.dart';
 import 'package:frontend/models/user.dart';
+import 'package:frontend/data/data.dart';
 
 class BlogController extends GetxController {
   TextEditingController titleController = TextEditingController();
@@ -24,38 +25,38 @@ class BlogController extends GetxController {
     try {
       var headers = {'Content-Type': 'application/json'};
 
-      print('por aqui');
+      print('Crear blog');
       var url = Uri.parse('http://10.0.2.2:5432/api/blogs');
       Map body = {
         'title': titleController.text.trim(),
         'description': descriptionController.text,
-        'content': contentController.text
+        'body_text': contentController.text,
+        'author': currentUser.id,
+        'date': DateTime.now().toString(),
       };
-      print('por aqui2');
+      print("as");
+      print(currentUser.id);
+      print("as");
+
+      print(body['author']);
+      print('datos de crear blog');
+      print(body);
+
       http.Response response =
           await http.post(url, body: jsonEncode(body), headers: headers);
 
-      print('por aqui3');
+      print('response de crear blog');
       print(response.body);
-      print(body);
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
         print("correcto");
-        if (json['auth'] == true) {
-          var token = json['token'];
-          final SharedPreferences? prefs = await _prefs;
-          await prefs?.setString('token', token);
-
+        if (json['status'] == "Blog saved") {
           titleController.clear();
           descriptionController.clear();
           contentController.clear();
-          print("correcto");
-          storage.setItem('token', token);
-          print("el token es: ");
-          print(token);
           Get.off(HomeScreen());
-        } else if (json['auth'] == false) {
+        } else if (json['status'] == false) {
           var message = jsonDecode(response.body)['message'];
           return message;
         }
@@ -75,7 +76,7 @@ class BlogController extends GetxController {
     final data = await http.get(Uri.parse('http://10.0.2.2:5432/api/blogs'));
     var jsonData = json.decode(data.body);
     for (var u in jsonData) {
-      print(data.body);
+      //print(data.body);
       Blog blog = Blog(
           //id: u["id"],
           title: u["title"],
@@ -90,7 +91,7 @@ class BlogController extends GetxController {
       print("VEMOS DATE" + blog.date);
       blogs.add(blog);
     }
-    print(blogs.length);
+    //print(blogs.length);
     return blogs;
   }
   /*Future<List<Object>> getObjects() async {

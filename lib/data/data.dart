@@ -1,7 +1,7 @@
 import 'package:frontend/models/user.dart';
 
 User currentUser = User(
-  //id: null,
+  id: "",
   username: "",
   password: "",
   email: "",

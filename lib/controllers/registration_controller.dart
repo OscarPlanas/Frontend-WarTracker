@@ -6,6 +6,7 @@ import 'package:frontend/screens/register.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:localstorage/localstorage.dart';
 
 class RegistrationController extends GetxController {
   TextEditingController nameController = TextEditingController();
@@ -16,7 +17,7 @@ class RegistrationController extends GetxController {
   //TextEditingController dateController = TextEditingController();
 
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-
+  final LocalStorage storage = new LocalStorage('My App');
   Future<String> registerWithEmail() async {
     try {
       var headers = {'Content-Type': 'application/json'};
@@ -83,6 +84,7 @@ class RegistrationController extends GetxController {
           usernameController.clear();
           repeatPasswordController.clear();
           print("correcto");
+          storage.setItem('token', token);
           Get.off(HomeScreen());
 
           return "correcto";

@@ -132,8 +132,8 @@ class _ProfileState extends State<Profile> {
 
   Widget buildCoverImage() => Container(
         color: Colors.grey,
-        child: Image.network(
-          'https://source.unsplash.com/1600x900/?nature',
+        child: Image.asset(
+          'assets/images/groguplaceholder.png',
           width: double.infinity,
           height: coverHeight,
           fit: BoxFit.cover,
@@ -143,8 +143,8 @@ class _ProfileState extends State<Profile> {
   Widget buildProfileImage() => CircleAvatar(
         radius: profileHeight / 2,
         backgroundColor: Colors.grey.shade800,
-        backgroundImage: NetworkImage(
-          'https://source.unsplash.com/1600x900/?person',
+        backgroundImage: AssetImage(
+          'assets/images/groguplaceholder.png',
         ),
       );
 

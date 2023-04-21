@@ -10,21 +10,19 @@ import 'package:localstorage/localstorage.dart';
 import 'package:frontend/screens/home.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:localstorage/localstorage.dart';
 
 class Body extends StatelessWidget {
+  //final LocalStorage storage1 = LocalStorage('My App');
+  //String? token = "";
+
   @override
-  void checkLogin() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    String? val = pref.getString("token");
-    if (val != null) {
-      Get.off(HomeScreen());
-    }
-  }
-
   Widget build(BuildContext context) {
-    final LocalStorage storage = new LocalStorage('My App');
-    print(storage.getItem('token'));
-
+    //final LocalStorage storage = new LocalStorage('My App');
+    //print("es este print de aqui al principio");
+    //print(storage.getItem('token'));
+    //print("si");
+    //checkLogin();
     Size size = MediaQuery.of(context).size;
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: 40, vertical: 120),
@@ -76,6 +74,15 @@ class Body extends StatelessWidget {
       ),
     );
   }
+
+  /*void checkLogin() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String? val = storage1.getItem("token");
+    if (val != null) {
+      Get.off(HomeScreen());
+    }
+    print("pasa por este login");
+  }*/
 }
 
 class WelcomeScreen extends StatefulWidget {
@@ -85,25 +92,33 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   String? token = "";
+  final LocalStorage storage1 = LocalStorage('My App');
+
   @override
   void initState() {
     super.initState();
-    getCred();
+    //getCred();
     checkLogin();
   }
 
-  void getCred() async {
+  /*void getCred() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
+    print(storage1.getItem('My App'));
+    print("pasamos al token");
     setState(() {
-      token = pref.getString("token");
+      token = storage1.getItem("token");
     });
     print(token);
     print("fffff");
-  }
+  }*/
 
   void checkLogin() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    String? val = pref.getString("token");
+    //SharedPreferences pref = await SharedPreferences.getInstance();
+    await storage1.ready;
+    final val1 = await storage1.getItem('token');
+    print("print de val1");
+    print(val1);
+    String? val = storage1.getItem("token");
 
     if (val != null) {
       Get.off(HomeScreen());

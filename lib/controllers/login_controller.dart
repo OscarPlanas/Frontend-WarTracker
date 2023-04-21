@@ -46,6 +46,8 @@ class LoginController extends GetxController {
           storage.setItem('token', token);
           print("el token es: ");
           print(token);
+          print("Haciendo storage get item");
+          print(storage.getItem("token"));
           Get.off(HomeScreen());
         } else if (json['auth'] == false) {
           var message = jsonDecode(response.body)['message'];

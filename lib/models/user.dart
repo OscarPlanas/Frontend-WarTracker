@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class User {
-  //final String id;
+  final String id;
   String name;
   String username;
   String email;
@@ -11,7 +11,7 @@ class User {
   //final String date;
 
   User({
-    //required this.id,
+    required this.id,
     required this.name,
     required this.username,
     //required this.image,
@@ -23,7 +23,7 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      //id: json['id'],
+      id: json['id'],
       name: json['name'],
       username: json['username'],
       //image: json['image'],

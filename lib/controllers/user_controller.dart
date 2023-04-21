@@ -24,7 +24,7 @@ class UserController extends GetxController {
   Future<void> getUser() async {
     User user;
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
+    String? token = storage.getItem('token');
     print(token);
     /* var decoded1 = JWT.decode(token!);
     print(decoded1);
@@ -32,61 +32,75 @@ class UserController extends GetxController {
 
     print('DECODEEEED AQUI');
 
-    Map<String, dynamic> decodedToken = JwtDecoder.decode(token!);
-    print(decodedToken);
-    String? userId = decodedToken['id'];
-    print(userId);
+    try {
+      Map<String, dynamic> decodedToken = JwtDecoder.decode(token!);
 
-    /*print(currentUser.name);
+      print(decodedToken);
+      String? userId = decodedToken['id'];
+      print(userId);
+
+      /*print(currentUser.name);
     print(currentUser.email);
     print('separacion');
     print(currentUser.username);
     print(currentUser.password);
     print(decoded);*/
 
-    //var json = jsonDecode(decoded.payload);
-    print('DECODEEEED AQUI2');
-    //print(json);
-    //var userId = decoded.;
-    //console.log(userId)
+      //var json = jsonDecode(decoded.payload);
+      print('DECODEEEED AQUI2');
+      //print(json);
+      //var userId = decoded.;
+      //console.log(userId)
 
-    final data = await http
-        .get(Uri.parse('http://10.0.2.2:5432/api/users/profile/' + userId!));
-    var jsonData = json.decode(data.body);
-    user = User(
-      //id: jsonData["id"],
-      username: jsonData["username"],
-      password: jsonData["password"],
-      email: jsonData["email"],
-      name: jsonData["name"],
+      final data = await http
+          .get(Uri.parse('http://10.0.2.2:5432/api/users/profile/' + userId!));
+      var jsonData = json.decode(data.body);
+      user = User(
+        id: userId,
+        username: jsonData["username"],
+        password: jsonData["password"],
+        email: jsonData["email"],
+        name: jsonData["name"],
 
-      //imageUrl: jsonData["imageUrl"],
-      //tasks: jsonData["tasks"],
-    );
-    print(user.password);
-    print(user.email);
-    print(user.username);
-    print(user.name);
-    print("ahora current");
-    currentUser = user;
-    print(currentUser.name);
-    print(currentUser.email);
-    print(currentUser.username);
+        //imageUrl: jsonData["imageUrl"],
+        //tasks: jsonData["tasks"],
+      );
+      print(user.id);
+      print(user.password);
+      print(user.email);
+      print(user.username);
+      print(user.name);
+      print("ahora current");
+      currentUser = user;
+      print(currentUser.name);
+      print(currentUser.email);
+      print(currentUser.username);
+    } catch (e) {
+      print(e);
+    }
+    //Map<String, dynamic> decodedToken = JwtDecoder.decode(token!);
+    //print(decodedToken);
+    //String? userId = decodedToken['id'];
+
     //return user;
   }
 
   Future<void> saveUser(String email, String password) async {
     getUser();
     print('saveUser');
-
+    String? token = storage.getItem('token');
+    //Map<String, dynamic> decodedToken = JwtDecoder.decode(token!);
+    //String userId = decodedToken['id'];
+    print("userid");
+    //print(userId);
     final User user = User(
-      //id: currentUser.id,
+      id: currentUser.id,
       username: currentUser.username,
       password: password,
       email: email,
       name: currentUser.name,
     );
-
+    print(user.id);
     currentUser = user;
   }
 // export const getUser = async (id: string) => {

@@ -42,7 +42,7 @@ class BlogScreen extends StatelessWidget {
                 SizedBox(height: 5),
                 Container(
                   width: double.infinity,
-                  child: Image.network("https://picsum.photos/250?image=9"),
+                  child: Image.asset("assets/images/laptopplaceholder.png"),
                 ),
                 SizedBox(height: 5),
                 Padding(
@@ -53,8 +53,8 @@ class BlogScreen extends StatelessWidget {
                     children: <Widget>[
                       ClipRRect(
                         borderRadius: BorderRadius.circular(50),
-                        child: Image.network(
-                          "https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/baby-yoda-nombre-1606753349.jpg?crop=0.75xw:1xh;center,top&resize=1200:*",
+                        child: Image.asset(
+                          "assets/images/groguplaceholder.png",
                           width: 50,
                           height: 50,
                         ),

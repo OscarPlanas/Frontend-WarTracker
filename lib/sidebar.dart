@@ -19,7 +19,9 @@ import 'package:frontend/data/data.dart';
 class Sidebar extends StatelessWidget {
   Sidebar({Key? key}) : super(key: key);
 
-  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  //final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  final LocalStorage storage1 = LocalStorage('My App');
+
   //final userFuture = UserController().getUser();
   //Future<User> user = UserController().getUser();
 
@@ -43,8 +45,7 @@ class Sidebar extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 52,
-              backgroundImage: NetworkImage(
-                  "https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/baby-yoda-nombre-1606753349.jpg?crop=0.75xw:1xh;center,top&resize=1200:*"),
+              backgroundImage: AssetImage("assets/images/groguplaceholder.png"),
             ),
             SizedBox(height: 6),
             Text(currentUser.username,
@@ -87,6 +88,11 @@ class Sidebar extends StatelessWidget {
               onTap: () => Get.offAll(Profile()),
             ),
             ListTile(
+              title: const Text('Chat'),
+              leading: const Icon(Icons.chat_outlined),
+              onTap: () => Get.offAll(HomeScreen()),
+            ),
+            ListTile(
               leading: const Icon(Icons.settings_outlined),
               title: const Text('Settings'),
               onTap: () => Get.offAll(HomeScreen()),
@@ -95,8 +101,11 @@ class Sidebar extends StatelessWidget {
               leading: const Icon(Icons.logout_outlined),
               title: const Text('Logout'),
               onTap: () async {
-                final SharedPreferences? prefs = await _prefs;
-                prefs?.clear();
+                //final SharedPreferences? prefs = await _prefs;
+                //prefs?.clear();
+                print("limpiamos localstorage");
+                await storage1.clear();
+                print(storage1.getItem("token"));
                 Get.offAll(WelcomeScreen());
               },
             ),
