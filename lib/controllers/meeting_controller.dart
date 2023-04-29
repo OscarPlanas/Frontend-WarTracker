@@ -2,7 +2,7 @@ import 'dart:convert';
 
 //import 'package:frontend/models/blogplaceholder.dart';
 import 'package:date_format/date_format.dart';
-import 'package:frontend/models/blog.dart';
+import 'package:frontend/models/meeting.dart';
 
 import 'package:frontend/screens/home.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +15,7 @@ import 'package:frontend/controllers/blog_controller.dart';
 import 'package:frontend/models/user.dart';
 import 'package:frontend/data/data.dart';
 
-class BlogController extends GetxController {
+class MeetingController extends GetxController {
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController contentController = TextEditingController();
@@ -72,47 +72,27 @@ class BlogController extends GetxController {
     }
   }
 
-  Future<List<Blog>> getBlogs() async {
-    List<Blog> blogs = [];
-    final data = await http.get(Uri.parse('http://10.0.2.2:5432/api/blogs'));
+  Future<List<Meeting>> getMeetings() async {
+    List<Meeting> meetings = [];
+    final data = await http.get(Uri.parse('http://10.0.2.2:5432/api/meetings'));
     var jsonData = json.decode(data.body);
     for (var u in jsonData) {
       //print(data.body);
-      Blog blog = Blog(
+      Meeting meeting = Meeting(
           //id: u["id"],
           title: u["title"],
           description: u["description"],
-          body_text: u["body_text"],
-          author: u["author"],
+          organizer: u["organizer"],
+          date: u["date"],
           //image: u["image"],
-
-          date: u["date"]);
+          location: u["location"],
+          registration_fee: u["registration_fee"]);
       //var owner = json.decode(blog.author.toString());
-      print("VEmOS AUTHOR " + blog.author['username']);
-      print("VEMOS DATE" + blog.date);
-      blogs.add(blog);
+      print("Vemos organizador del meeting " + meeting.organizer['username']);
+      print("Vemos date del meeting" + meeting.date);
+      meetings.add(meeting);
     }
     //print(blogs.length);
-    return blogs;
+    return meetings;
   }
-  /*Future<List<Object>> getObjects() async {
-  List<Object> objects = [];
-  final data = await http.get(Uri.parse('http://192.168.1.132:3000/objects/'));
-  var jsonData = json.decode(data.body);
-  for (var u in jsonData) {
-    print(data.body);
-    Object object = Object(
-        id: u["id"],
-        name: u["name"],
-        imageUrl: u["imageUrl"],
-        price: u["price"].toString(),
-        description: u['description'],
-        units: u['units']);
-
-    objects.add(object);
-  }
-  print(objects.length);
-  return objects;
-}
-}*/
 }

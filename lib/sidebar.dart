@@ -74,7 +74,7 @@ class Sidebar extends StatelessWidget {
             ListTile(
               title: const Text('Tournaments'),
               leading: const Icon(Icons.sports_esports_outlined),
-              onTap: () => Get.offAll(TournamentsScreen()),
+              onTap: () => Get.offAll(TournamentScreen()),
             ),
             ListTile(
               title: const Text('Leaderboard'),

@@ -64,7 +64,7 @@ class BlogScreen extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold)),
                       SizedBox(width: 10),
-                      Text(DateTime.now().toString(),
+                      Text(blog.date,
                           style: TextStyle(color: Colors.grey, fontSize: 16)),
                     ],
                   ),
