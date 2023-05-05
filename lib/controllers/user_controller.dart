@@ -103,6 +103,23 @@ class UserController extends GetxController {
     print(user.id);
     currentUser = user;
   }
+
+  Future<User> getOneUser(idUser) async {
+    final data =
+        await http.get(Uri.parse('http://10.0.2.2:5432/api/users/' + idUser));
+
+    var jsonData = json.decode(data.body);
+
+    User user = User(
+      id: jsonData["_id"],
+      username: jsonData["username"],
+      password: jsonData["password"],
+      email: jsonData["email"],
+      name: jsonData["name"],
+    );
+
+    return user;
+  }
 // export const getUser = async (id: string) => {
 //     return await axios.get(`${API}profile/${id}`);
 // }

@@ -2,20 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/models/meeting.dart';
 import 'package:frontend/controllers/meeting_controller.dart';
-// class MeetingScreen extends StatefulWidget {
-//   const MeetingScreen({Key? key}) : super(key: key);
+import 'package:get/get.dart';
 
-//   @override
-//   State<MeetingScreen> createState() => _MeetingScreenState();
-// }
-class MeetingScreen extends StatelessWidget {
-//class _MeetingScreenState extends State<MeetingScreen> {
-  static final String path = "lib/screens/meeting.dart";
+class MeetingScreen extends StatefulWidget {
   final Meeting meeting;
   MeetingScreen(this.meeting);
+  //const MeetingScreen({Key? key, Meeting? meeting}) : super(key: key);
+  //final Meeting meeting;
+  @override
+  State<MeetingScreen> createState() => _MeetingScreenState();
+}
+
+class _MeetingScreenState extends State<MeetingScreen> {
+//class _MeetingScreenState extends State<MeetingScreen> {
+  static final String path = "lib/screens/meeting.dart";
+  //final Meeting meeting;
+  var meeting;
+  //final Meeting meeting = Get.arguments;
+  //MeetingScreen(this.meeting);
   final String image = "assets/images/groguplaceholder.png";
+  MeetingController meetingController = Get.put(MeetingController());
+  bool _flag2 = false;
 
   @override
+  void initState() {
+    super.initState();
+    meetingController.getMeetings();
+    meeting = widget.meeting;
+    meetingController.userIsParticipant(meeting.id);
+    isParticipant();
+  }
+
+  /*Future<bool> new2() async {
+    _flag2 = await isParticipant();
+    return _flag2;
+  }*/
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -172,21 +194,35 @@ class MeetingScreen extends StatelessWidget {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
+                          onPressed: () => {
+                            setState(
+                              () => _flag2 = !_flag2,
+                            ),
+                            _flag2
+                                ? meetingController
+                                    .deleteParticipant(meeting.id)
+                                : meetingController.addParticipant(meeting.id),
+                          },
+                          child: Text(_flag2 ? 'Sign Up' : 'Sign Out'),
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30.0)),
-                            backgroundColor: Background,
+                            backgroundColor: _flag2 ? Background : Colors.red,
                             foregroundColor: ButtonBlack,
                             padding: const EdgeInsets.symmetric(
                               vertical: 16.0,
                               horizontal: 32.0,
                             ),
                           ),
-                          child: const Text(
-                            "Sign Up",
-                            style: TextStyle(fontWeight: FontWeight.normal),
-                          ),
-                          onPressed: () {},
+                          /*
+                          onPressed: () => setState(() => _flag = !_flag),
+                          child: Text(_flag ? 'Sign Up' : 'Sign Out');*/
+                          /*meetingController.addParticipant(meeting.id);
+                            setState(() => _flag = !_flag);
+                            
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _flag ? Colors.green : Colors.red,
+                            );*/
                         ),
                       ),
                       const SizedBox(height: 30.0),
@@ -212,5 +248,24 @@ class MeetingScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> isParticipant() async {
+    print("entra en lo nuevo de meeting participant");
+    MeetingController meetingController = await Get.put(MeetingController());
+    print(meeting.id);
+    print(meetingController);
+    bool _isParticipant = await meetingController.userIsParticipant(meeting.id);
+    print("true o false");
+    print(_isParticipant);
+    if (_isParticipant == true) {
+      setState(() {
+        _flag2 = false;
+      });
+    } else {
+      setState(() {
+        _flag2 = true;
+      });
+    }
   }
 }

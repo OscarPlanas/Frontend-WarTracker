@@ -11,9 +11,9 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:frontend/controllers/blog_controller.dart';
 import 'package:frontend/models/user.dart';
 import 'package:frontend/data/data.dart';
+import 'package:frontend/controllers/user_controller.dart';
 
 class MeetingController extends GetxController {
   TextEditingController titleController = TextEditingController();
@@ -22,56 +22,6 @@ class MeetingController extends GetxController {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   final LocalStorage storage = new LocalStorage('My App');
 
-  Future<String> createBlog() async {
-    try {
-      var headers = {'Content-Type': 'application/json'};
-
-      print('Crear blog');
-      var url = Uri.parse('http://10.0.2.2:5432/api/blogs');
-      Map body = {
-        'title': titleController.text.trim(),
-        'description': descriptionController.text,
-        'body_text': contentController.text,
-        'author': currentUser.id,
-        'date': formatDate(DateTime.now(), [dd, '/', mm, '/', yyyy]),
-      };
-      print("as");
-      print(currentUser.id);
-      print("as");
-
-      print(body['author']);
-      print('datos de crear blog');
-      print(body);
-
-      http.Response response =
-          await http.post(url, body: jsonEncode(body), headers: headers);
-
-      print('response de crear blog');
-      print(response.body);
-
-      if (response.statusCode == 200) {
-        final json = jsonDecode(response.body);
-        print("correcto");
-        if (json['status'] == "Blog saved") {
-          titleController.clear();
-          descriptionController.clear();
-          contentController.clear();
-          Get.off(HomeScreen());
-        } else if (json['status'] == false) {
-          var message = jsonDecode(response.body)['message'];
-          return message;
-        }
-      } else {
-        var message2 = jsonDecode(response.body)['message'];
-        return message2;
-      }
-      return "Unknown Error Occured";
-    } catch (error) {
-      Get.back();
-      return "Unknown Error Occured";
-    }
-  }
-
   Future<List<Meeting>> getMeetings() async {
     List<Meeting> meetings = [];
     final data = await http.get(Uri.parse('http://10.0.2.2:5432/api/meetings'));
@@ -79,20 +29,90 @@ class MeetingController extends GetxController {
     for (var u in jsonData) {
       //print(data.body);
       Meeting meeting = Meeting(
-          //id: u["id"],
+          id: u["_id"],
           title: u["title"],
           description: u["description"],
           organizer: u["organizer"],
           date: u["date"],
           //image: u["image"],
           location: u["location"],
-          registration_fee: u["registration_fee"]);
+          registration_fee: u["registration_fee"],
+          participants: u["participants"]);
       //var owner = json.decode(blog.author.toString());
-      print("Vemos organizador del meeting " + meeting.organizer['username']);
-      print("Vemos date del meeting" + meeting.date);
       meetings.add(meeting);
     }
     //print(blogs.length);
     return meetings;
+  }
+
+  Future<Meeting> getOneMeeting(idMeeting) async {
+    final data = await http
+        .get(Uri.parse('http://10.0.2.2:5432/api/meetings/' + idMeeting));
+
+    var jsonData = json.decode(data.body);
+
+    Meeting meeting = Meeting(
+        id: jsonData["_id"],
+        title: jsonData["title"],
+        description: jsonData["description"],
+        organizer: jsonData["organizer"],
+        date: jsonData["date"],
+        //image: u["image"],
+        location: jsonData["location"],
+        registration_fee: jsonData["registration_fee"],
+        participants: jsonData["participants"]);
+
+    return meeting;
+  }
+
+  void addParticipant(idMeeting) async {
+    print("Vemos id del jugador a unirse " + currentUser.id);
+    print("Vemos id del meeting a unirse " + idMeeting);
+    var headers = {'Content-Type': 'application/json'};
+
+    await http.put(
+      Uri.parse('http://10.0.2.2:5432/api/meetings/join/' +
+          currentUser.id +
+          '/' +
+          idMeeting),
+    );
+
+    print("ha pasado " + currentUser.id);
+  }
+
+  void deleteParticipant(idMeeting) async {
+    print("Vemos id del jugador a desapuntarse " + currentUser.id);
+    print("Vemos id del meeting a desapuntarse " + idMeeting);
+    var headers = {'Content-Type': 'application/json'};
+    await http.put(
+      Uri.parse('http://10.0.2.2:5432/api/meetings/leave/' +
+          currentUser.id +
+          '/' +
+          idMeeting),
+    );
+    print("ha pasado para desapuntarse " + currentUser.id);
+  }
+
+  Future<bool> userIsParticipant(idMeeting) async {
+    bool isParticipant = false;
+    Meeting meeting = await getOneMeeting(idMeeting);
+    var a = meeting.participants;
+
+    print(a.map((participants) => participants["_id"]).toList());
+
+    print(a
+        .map((participants) => participants["_id"])
+        .toList()
+        .contains(currentUser.id));
+    print("IMPORTANTE");
+    if (a
+        .map((participants) => participants["_id"])
+        .toList()
+        .contains(currentUser.id)) {
+      isParticipant = true;
+    }
+
+    print(isParticipant);
+    return isParticipant;
   }
 }
