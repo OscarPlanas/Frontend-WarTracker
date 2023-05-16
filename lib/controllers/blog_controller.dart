@@ -25,6 +25,8 @@ class BlogController extends GetxController {
   Future<String> createBlog() async {
     try {
       var headers = {'Content-Type': 'application/json'};
+      print(titleController.text);
+      print("controller arriba");
 
       print('Crear blog');
       var url = Uri.parse('http://10.0.2.2:5432/api/blogs');

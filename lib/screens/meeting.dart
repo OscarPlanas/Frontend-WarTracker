@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/models/meeting.dart';
 import 'package:frontend/controllers/meeting_controller.dart';
+import 'package:frontend/screens/game.dart';
+import 'package:frontend/screens/game_management.dart';
 import 'package:get/get.dart';
 
 class MeetingScreen extends StatefulWidget {
@@ -246,6 +248,13 @@ class _MeetingScreenState extends State<MeetingScreen> {
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Get.offAll(GameManagementPage());
+        },
+        child: Icon(Icons.add, color: ButtonBlack),
+        backgroundColor: Background,
       ),
     );
   }

@@ -44,6 +44,7 @@ dependencies:
   localstorage: ^4.0.0+1
   dart_jsonwebtoken: ^2.7.1
   jwt_decoder: ^2.0.1
+  json_table: ^2.0.1
 
 dev_dependencies:
   flutter_test:
