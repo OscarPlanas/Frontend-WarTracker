@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class BlogPlace {
   final String title;
   final String description;

@@ -9,7 +9,6 @@ class InputTextFieldWidget extends StatelessWidget {
   final IconData icon;
   final String title;
   final bool hiddenText = true;
-  bool _obscureText = false;
 
   //setState(() {});
 

@@ -1,22 +1,11 @@
-//import 'dart:html';
-
 import 'package:flutter/material.dart';
-// import 'package:flutter_auth/Screens/Feed/feed_screen.dart';
-// import 'package:flutter_auth/Screens/Login/login_screen.dart';
-// import 'package:flutter_auth/Screens/Map/ui/pages/home/map_screen.dart';
-// import 'package:flutter_auth/Screens/Signup/signup_screen.dart';
-// import 'package:flutter_auth/components/already_have_an_account_acheck.dart';
-import 'package:frontend/components/rounded_button.dart';
-import 'package:frontend/components/rounded_input_field.dart';
+
 import 'package:frontend/components/input_fields.dart';
 import 'package:frontend/components/submit_button.dart';
 import 'package:frontend/components/already_have_an_account_acheck.dart';
 
-// import 'package:flutter_auth/components/rounded_password_field.dart';
 import 'package:frontend/constants.dart';
-// import 'package:flutter_auth/data/data.dart';
-// import 'package:localstorage/localstorage.dart';
-import 'package:frontend/controllers/login_controller.dart';
+
 import 'package:frontend/controllers/registration_controller.dart';
 import 'package:frontend/screens/login.dart';
 import 'package:get/get.dart';

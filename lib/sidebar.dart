@@ -1,19 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/welcome.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:frontend/constants.dart';
 import 'package:localstorage/localstorage.dart';
-//import 'package:frontend/models/blogplaceholder.dart';
-import 'package:frontend/models/blog.dart';
-import 'package:frontend/screens/login.dart';
+
 import 'package:frontend/screens/home.dart';
 import 'package:frontend/screens/tournaments.dart';
-import 'package:frontend/screens/blog.dart';
-import 'package:frontend/controllers/blog_controller.dart';
 import 'package:frontend/screens/profile.dart';
-import 'package:frontend/controllers/user_controller.dart';
-import 'package:frontend/models/user.dart';
 import 'package:frontend/data/data.dart';
 
 class Sidebar extends StatelessWidget {

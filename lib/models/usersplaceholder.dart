@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class UserPlace {
   final String name;
   final String username;

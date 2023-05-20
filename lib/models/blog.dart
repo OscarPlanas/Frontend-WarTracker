@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:frontend/models/user.dart';
-
 class Blog {
   //final String id;
   String title;

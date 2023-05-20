@@ -1,6 +1,5 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/data/data.dart';
+
 import 'package:frontend/models/meeting.dart';
 import 'package:frontend/controllers/meeting_controller.dart';
 import 'package:frontend/screens/meeting.dart';

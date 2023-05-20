@@ -1,25 +1,19 @@
 import 'dart:convert';
 
-//import 'package:frontend/models/blogplaceholder.dart';
 import 'package:date_format/date_format.dart';
 import 'package:frontend/models/blog.dart';
 
 import 'package:frontend/screens/home.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/login.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:frontend/controllers/blog_controller.dart';
-import 'package:frontend/models/user.dart';
 import 'package:frontend/data/data.dart';
 
 class BlogController extends GetxController {
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController contentController = TextEditingController();
-  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   final LocalStorage storage = new LocalStorage('My App');
 
   Future<String> createBlog() async {

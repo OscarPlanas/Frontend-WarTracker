@@ -2,15 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:frontend/screens/login.dart';
 import 'package:frontend/screens/register.dart';
 
-//import 'package:flutter_auth/Screens/Signup/signup_screen.dart';
 import 'package:frontend/components/rounded_button.dart';
 import 'package:frontend/constants.dart';
-//import 'package:frontend/main.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:frontend/screens/home.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:localstorage/localstorage.dart';
 
 class Body extends StatelessWidget {
   //final LocalStorage storage1 = LocalStorage('My App');

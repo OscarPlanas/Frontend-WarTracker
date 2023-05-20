@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/welcome.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:frontend/constants.dart';
-import 'package:localstorage/localstorage.dart';
-//import 'package:frontend/models/blogplaceholder.dart';
 import 'package:frontend/models/blog.dart';
-import 'package:frontend/screens/login.dart';
 import 'package:frontend/screens/blog.dart';
 import 'package:frontend/controllers/blog_controller.dart';
 import 'package:frontend/sidebar.dart';
 import 'package:frontend/controllers/user_controller.dart';
 import 'package:frontend/screens/create_blog.dart';
 
-//import 'package:frontend/screens/register.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
@@ -22,7 +16,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   //final BlogController blogController = Get.put(BlogController());
   //final Future<List<Blog>> blogs = BlogController().getBlogs();
   Future<List<Blog>> blogsFuture = BlogController().getBlogs();

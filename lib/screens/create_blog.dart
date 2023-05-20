@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
-import 'package:frontend/screens/blog.dart';
 import 'package:frontend/screens/home.dart';
 import 'package:get/get.dart';
 import 'package:frontend/controllers/blog_controller.dart';

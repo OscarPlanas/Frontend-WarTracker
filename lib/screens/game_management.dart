@@ -1,91 +1,79 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:frontend/models/usersplaceholder.dart';
-import 'package:frontend/utils.dart';
-import 'package:frontend/components/scrollable_widget.dart';
-import 'package:frontend/components/text_dialog_widget.dart';
-import 'package:frontend/sidebar.dart';
-import 'package:frontend/constants.dart';
-import 'package:http/http.dart' as http;
-import 'package:frontend/controllers/game_controller.dart';
-import 'package:get/get.dart';
-import 'package:json_table/json_table.dart';
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:frontend/components/scrollable_widget.dart';
+import 'package:frontend/constants.dart';
+import 'package:frontend/controllers/game_controller.dart';
+import 'package:frontend/sidebar.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:json_table/json_table.dart';
+
 class GameManagementPage extends StatefulWidget {
+  final String meetingId;
+  GameManagementPage(this.meetingId);
   @override
   _GameManagementPageState createState() => _GameManagementPageState();
 }
 
 class _GameManagementPageState extends State<GameManagementPage> {
-  //final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   GameController gameController = Get.put(GameController());
-  //late List<dynamic> game;
-/*static final String jsonSample = ‘[‘ +
-‘{“Date”:”24-Apr”, “Excercise”: “Done”, “Homework”: “Not done”},’ +
-‘{“Date”:”25-Apr”, “Excercise”: “Not Done”, “Homework”: “Not done”}’ +
-‘]’;*/
 
   List<Map<String, dynamic>> jsonSample = [
     {
-      'players': 'a',
-      'alliance': 'b',
-      'victory points in favour': 'c',
-      'victory points against': 'd',
-      'difference of victory points': 'e',
-      'games played': 'f'
+      'player': '',
+      'tournament': '',
+      'alliance': '',
+      'victory_points_favour': '',
+      'victory_points_against': '',
+      'difference_points': '',
+      'leaders_eliminated': '',
     }
+  ];
+  var columns = [
+    JsonTableColumn("tournament.title", label: "Tournament"),
+    JsonTableColumn("player.username", label: "Player"),
+    JsonTableColumn("alliance", label: "Alliance"),
+    JsonTableColumn("victory_points_favour", label: "Victory points in favour"),
+    JsonTableColumn("victory_points_against", label: "Victory points against"),
+    JsonTableColumn("difference_points", label: "Points difference"),
+    JsonTableColumn("games_played", label: "Games played"),
+    JsonTableColumn("leaders_eliminated", label: "Leaders eliminated"),
   ];
   var json2;
   var game2;
   var game3;
   static final String jsonSample2 =
-      '[{"players":"a","alliance":"b","victory points in favour":"c","victory points against":"d","difference of victory points":"e","games played":"f"}, {"players":"a","alliance":"b","victory points in favour":"c","victory points against":"d","difference of victory points":"e","games played":"f"}]';
+      '[{"player":"","alliance":"","tournament":"","victory_points_favour":"","victory_points_against":"","difference_points":"", "leaders_eliminated":"", "games_played":""}]';
   var json = jsonDecode(jsonSample2);
   var gm;
   bool loading = true;
-  Future<void> getGames() async {
-    //List<dynamic> games = [];
+
+  Future<void> getGameByTournament(idTournament) async {
     setState(() => loading = true);
-    var placeholder;
-    final data = await http.get(Uri.parse('http://10.0.2.2:5432/api/games'));
-    print("data de get games");
-    print(data.body);
-    //var jsonData = json.decode(data.body);
-    print("json data de get games");
-    //print(jsonData);
-    placeholder = data.body;
-    print(placeholder);
-    game2 = jsonDecode(placeholder);
-    //game2 = jsonEncode(data.body);
-    print("aaaaaaaaaaaaaaaaa");
+
+    final data = await http.get(
+        Uri.parse('http://10.0.2.2:5432/api/games/tournament/' + idTournament));
+    print("data de get games" + data.body);
+    print("get game by tournament");
+
+    game2 = jsonDecode(data.body);
     print(game2);
     setState(() => loading = false);
   }
 
-  /*bool loading = true;
-  Future<void> readJson() async {
-    setState(() => loading = true);
-    response = await rootBundle.loadString('assets/cfg/onboarding_tasks.json');
-    final onboardingTodo = onboardingTodoFromJson(response);
-    onboardingTasks.addAll(onboardingTodo.values);
-    print("onboarding length - " + onboardingTasks.length.toString());
-    setState(() => loading = false);
-  }*/
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => getGames());
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => getGameByTournament(widget.meetingId));
 
-    getGames();
-    //gm = jsonDecode(game2);
     print(gm);
     print("a");
-    //json2 = jsonDecode(game);
     print("print de game2 dentro del initstate");
     print(game2);
     print("print de json2 dentro del initstate");
-    //print(json2);
   }
 
   ProgressIndicator get Progress => const CircularProgressIndicator();
@@ -102,7 +90,8 @@ class _GameManagementPageState extends State<GameManagementPage> {
             ),
             body: ScrollableWidget(
                 child: JsonTable(
-              game2,
+              game2.isNotEmpty ? game2 : json,
+              columns: columns,
               tableHeaderBuilder: (String? header) {
                 return Container(
                   padding:

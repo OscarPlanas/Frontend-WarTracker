@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:frontend/sidebar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:frontend/components/numbers_widget.dart';
-import 'package:frontend/sidebar.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/data/data.dart';
 

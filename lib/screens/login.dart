@@ -1,29 +1,14 @@
-//import 'dart:html';
-
 import 'package:flutter/material.dart';
-// import 'package:flutter_auth/Screens/Feed/feed_screen.dart';
-// import 'package:flutter_auth/Screens/Login/login_screen.dart';
-// import 'package:flutter_auth/Screens/Map/ui/pages/home/map_screen.dart';
-// import 'package:flutter_auth/Screens/Signup/signup_screen.dart';
-// import 'package:flutter_auth/components/already_have_an_account_acheck.dart';
-import 'package:frontend/components/rounded_button.dart';
-import 'package:frontend/components/rounded_input_field.dart';
+
 import 'package:frontend/components/input_fields.dart';
 import 'package:frontend/components/submit_button.dart';
-// import 'package:flutter_auth/components/rounded_password_field.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/components/already_have_an_account_acheck.dart';
 
-// import 'package:flutter_auth/data/data.dart';
-// import 'package:localstorage/localstorage.dart';
 import 'package:frontend/controllers/login_controller.dart';
 import 'package:frontend/controllers/registration_controller.dart';
-import 'package:frontend/screens/home.dart';
 import 'package:frontend/screens/register.dart';
 import 'package:get/get.dart';
-import 'package:localstorage/localstorage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:frontend/data/data.dart';
 import 'package:frontend/controllers/user_controller.dart';
 
 class Body extends StatefulWidget {
@@ -46,8 +31,6 @@ class _BodyState extends State<Body> {
 
   @override
   Widget build(BuildContext context) {
-    final LocalStorage storage = new LocalStorage('My App');
-
     Size size = MediaQuery.of(context).size;
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: 40, vertical: 100),

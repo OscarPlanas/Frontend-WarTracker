@@ -1,7 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:frontend/models/user.dart';
-import 'package:intl/intl.dart';
-
 class Meeting {
   String id;
   String title;
