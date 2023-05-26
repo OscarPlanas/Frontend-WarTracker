@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/models/meeting.dart';
 import 'package:frontend/controllers/meeting_controller.dart';
+import 'package:frontend/screens/game.dart';
 import 'package:frontend/screens/game_management.dart';
 import 'package:get/get.dart';
 
@@ -250,7 +251,7 @@ class _MeetingScreenState extends State<MeetingScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           //Get.offAll(GameManagementPage(meeting.id));
-          Get.to(GameManagementPage(meeting.id));
+          Get.to(GameScreen(meeting.id));
         },
         child: Icon(Icons.add, color: ButtonBlack),
         backgroundColor: Background,

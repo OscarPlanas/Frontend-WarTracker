@@ -7,6 +7,7 @@ import 'package:frontend/screens/tournaments.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
+import 'dart:convert';
 
 class GameController extends GetxController {
   TextEditingController playersController = TextEditingController();
@@ -21,24 +22,15 @@ class GameController extends GetxController {
 
   final LocalStorage storage = new LocalStorage('My App');
 
-  Future<String> createGame() async {
+  Future<String> createGame(jsonData, id) async {
     try {
       var headers = {'Content-Type': 'application/json'};
 
       print('Crear game');
-      print(playersController);
-      print("controller arriba");
-      var url = Uri.parse('http://10.0.2.2:5432/api/games');
-      Map body = {
-        'players': playersController.text.trim(),
-        'alliance': allianceController.text,
-        'victory_points_in_favour': victoryPointsInFavourController.text,
-        'victory_points_against': victoryPointsAgainstController.text,
-        'difference_points': differenceOfVictoryPointsController.text,
-        'games_played': gamesPlayedController.text,
-      };
+      var url = Uri.parse('http://10.0.2.2:5432/api/games/tournament/' + id);
+      Map body = jsonData;
 
-      print(body['alliance']);
+      print(body);
       print('todos datos de crear game');
       print(body);
 
@@ -52,12 +44,6 @@ class GameController extends GetxController {
         final json = jsonDecode(response.body);
         print("correcto");
         if (json['status'] == "Game saved") {
-          playersController.clear();
-          allianceController.clear();
-          victoryPointsInFavourController.clear();
-          victoryPointsAgainstController.clear();
-          differenceOfVictoryPointsController.clear();
-          gamesPlayedController.clear();
           Get.off(TournamentScreen());
         } else if (json['status'] == false) {
           var message = jsonDecode(response.body)['message'];
@@ -82,6 +68,37 @@ class GameController extends GetxController {
     print("json data de get games");
     print(jsonData);
     return jsonData;
+  }
+
+  /*
+  Future<List<Map<String, dynamic>>> fetchGames() async {
+  final url = Uri.parse('http://your-api-url-here');
+  final response = await http.get(url);
+
+  if (response.statusCode == 200) {
+    final List<dynamic> data = jsonDecode(response.body);
+    final List<Map<String, dynamic>> games = List<Map<String, dynamic>>.from(data);
+    return games;
+  } else {
+    throw Exception('Failed to fetch games');
+  }
+}*/
+  Future<List<Map<String, dynamic>>> fetchGames(meetingid) async {
+    print("fetch games1");
+    var url =
+        Uri.parse('http://10.0.2.2:5432/api/games/tournament/' + meetingid);
+    var response = await http.get(url);
+    print("fetch games");
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonData = json.decode(response.body);
+      final List<Map<String, dynamic>> games =
+          jsonData.cast<Map<String, dynamic>>();
+      print("games");
+      print(games);
+      return games;
+    } else {
+      throw Exception('Failed to fetch games');
+    }
   }
 
   Future<List<Meeting>> getMeetings() async {
