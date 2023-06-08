@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/controllers/game_controller.dart';
+import 'package:frontend/data/data.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
@@ -19,6 +20,12 @@ class _GameScreenState extends State<GameScreen> {
 
   int _sortColumnIndex = 0;
   bool _sortAscending = true;
+  int _nextId = 1;
+  bool isOwner = false;
+  bool? _isEditMode = false;
+  Map<int, bool> _editableCells =
+      {}; // Map to track the editing state of each cell
+  List<List<TextEditingController>> controllersList = [];
 
   Future<List<Map<String, dynamic>>> fetchGames(String meetingId) async {
     var url =
@@ -29,7 +36,7 @@ class _GameScreenState extends State<GameScreen> {
       final List<dynamic> data = jsonDecode(response.body);
       final List<Map<String, dynamic>> games =
           List<Map<String, dynamic>>.from(data);
-      print(games);
+      //print(games);
       return games;
     } else {
       throw Exception('Failed to fetch games');
@@ -42,16 +49,69 @@ class _GameScreenState extends State<GameScreen> {
 
       List<DataRow> newRows = [];
       for (var game in games) {
+        game['id'] = _nextId++;
         DataRow newRow = DataRow(
           cells: [
             //DataCell(Text(game['tournament']['title'])),
-            DataCell(Text(game['player']['username'])),
-            DataCell(Text(game['alliance'])),
-            DataCell(Text(game['victory_points_favour'].toString())),
-            DataCell(Text(game['victory_points_against'].toString())),
-            DataCell(Text(game['difference_points'].toString())),
-            DataCell(Text(game['games_played'].toString())),
-            DataCell(Text(game['leaders_eliminated'].toString())),
+            DataCell(TextField(
+              controller:
+                  TextEditingController(text: game['player']['username']),
+              onChanged: (newValue) {
+                // Update the value in the data source when the text field changes
+                game['player']['username'] = newValue;
+              },
+            )),
+            DataCell(TextField(
+              controller: TextEditingController(text: game['alliance']),
+              onChanged: (newValue) {
+                game['alliance'] = newValue;
+              },
+            )),
+            DataCell(TextField(
+              controller: TextEditingController(
+                  text: game['victory_points_favour'].toString()),
+              onChanged: (newValue) {
+                game['victory_points_favour'] = int.parse(newValue);
+              },
+            )),
+            DataCell(TextField(
+              controller: TextEditingController(
+                  text: game['victory_points_against'].toString()),
+              onChanged: (newValue) {
+                game['victory_points_against'] = int.parse(newValue);
+              },
+            )),
+            DataCell(TextField(
+              controller: TextEditingController(
+                  text: game['difference_points'].toString()),
+              onChanged: (newValue) {
+                game['difference_points'] = int.parse(newValue);
+              },
+            )),
+            DataCell(TextField(
+              controller:
+                  TextEditingController(text: game['games_played'].toString()),
+              onChanged: (newValue) {
+                game['games_played'] = int.parse(newValue);
+              },
+            )),
+            DataCell(TextField(
+              controller: TextEditingController(
+                  text: game['leaders_eliminated'].toString()),
+              onChanged: (newValue) {
+                game['leaders_eliminated'] = int.parse(newValue);
+              },
+            )),
+            DataCell(IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: () {
+                print("game de una fila");
+                print(game);
+                print(game['_id']);
+                // Delete the row when the delete button is pressed
+                _deleteRow(game);
+              },
+            )),
           ],
         );
         newRows.add(newRow);
@@ -62,6 +122,26 @@ class _GameScreenState extends State<GameScreen> {
       });
     } catch (e) {
       print('Error fetching games: $e');
+    }
+  }
+
+  void _deleteRow(Map<String, dynamic> game) async {
+    var gameId = game['_id'];
+    print("entramos en _deleteRow");
+    if (isOwner) {
+      var url = Uri.parse('http://10.0.2.2:5432/api/games/row/$gameId');
+      var response = await http.delete(url);
+
+      if (response.statusCode == 200) {
+        // Row deleted successfully, update the table data
+        _updateTableData();
+      } else {
+        print('Failed to delete row: ${response.body}');
+      }
+      print("delete");
+    } else {
+      print("no eres el owner");
+      openDialog("You can't delete this row, you are not the owner");
     }
   }
 
@@ -95,17 +175,28 @@ class _GameScreenState extends State<GameScreen> {
         final valueA = _extractValue(a.cells[columnIndex].child);
         final valueB = _extractValue(b.cells[columnIndex].child);
 
-        // Handle null values
-        if (valueA == "null" && valueB == "null") {
-          return 0; // Both values are null, consider them equal
-        } else if (valueA == "null") {
-          return ascending ? -1 : 1; // Null value is considered lower
-        } else if (valueB == "null") {
-          return ascending ? 1 : -1; // Null value is considered lower
-        }
+        if (valueA is num && valueB is num) {
+          return ascending
+              ? valueA.compareTo(valueB)
+              : valueB.compareTo(valueA);
+        } else if (valueA is String && valueB is String) {
+          return ascending
+              ? valueA.compareTo(valueB)
+              : valueB.compareTo(valueA);
+        } else {
+          // Handle null values
+          if (valueA == null && valueB == null) {
+            return 0; // Both values are null, consider them equal
+          } else if (valueA == null) {
+            return ascending ? -1 : 1; // Null value is considered lower
+          } else if (valueB == null) {
+            return ascending ? 1 : -1; // Null value is considered lower
+          }
 
-        // Compare non-null values
-        return ascending ? valueA.compareTo(valueB) : valueB.compareTo(valueA);
+          // Handle other types or incompatible types
+          // You can customize this logic based on your requirements
+          return 0; // Do not change the order if types are different
+        }
       });
     });
   }
@@ -115,8 +206,37 @@ class _GameScreenState extends State<GameScreen> {
       final textValue = child.data;
       final parsedInt = int.tryParse(textValue ?? '');
       return parsedInt != null ? parsedInt : textValue;
+    } else if (child is TextField) {
+      final textValue = child.controller!.text;
+      final parsedInt = int.tryParse(textValue);
+      return parsedInt != null ? parsedInt : textValue;
+    } else if (child is RichText) {
+      final textValue = child.text.toPlainText();
+      final parsedInt = int.tryParse(textValue);
+      return parsedInt != null ? parsedInt : textValue;
     }
     return null;
+  }
+
+  Future<void> checkIsOwner() async {
+    print("checkIsOwner");
+    var url =
+        Uri.parse('http://10.0.2.2:5432/api/meetings/' + widget.meetingId);
+    var response = await http.get(url);
+    var data = jsonDecode(response.body);
+    print(data['organizer']['username']);
+
+    currentUser.username == data['organizer']['username']
+        ? isOwner = true
+        : isOwner = false;
+
+    print(isOwner);
+    //print(data);
+    // if (gameController.game.value.owner == gameController.user.value.id) {
+    //   return true;
+    // } else {
+    //   return false;
+    // }
   }
 
   @override
@@ -124,6 +244,7 @@ class _GameScreenState extends State<GameScreen> {
     super.initState();
     print("initState");
     _updateTableData();
+    checkIsOwner();
   }
 
   @override
@@ -212,7 +333,7 @@ class _GameScreenState extends State<GameScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   constraints: BoxConstraints(minHeight: 48),
                   child: SizedBox(
-                    width: 150, // Set the desired width
+                    width: 200, // Set the desired width
                     child: InkWell(
                       onTap: () {
                         _sortColumn(2, !_sortAscending);
@@ -244,7 +365,7 @@ class _GameScreenState extends State<GameScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   constraints: BoxConstraints(minHeight: 48),
                   child: SizedBox(
-                    width: 150, // Set the desired width
+                    width: 200, // Set the desired width
                     child: InkWell(
                       onTap: () {
                         _sortColumn(3, !_sortAscending);
@@ -275,7 +396,7 @@ class _GameScreenState extends State<GameScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   constraints: BoxConstraints(minHeight: 48),
                   child: SizedBox(
-                    width: 150, // Set the desired width
+                    width: 200, // Set the desired width
                     child: InkWell(
                       onTap: () {
                         _sortColumn(4, !_sortAscending);
@@ -305,7 +426,7 @@ class _GameScreenState extends State<GameScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   constraints: BoxConstraints(minHeight: 48),
                   child: SizedBox(
-                    width: 100, // Set the desired width
+                    width: 150, // Set the desired width
                     child: InkWell(
                       onTap: () {
                         _sortColumn(5, !_sortAscending);
@@ -362,6 +483,11 @@ class _GameScreenState extends State<GameScreen> {
                   ),
                 ),
               ),
+              //if (isOwner)
+              DataColumn(
+                label: Text('Delete'),
+              ),
+              //DataColumn(label: Text('Delete')),
             ],
             rows: dataRows,
             headingTextStyle:
@@ -378,27 +504,29 @@ class _GameScreenState extends State<GameScreen> {
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-                backgroundColor: Background, foregroundColor: ButtonBlack),
-            onPressed: () async => {
-              setState(
-                () {
-                  _addDataRow();
-                },
-              )
-            },
-            child: Icon(Icons.add),
-          ),
+          if (isOwner)
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Background, foregroundColor: ButtonBlack),
+              onPressed: () async => {
+                setState(
+                  () {
+                    _addDataRow();
+                  },
+                )
+              },
+              child: Icon(Icons.add),
+            ),
           SizedBox(width: 10.0),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-                backgroundColor: Background, foregroundColor: ButtonBlack),
-            onPressed: () {
-              _saveData();
-            },
-            child: Icon(Icons.save),
-          ),
+          if (isOwner)
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Background, foregroundColor: ButtonBlack),
+              onPressed: () {
+                _saveData();
+              },
+              child: Icon(Icons.save),
+            ),
         ],
       ),
     );
@@ -413,25 +541,42 @@ class _GameScreenState extends State<GameScreen> {
       controllers.add(controller);
       cells.add(DataCell(TextField(controller: controller)));
     }
+    // Add a delete button cell
+    cells.add(DataCell(IconButton(
+      icon: Icon(Icons.delete),
+      onPressed: () {},
+    )));
 
     setState(() {
       dataRows.add(DataRow(cells: cells));
+      controllersList.add(controllers);
     });
   }
 
   void _saveData() async {
     List<Map<String, dynamic>> data = [];
 
-    for (DataRow row in dataRows) {
+    for (int i = 0; i < dataRows.length; i++) {
+      DataRow row = dataRows[i];
       List<dynamic> rowData = [];
-      for (DataCell cell in row.cells) {
+      List<TextEditingController> rowControllers = [];
+
+      for (int j = 0; j < row.cells.length - 1; j++) {
+        // Exclude the last cell (delete button)
+        DataCell cell = row.cells[j];
+        TextEditingController controller = TextEditingController();
+        String cellValue = '';
+
         if (cell.child is TextField) {
-          TextField textField = cell.child as TextField;
-          rowData.add(textField.controller!.text);
-        } else {
-          rowData.add((cell.child as Text).data);
+          cellValue = (cell.child as TextField).controller!.text;
+          controller.text = cellValue;
         }
+
+        rowControllers.add(controller);
+        rowData.add(cellValue);
       }
+
+      controllersList.add(rowControllers);
 
       Map<String, dynamic> formattedRowData = {
         'tournament': widget.meetingId,
@@ -461,8 +606,46 @@ class _GameScreenState extends State<GameScreen> {
     http.StreamedResponse response = await request.send();
     String responseBody = await response.stream.bytesToString();
     print(responseBody);
-    print(jsonEncode(data));
-    print(data);
+    //print(jsonEncode(data));
+    //print(data);
+
+    Map<String, dynamic> response2 = jsonDecode(responseBody);
+
+    // Check if 'nonParticipantUsers' key exists
+    if (response2.containsKey('nonParticipantUsers')) {
+      // Retrieve the value of 'nonParticipantUsers' key
+      List<dynamic> nonParticipantUsers = response2['nonParticipantUsers'];
+
+      // Print the non-participant usernames
+      for (var username in nonParticipantUsers) {
+        print(username);
+        openDialog("The user " + username + " is not a participant");
+      }
+    }
+
     //print(response.body);
+  }
+
+  Future openDialog(String text) => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: Color.fromARGB(255, 230, 241, 248),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          title: Text("WarTracker", style: TextStyle(fontSize: 17)),
+          content: Text(
+            text,
+            style: TextStyle(fontSize: 15),
+          ),
+          actions: [
+            TextButton(
+              child: const Text('OK'),
+              onPressed: submit,
+            ),
+          ],
+        ),
+      );
+  void submit() {
+    Navigator.of(context, rootNavigator: true).pop();
   }
 }

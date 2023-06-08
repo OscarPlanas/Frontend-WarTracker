@@ -28,9 +28,13 @@ class _MeetingScreenState extends State<MeetingScreen> {
   @override
   void initState() {
     super.initState();
+
     meetingController.getMeetings();
     meeting = widget.meeting;
     meetingController.userIsParticipant(meeting.id);
+    // print("length");
+    // print("length de los participantes " +
+    //     meeting.participants.length.toString());
     isParticipant();
   }
 
@@ -226,6 +230,12 @@ class _MeetingScreenState extends State<MeetingScreen> {
                             );*/
                         ),
                       ),
+                      const SizedBox(height: 8.0),
+                      Text(
+                          "There are " +
+                              meeting.participants.length.toString() +
+                              " participants",
+                          style: TextStyle(color: Colors.grey)),
                       const SizedBox(height: 30.0),
                       Text(
                         "Description".toUpperCase(),
