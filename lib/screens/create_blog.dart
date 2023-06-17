@@ -10,12 +10,6 @@ class CreateBlog extends StatefulWidget {
 }
 
 class _CreateBlogState extends State<CreateBlog> {
-  //final String authorName, title, desc;
-  //final _formKey = GlobalKey<FormState>();
-  // declare a variable to keep track of the input text
-  // String _title = '';
-  // String _desc = '';
-  // String _body = '';
   BlogController blogController = Get.put(BlogController());
 
   var _title = TextEditingController();

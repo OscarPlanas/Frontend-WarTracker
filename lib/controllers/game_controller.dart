@@ -7,7 +7,6 @@ import 'package:frontend/screens/tournaments.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
-import 'dart:convert';
 
 class GameController extends GetxController {
   TextEditingController playersController = TextEditingController();

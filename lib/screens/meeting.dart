@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
-import 'package:frontend/models/meeting.dart';
 import 'package:frontend/controllers/meeting_controller.dart';
+import 'package:frontend/models/meeting.dart';
 import 'package:frontend/screens/game.dart';
-import 'package:frontend/screens/game_management.dart';
 import 'package:get/get.dart';
+import 'package:frontend/widgets/comment_meeting.dart';
 
 class MeetingScreen extends StatefulWidget {
   final Meeting meeting;
@@ -32,9 +32,7 @@ class _MeetingScreenState extends State<MeetingScreen> {
     meetingController.getMeetings();
     meeting = widget.meeting;
     meetingController.userIsParticipant(meeting.id);
-    // print("length");
-    // print("length de los participantes " +
-    //     meeting.participants.length.toString());
+
     isParticipant();
   }
 
@@ -250,6 +248,23 @@ class _MeetingScreenState extends State<MeetingScreen> {
                             fontWeight: FontWeight.w300, fontSize: 14.0),
                       ),
                       const SizedBox(height: 10.0),
+                      Text(
+                        "Comments",
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      // Comment section
+                      Card(
+                        color: Background,
+                        margin: EdgeInsets.symmetric(horizontal: 2),
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: CommentMeeting(widget.meeting),
+                        ),
+                      ),
                     ],
                   ),
                 ),

@@ -18,18 +18,11 @@ class UserController extends GetxController {
   Future<void> getUser() async {
     User user;
     String? token = storage.getItem('token');
-    print(token);
-
-    print('DECODEEEED AQUI');
 
     try {
       Map<String, dynamic> decodedToken = JwtDecoder.decode(token!);
 
-      print(decodedToken);
       String? userId = decodedToken['id'];
-      print(userId);
-
-      print('DECODEEEED AQUI2');
 
       final data = await http
           .get(Uri.parse('http://10.0.2.2:5432/api/users/profile/' + userId!));
@@ -41,16 +34,8 @@ class UserController extends GetxController {
         email: jsonData["email"],
         name: jsonData["name"],
       );
-      print(user.id);
-      print(user.password);
-      print(user.email);
-      print(user.username);
-      print(user.name);
-      print("ahora current");
+
       currentUser = user;
-      print(currentUser.name);
-      print(currentUser.email);
-      print(currentUser.username);
     } catch (e) {
       print(e);
     }
@@ -58,9 +43,7 @@ class UserController extends GetxController {
 
   Future<void> saveUser(String email, String password) async {
     getUser();
-    print('saveUser');
 
-    print("userid");
     final User user = User(
       id: currentUser.id,
       username: currentUser.username,
@@ -68,7 +51,7 @@ class UserController extends GetxController {
       email: email,
       name: currentUser.name,
     );
-    print(user.id);
+
     currentUser = user;
   }
 

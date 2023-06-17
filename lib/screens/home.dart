@@ -16,8 +16,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  //final BlogController blogController = Get.put(BlogController());
-  //final Future<List<Blog>> blogs = BlogController().getBlogs();
   Future<List<Blog>> blogsFuture = BlogController().getBlogs();
   Future user = UserController().getUser();
   @override

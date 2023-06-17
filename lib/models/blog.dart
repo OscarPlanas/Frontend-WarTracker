@@ -1,5 +1,6 @@
 class Blog {
   //final String id;
+  String id;
   String title;
   String description;
   String body_text;
@@ -9,8 +10,7 @@ class Blog {
   //final String date;
 
   Blog(
-      {
-      //required this.id,
+      {required this.id,
       required this.title,
       required this.description,
       //required this.image,
@@ -20,7 +20,7 @@ class Blog {
 
   factory Blog.fromJson(Map<String, dynamic> json) {
     return Blog(
-        //id: json['id'],
+        id: json['id'],
         title: json['title'],
         description: json['description'],
         //image: json['image'],

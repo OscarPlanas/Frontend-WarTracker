@@ -9,16 +9,8 @@ import 'package:frontend/screens/home.dart';
 import 'package:get/get.dart';
 
 class Body extends StatelessWidget {
-  //final LocalStorage storage1 = LocalStorage('My App');
-  //String? token = "";
-
   @override
   Widget build(BuildContext context) {
-    //final LocalStorage storage = new LocalStorage('My App');
-    //print("es este print de aqui al principio");
-    //print(storage.getItem('token'));
-    //print("si");
-    //checkLogin();
     Size size = MediaQuery.of(context).size;
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: 40, vertical: 120),

@@ -45,6 +45,9 @@ dependencies:
   dart_jsonwebtoken: ^2.7.1
   jwt_decoder: ^2.0.1
   json_table: ^2.0.1
+  comment_tree: ^0.3.0
+  google_fonts: ^2.0.0
+  cached_network_image: ^3.0.0
 
 dev_dependencies:
   flutter_test:

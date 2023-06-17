@@ -71,35 +71,66 @@ class _GameScreenState extends State<GameScreen> {
               controller: TextEditingController(
                   text: game['victory_points_favour'].toString()),
               onChanged: (newValue) {
-                game['victory_points_favour'] = int.parse(newValue);
+                try {
+                  game['victory_points_favour'] = int.parse(newValue);
+                } catch (e) {
+                  // Handle the exception, such as displaying an error message
+                  //if (newValue == "") {
+                  print('Invalid input for points favour: $newValue');
+                  //} else {
+                }
               },
             )),
             DataCell(TextField(
               controller: TextEditingController(
                   text: game['victory_points_against'].toString()),
               onChanged: (newValue) {
-                game['victory_points_against'] = int.parse(newValue);
+                try {
+                  game['victory_points_against'] = int.parse(newValue);
+                } catch (e) {
+                  // Handle the exception, such as displaying an error message
+                  print('Invalid input for points against: $newValue');
+                  // You can choose to set a fallback value or perform any other error handling here
+                }
               },
             )),
             DataCell(TextField(
               controller: TextEditingController(
                   text: game['difference_points'].toString()),
               onChanged: (newValue) {
-                game['difference_points'] = int.parse(newValue);
+                try {
+                  game['difference_points'] = int.parse(newValue);
+                } catch (e) {
+                  // Handle the exception, such as displaying an error message
+                  print('Invalid input for points difference: $newValue');
+                  // You can choose to set a fallback value or perform any other error handling here
+                }
               },
             )),
             DataCell(TextField(
               controller:
                   TextEditingController(text: game['games_played'].toString()),
               onChanged: (newValue) {
-                game['games_played'] = int.parse(newValue);
+                try {
+                  game['games_played'] = int.parse(newValue);
+                } catch (e) {
+                  // Handle the exception, such as displaying an error message
+                  print('Invalid input for games played: $newValue');
+                  // You can choose to set a fallback value or perform any other error handling here
+                }
               },
             )),
             DataCell(TextField(
               controller: TextEditingController(
                   text: game['leaders_eliminated'].toString()),
               onChanged: (newValue) {
-                game['leaders_eliminated'] = int.parse(newValue);
+                try {
+                  game['leaders_eliminated'] = int.parse(newValue);
+                } catch (e) {
+                  // Handle the exception, such as displaying an error message
+                  print('Invalid input for leaders eliminated: $newValue');
+                  // You can choose to set a fallback value or perform any other error handling here
+                }
               },
             )),
             DataCell(IconButton(
@@ -231,12 +262,6 @@ class _GameScreenState extends State<GameScreen> {
         : isOwner = false;
 
     print(isOwner);
-    //print(data);
-    // if (gameController.game.value.owner == gameController.user.value.id) {
-    //   return true;
-    // } else {
-    //   return false;
-    // }
   }
 
   @override
@@ -483,11 +508,9 @@ class _GameScreenState extends State<GameScreen> {
                   ),
                 ),
               ),
-              //if (isOwner)
               DataColumn(
                 label: Text('Delete'),
               ),
-              //DataColumn(label: Text('Delete')),
             ],
             rows: dataRows,
             headingTextStyle:
@@ -606,8 +629,6 @@ class _GameScreenState extends State<GameScreen> {
     http.StreamedResponse response = await request.send();
     String responseBody = await response.stream.bytesToString();
     print(responseBody);
-    //print(jsonEncode(data));
-    //print(data);
 
     Map<String, dynamic> response2 = jsonDecode(responseBody);
 
@@ -622,8 +643,6 @@ class _GameScreenState extends State<GameScreen> {
         openDialog("The user " + username + " is not a participant");
       }
     }
-
-    //print(response.body);
   }
 
   Future openDialog(String text) => showDialog(

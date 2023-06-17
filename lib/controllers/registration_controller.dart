@@ -30,40 +30,7 @@ class RegistrationController extends GetxController {
         'password': passwordController.text,
         'repeatPassword': repeatPasswordController.text,
       };
-      // if (passwordController.text != repeatPasswordController.text) {
-      //   print("error");
 
-      /*showDialog(
-            context: Get.context!,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: new Text('Error'),
-                content: new Text("Las contraseñas no coinciden."),
-                actions: <Widget>[
-                  new TextButton(
-                    child: new Text("Cerrar"),
-                    onPressed: () {
-                      RegisterScreen();
-                    },
-                  ),
-                ],
-              );
-            });*/
-      //throw "Las contraseñas no coinciden";
-      //}
-      /*if (passwordController.text.length < 6) {
-        throw "La contraseña debe tener al menos 6 caracteres";
-      }
-      if (nameController.text == '' ||
-          usernameController.text == '' ||
-          emailController.text == '' ||
-          passwordController.text.isEmpty) {
-        AlertDialog(
-          title: Text('Error'),
-          content: Text('No puede haber campos vacíos'),
-        );
-        throw "El nombre no puede estar vacío";
-      }*/
       http.Response response =
           await http.post(url, body: jsonEncode(body), headers: headers);
       print(response.body);
