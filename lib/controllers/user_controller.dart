@@ -13,10 +13,18 @@ class UserController extends GetxController {
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController contentController = TextEditingController();
+
+  TextEditingController nameController = TextEditingController();
+  TextEditingController usernameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController repeatPasswordController = TextEditingController();
+  TextEditingController aboutController = TextEditingController();
+
   final LocalStorage storage = new LocalStorage('My App');
 
   Future<void> getUser() async {
-    User user;
+    //User user;
     String? token = storage.getItem('token');
 
     try {
@@ -25,14 +33,18 @@ class UserController extends GetxController {
       String? userId = decodedToken['id'];
 
       final data = await http
-          .get(Uri.parse('http://10.0.2.2:5432/api/users/profile/' + userId!));
+          .get(Uri.parse('http://10.0.2.2:5432/api/users/' + userId!));
       var jsonData = json.decode(data.body);
-      user = User(
+
+      User user = User(
         id: userId,
         username: jsonData["username"],
         password: jsonData["password"],
         email: jsonData["email"],
         name: jsonData["name"],
+        imageUrl: jsonData["imageUrl"],
+        backgroundImageUrl: jsonData["backgroundImageUrl"],
+        about: jsonData["about"],
       );
 
       currentUser = user;
@@ -42,15 +54,17 @@ class UserController extends GetxController {
   }
 
   Future<void> saveUser(String email, String password) async {
-    getUser();
+    await getUser();
 
     final User user = User(
-      id: currentUser.id,
-      username: currentUser.username,
-      password: password,
-      email: email,
-      name: currentUser.name,
-    );
+        id: currentUser.id,
+        username: currentUser.username,
+        password: password,
+        email: email,
+        name: currentUser.name,
+        imageUrl: currentUser.imageUrl,
+        backgroundImageUrl: currentUser.backgroundImageUrl,
+        about: currentUser.about);
 
     currentUser = user;
   }
@@ -67,8 +81,82 @@ class UserController extends GetxController {
       password: jsonData["password"],
       email: jsonData["email"],
       name: jsonData["name"],
+      imageUrl: jsonData["imageUrl"],
+      backgroundImageUrl: jsonData["backgroundImageUrl"],
+      about: jsonData["about"],
     );
 
     return user;
+  }
+
+  Future<int> editUser(
+    idUser,
+    currentPhoto,
+    currentBackgroundPhoto,
+    currentPassword,
+    newPassword,
+    isPasswordChanged,
+  ) async {
+    try {
+      var headers = {'Content-Type': 'application/json'};
+      var url = Uri.parse('http://10.0.2.2:5432/api/users/edit/' + idUser);
+
+      Map<String, dynamic> body = {
+        'name': nameController.text.trim(),
+        'username': usernameController.text.trim(),
+        'email': emailController.text.trim(),
+        'imageUrl': currentPhoto,
+        'backgroundImageUrl': currentBackgroundPhoto,
+        'password': currentPassword,
+        'about': aboutController.text.trim(),
+      };
+
+      if (isPasswordChanged) {
+        body['repeatPassword'] = newPassword;
+      }
+
+      if (usernameController.text.trim() != currentUser.username) {
+        http.Response response = await http.put(
+          url,
+          body: jsonEncode(body),
+          headers: headers,
+        );
+
+        if (response.statusCode == 200) {
+          print("correcto");
+          return 0;
+        } else if (response.statusCode == 401) {
+          print("password incorrecto");
+          return 1;
+        } else if (response.statusCode == 402) {
+          print("username exists");
+
+          return 2;
+        } else {
+          print("incorrecto");
+          return 3;
+        }
+      }
+
+      http.Response response = await http.put(
+        url,
+        body: jsonEncode(body),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 402) {
+        print("correcto");
+        return 0;
+      } else if (response.statusCode == 401) {
+        print("password incorrecto");
+        return 1;
+      } else {
+        print("incorrecto");
+        return 3;
+      }
+    } catch (e) {
+      print(e);
+      return 3;
+    }
   }
 }

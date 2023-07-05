@@ -2,49 +2,54 @@ import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/controllers/meeting_controller.dart';
 import 'package:frontend/models/meeting.dart';
+import 'package:frontend/screens/edit_meeting.dart';
 import 'package:frontend/screens/game.dart';
+import 'package:frontend/screens/tournaments.dart';
 import 'package:get/get.dart';
 import 'package:frontend/widgets/comment_meeting.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:frontend/data/data.dart';
 
 class MeetingScreen extends StatefulWidget {
   final Meeting meeting;
   MeetingScreen(this.meeting);
-  //const MeetingScreen({Key? key, Meeting? meeting}) : super(key: key);
-  //final Meeting meeting;
+
   @override
   State<MeetingScreen> createState() => _MeetingScreenState();
 }
 
 class _MeetingScreenState extends State<MeetingScreen> {
-//class _MeetingScreenState extends State<MeetingScreen> {
-  //final Meeting meeting;
-  var meeting;
-  //final Meeting meeting = Get.arguments;
-  //MeetingScreen(this.meeting);
-  final String image = "assets/images/groguplaceholder.png";
   MeetingController meetingController = Get.put(MeetingController());
+
+  //var meeting;
+  var listParticipants = 0;
+
   bool _flag2 = false;
+
+  bool isOwner = false;
 
   @override
   void initState() {
     super.initState();
 
-    meetingController.getMeetings();
-    meeting = widget.meeting;
-    meetingController.userIsParticipant(meeting.id);
+    //meetingController.getMeetings();
+    //meeting = widget.meeting;
+    meetingController.userIsParticipant(widget.meeting.id);
 
     isParticipant();
+    checkIsOwner();
+    updateParticipantsList();
   }
-
-  /*Future<bool> new2() async {
-    _flag2 = await isParticipant();
-    return _flag2;
-  }*/
 
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(meeting.title, style: TextStyle(color: ButtonBlack)),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => Get.offAll(TournamentScreen()),
+        ),
+        title: Text(widget.meeting.title, style: TextStyle(color: ButtonBlack)),
         iconTheme: IconThemeData(color: ButtonBlack),
         backgroundColor: Background,
       ),
@@ -53,7 +58,11 @@ class _MeetingScreenState extends State<MeetingScreen> {
           Container(
               foregroundDecoration: const BoxDecoration(color: Colors.black26),
               height: 400,
-              child: Image.asset(image, fit: BoxFit.cover)),
+              child: Image.network(
+                widget.meeting.imageUrl,
+                fit: BoxFit.cover,
+                width: double.infinity,
+              )),
           SingleChildScrollView(
             padding: const EdgeInsets.only(top: 16.0, bottom: 20.0),
             child: Column(
@@ -63,7 +72,7 @@ class _MeetingScreenState extends State<MeetingScreen> {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.0),
                   child: Text(
-                    meeting.title,
+                    widget.meeting.title,
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 28.0,
@@ -78,20 +87,7 @@ class _MeetingScreenState extends State<MeetingScreen> {
                         vertical: 8.0,
                         horizontal: 16.0,
                       ),
-                      /*decoration: BoxDecoration(
-                          color: Colors.grey,
-                          borderRadius: BorderRadius.circular(20.0)),
-                      child: const Text(
-                        "8.4/85 reviews",
-                        style: TextStyle(color: Colors.white, fontSize: 13.0),
-                      ),*/
                     ),
-                    const Spacer(),
-                    IconButton(
-                      color: Colors.white,
-                      icon: const Icon(Icons.favorite_border),
-                      onPressed: () {},
-                    )
                   ],
                 ),
                 Container(
@@ -107,30 +103,6 @@ class _MeetingScreenState extends State<MeetingScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
-                                Row(
-                                  children: const <Widget>[
-                                    Icon(
-                                      Icons.star,
-                                      color: ButtonBlack,
-                                    ),
-                                    Icon(
-                                      Icons.star,
-                                      color: ButtonBlack,
-                                    ),
-                                    Icon(
-                                      Icons.star,
-                                      color: ButtonBlack,
-                                    ),
-                                    Icon(
-                                      Icons.star,
-                                      color: ButtonBlack,
-                                    ),
-                                    Icon(
-                                      Icons.star_border,
-                                      color: ButtonBlack,
-                                    ),
-                                  ],
-                                ),
                                 Text.rich(
                                   TextSpan(children: [
                                     WidgetSpan(
@@ -139,7 +111,7 @@ class _MeetingScreenState extends State<MeetingScreen> {
                                       size: 16.0,
                                       color: Colors.grey,
                                     )),
-                                    TextSpan(text: meeting.location),
+                                    TextSpan(text: widget.meeting.location),
                                   ]),
                                   style: TextStyle(
                                       color: Colors.grey, fontSize: 12.0),
@@ -152,7 +124,7 @@ class _MeetingScreenState extends State<MeetingScreen> {
                                       size: 16.0,
                                       color: Colors.grey,
                                     )),
-                                    TextSpan(text: meeting.date),
+                                    TextSpan(text: widget.meeting.date),
                                   ]),
                                   style: TextStyle(
                                       color: Colors.grey, fontSize: 12.0),
@@ -167,7 +139,8 @@ class _MeetingScreenState extends State<MeetingScreen> {
                                     )),
                                     TextSpan(
                                         text: "Organized by " +
-                                            meeting.organizer["username"]),
+                                            widget
+                                                .meeting.organizer["username"]),
                                   ]),
                                   style: TextStyle(
                                       color: Colors.grey, fontSize: 12.0),
@@ -178,7 +151,8 @@ class _MeetingScreenState extends State<MeetingScreen> {
                           Column(
                             children: <Widget>[
                               Text(
-                                meeting.registration_fee.toString() + " €",
+                                widget.meeting.registration_fee.toString() +
+                                    " €",
                                 style: TextStyle(
                                     color: ButtonBlack,
                                     fontWeight: FontWeight.bold,
@@ -198,13 +172,22 @@ class _MeetingScreenState extends State<MeetingScreen> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () => {
-                            setState(
-                              () => _flag2 = !_flag2,
-                            ),
-                            _flag2
-                                ? meetingController
-                                    .deleteParticipant(meeting.id)
-                                : meetingController.addParticipant(meeting.id),
+                            setState(() {
+                              _flag2 = !_flag2;
+                            }),
+                            if (_flag2)
+                              {
+                                meetingController
+                                    .deleteParticipant(widget.meeting.id),
+                                listParticipants -= 1,
+                              }
+                            else
+                              {
+                                meetingController
+                                    .addParticipant(widget.meeting.id),
+                                listParticipants += 1,
+                              },
+                            //updateParticipantsList(),
                           },
                           child: Text(_flag2 ? 'Sign Up' : 'Sign Out'),
                           style: ElevatedButton.styleFrom(
@@ -217,21 +200,12 @@ class _MeetingScreenState extends State<MeetingScreen> {
                               horizontal: 32.0,
                             ),
                           ),
-                          /*
-                          onPressed: () => setState(() => _flag = !_flag),
-                          child: Text(_flag ? 'Sign Up' : 'Sign Out');*/
-                          /*meetingController.addParticipant(meeting.id);
-                            setState(() => _flag = !_flag);
-                            
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _flag ? Colors.green : Colors.red,
-                            );*/
                         ),
                       ),
                       const SizedBox(height: 8.0),
                       Text(
                           "There are " +
-                              meeting.participants.length.toString() +
+                              listParticipants.toString() +
                               " participants",
                           style: TextStyle(color: Colors.grey)),
                       const SizedBox(height: 30.0),
@@ -242,7 +216,7 @@ class _MeetingScreenState extends State<MeetingScreen> {
                       ),
                       const SizedBox(height: 10.0),
                       Text(
-                        meeting.description,
+                        widget.meeting.description,
                         textAlign: TextAlign.justify,
                         style: TextStyle(
                             fontWeight: FontWeight.w300, fontSize: 14.0),
@@ -273,33 +247,91 @@ class _MeetingScreenState extends State<MeetingScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          //Get.offAll(GameManagementPage(meeting.id));
-          Get.to(GameScreen(meeting.id));
-        },
-        child: Icon(Icons.add, color: ButtonBlack),
-        backgroundColor: Background,
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          if (isOwner)
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: ButtonBlack, foregroundColor: Background),
+              onPressed: () async {
+                final updatedMeeting =
+                    await Get.to(EditMeeting(widget.meeting));
+                if (updatedMeeting != null) {
+                  setState(() {
+                    // Update the meeting object with the new data
+                    widget.meeting.title = updatedMeeting.title;
+                    widget.meeting.location = updatedMeeting.location;
+                    widget.meeting.date = updatedMeeting.date;
+                    widget.meeting.registration_fee =
+                        updatedMeeting.registration_fee;
+
+                    widget.meeting.description = updatedMeeting.description;
+                    widget.meeting.imageUrl = updatedMeeting.imageUrl;
+                  });
+                }
+              },
+              child: Icon(Icons.edit),
+            ),
+          SizedBox(width: 10),
+          FloatingActionButton(
+            onPressed: () {
+              Get.to(GameScreen(widget.meeting.id));
+            },
+            child: Text(
+              "Game table",
+              style: TextStyle(color: ButtonBlack, fontSize: 14),
+              textAlign: TextAlign.center,
+            ),
+            backgroundColor: Background,
+          ),
+        ],
       ),
     );
   }
 
   Future<void> isParticipant() async {
-    print("entra en lo nuevo de meeting participant");
     MeetingController meetingController = await Get.put(MeetingController());
-    print(meeting.id);
-    print(meetingController);
-    bool _isParticipant = await meetingController.userIsParticipant(meeting.id);
-    print("true o false");
-    print(_isParticipant);
+
+    bool _isParticipant =
+        await meetingController.userIsParticipant(widget.meeting.id);
+
     if (_isParticipant == true) {
       setState(() {
         _flag2 = false;
+        //listParticipants += 1;
       });
     } else {
       setState(() {
         _flag2 = true;
+        //listParticipants -= 1;
       });
     }
+  }
+
+  Future<void> checkIsOwner() async {
+    var url =
+        Uri.parse('http://10.0.2.2:5432/api/meetings/' + widget.meeting.id);
+    var response = await http.get(url);
+    var data = jsonDecode(response.body);
+
+    setState(() {
+      currentUser.username == data['organizer']['username']
+          ? isOwner = true
+          : isOwner = false;
+    });
+  }
+
+  Future<void> updateParticipantsList() async {
+    final meeting = widget.meeting;
+    final url = Uri.parse('http://10.0.2.2:5432/api/meetings/${meeting.id}');
+    final response = await http.get(url);
+    final data = jsonDecode(response.body);
+    final participants = data['participants'];
+
+    setState(() {
+      listParticipants = participants.length;
+      print("listParticipants: $listParticipants");
+    });
   }
 }

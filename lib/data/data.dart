@@ -6,4 +6,12 @@ User currentUser = User(
   password: "",
   email: "",
   name: "",
+  imageUrl: "",
+  backgroundImageUrl: "",
+  about: "",
 );
+
+String currentPhoto = " ";
+String currentBackgroundPhoto = " ";
+String change = "";
+String changeBackground = "";

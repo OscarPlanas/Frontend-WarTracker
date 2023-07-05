@@ -113,7 +113,8 @@ class GameController extends GetxController {
           date: u["date"],
           location: u["location"],
           registration_fee: u["registration_fee"],
-          participants: u["participants"]);
+          participants: u["participants"],
+          imageUrl: u["imageUrl"]);
       meetings.add(meeting);
     }
     return meetings;

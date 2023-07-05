@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:frontend/models/meeting.dart';
 import 'package:frontend/controllers/meeting_controller.dart';
+import 'package:frontend/screens/create_meeting.dart';
 import 'package:frontend/screens/meeting.dart';
 import 'package:get/get.dart';
 import 'package:frontend/sidebar.dart';
@@ -29,9 +30,6 @@ class _TournamentScreenState extends State<TournamentScreen> {
             const Text(('Tournaments'), style: TextStyle(color: ButtonBlack)),
         backgroundColor: Background,
       ),
-      //child: Scaffold(
-      //drawer: Sidebar(),
-
       body: Stack(
         children: [
           FutureBuilder<List<Meeting>>(
@@ -39,9 +37,6 @@ class _TournamentScreenState extends State<TournamentScreen> {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 return ListView.builder(
-
-                    //color: Colors.white,
-                    //margin: EdgeInsets.only(top: height * 0.08),
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
                       Meeting meeting = snapshot.data![index];
@@ -78,8 +73,7 @@ class _TournamentScreenState extends State<TournamentScreen> {
                                       bottomLeft: Radius.circular(10),
                                     ),
                                     image: DecorationImage(
-                                      image: AssetImage(
-                                          "assets/images/groguplaceholder.png"),
+                                      image: NetworkImage(meeting.imageUrl),
                                       fit: BoxFit.cover,
                                     ),
                                   ),
@@ -107,11 +101,6 @@ class _TournamentScreenState extends State<TournamentScreen> {
                                     )),
                                 Flexible(
                                     fit: FlexFit.tight,
-                                    /*height: height * 0.15,
-                                    width: width * 0.4,
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: height * 0.01,
-                                        horizontal: height * 0.02),*/
                                     child: Column(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
@@ -147,6 +136,18 @@ class _TournamentScreenState extends State<TournamentScreen> {
             },
           )
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Get.offAll(CreateMeeting());
+        },
+        child: Text(
+          'Create meeting',
+          style: TextStyle(
+              fontSize: 12, color: ButtonBlack, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+        backgroundColor: Background,
       ),
     );
   }

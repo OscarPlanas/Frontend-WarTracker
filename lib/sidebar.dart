@@ -12,11 +12,7 @@ import 'package:frontend/data/data.dart';
 class Sidebar extends StatelessWidget {
   Sidebar({Key? key}) : super(key: key);
 
-  //final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   final LocalStorage storage1 = LocalStorage('My App');
-
-  //final userFuture = UserController().getUser();
-  //Future<User> user = UserController().getUser();
 
   @override
   Widget build(BuildContext context) => Drawer(
@@ -38,7 +34,10 @@ class Sidebar extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 52,
-              backgroundImage: AssetImage("assets/images/groguplaceholder.png"),
+              backgroundImage: currentUser.imageUrl != ""
+                  ? NetworkImage(currentUser.imageUrl)
+                  : AssetImage('assets/images/groguplaceholder.png')
+                      as ImageProvider,
             ),
             SizedBox(height: 6),
             Text(currentUser.username,
@@ -52,16 +51,10 @@ class Sidebar extends StatelessWidget {
   Widget buildMenuItems(BuildContext context) => Container(
         padding: const EdgeInsets.all(24),
         child: Wrap(
-          //runSpacing: 2,
           children: [
             ListTile(
               leading: const Icon(Icons.home_outlined),
               title: const Text('Home'),
-              onTap: () => Get.offAll(HomeScreen()),
-            ),
-            ListTile(
-              leading: const Icon(Icons.article_outlined),
-              title: const Text('Blog'),
               onTap: () => Get.offAll(HomeScreen()),
             ),
             ListTile(
@@ -78,13 +71,17 @@ class Sidebar extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.person_outline),
               title: const Text('Profile'),
-              onTap: () => Get.offAll(Profile()),
+              onTap: () => Get.offAll(Profile(currentUser)),
             ),
             ListTile(
-              title: const Text('Chat'),
-              leading: const Icon(Icons.chat_outlined),
-              onTap: () => Get.offAll(HomeScreen()),
-            ),
+                title: const Text('Chat'),
+                leading: const Icon(Icons.chat_outlined),
+                onTap: () {
+                  print(currentUser.username);
+                  print(currentUser.name);
+                  print(currentUser.email);
+                  print("Chat");
+                }),
             ListTile(
               leading: const Icon(Icons.settings_outlined),
               title: const Text('Settings'),
@@ -94,8 +91,6 @@ class Sidebar extends StatelessWidget {
               leading: const Icon(Icons.logout_outlined),
               title: const Text('Logout'),
               onTap: () async {
-                //final SharedPreferences? prefs = await _prefs;
-                //prefs?.clear();
                 print("limpiamos localstorage");
                 await storage1.clear();
                 print(storage1.getItem("token"));

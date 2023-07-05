@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/edit_profile.dart';
 import 'package:frontend/sidebar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:frontend/components/numbers_widget.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/data/data.dart';
+import 'package:get/get.dart';
+import 'package:frontend/models/user.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Profile extends StatefulWidget {
+  final User user;
+
+  Profile(this.user);
+
   @override
   _ProfileState createState() => _ProfileState();
 }
@@ -13,6 +22,24 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   final double coverHeight = 280;
   final double profileHeight = 144;
+
+  bool isUser = false;
+
+  @override
+  void initState() {
+    super.initState();
+    checkIsUser();
+  }
+
+  Future<void> checkIsUser() async {
+    var url = Uri.parse('http://10.0.2.2:5432/api/users/' + widget.user.id);
+    var response = await http.get(url);
+    var data = jsonDecode(response.body);
+
+    setState(() {
+      currentUser.username == data['username'] ? isUser = true : isUser = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +57,31 @@ class _ProfileState extends State<Profile> {
           buildContent(),
         ],
       ),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          if (isUser)
+            FloatingActionButton(
+              child: Icon(Icons.edit, color: ButtonBlack),
+              backgroundColor: Background,
+              onPressed: () async {
+                final updatedUser = await Get.to(EditProfile(widget.user));
+
+                if (updatedUser != null) {
+                  setState(() {
+                    // Update the user object with the new data
+                    widget.user.name = updatedUser.name;
+                    widget.user.username = updatedUser.username;
+                    widget.user.email = updatedUser.email;
+                    widget.user.imageUrl = updatedUser.imageUrl;
+                    widget.user.backgroundImageUrl =
+                        updatedUser.backgroundImageUrl;
+                  });
+                }
+              },
+            ),
+        ],
+      ),
     );
   }
 
@@ -37,7 +89,7 @@ class _ProfileState extends State<Profile> {
         children: [
           const SizedBox(height: 8),
           Text(
-            currentUser.username,
+            widget.user.username,
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -45,7 +97,7 @@ class _ProfileState extends State<Profile> {
           ),
           const SizedBox(height: 2),
           Text(
-            currentUser.name,
+            widget.user.name,
             style: TextStyle(
               fontSize: 22,
               color: Colors.black,
@@ -53,26 +105,13 @@ class _ProfileState extends State<Profile> {
           ),
           const SizedBox(height: 2),
           Text(
-            currentUser.email,
+            widget.user.email,
             style: TextStyle(
               fontSize: 20,
               color: Colors.black.withOpacity(0.3),
             ),
           ),
           const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              buildSocialIcon(FontAwesomeIcons.slack),
-              const SizedBox(width: 12),
-              buildSocialIcon(FontAwesomeIcons.github),
-              const SizedBox(width: 12),
-              buildSocialIcon(FontAwesomeIcons.twitter),
-              const SizedBox(width: 12),
-              buildSocialIcon(FontAwesomeIcons.linkedin),
-            ],
-          ),
-          const SizedBox(height: 8),
           Divider(),
           const SizedBox(height: 16),
           NumbersWidget(),
@@ -98,7 +137,7 @@ class _ProfileState extends State<Profile> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Flutter is Google’s UI toolkit for building beautiful, natively compiled applications for mobile, web, and desktop from a single codebase. Flutter works with existing code.',
+            widget.user.about,
             style: TextStyle(
               fontSize: 18,
               height: 1.4,
@@ -131,20 +170,15 @@ class _ProfileState extends State<Profile> {
 
   Widget buildCoverImage() => Container(
         color: Colors.grey,
-        child: Image.asset(
-          'assets/images/groguplaceholder.png',
-          width: double.infinity,
-          height: coverHeight,
-          fit: BoxFit.cover,
-        ),
+        child: Image.network(widget.user.backgroundImageUrl, fit: BoxFit.cover),
+        width: double.infinity,
+        height: coverHeight,
       );
 
   Widget buildProfileImage() => CircleAvatar(
         radius: profileHeight / 2,
         backgroundColor: Colors.grey.shade800,
-        backgroundImage: AssetImage(
-          'assets/images/groguplaceholder.png',
-        ),
+        backgroundImage: NetworkImage(widget.user.imageUrl),
       );
 
   Widget buildSocialIcon(IconData icon) => CircleAvatar(
@@ -164,4 +198,27 @@ class _ProfileState extends State<Profile> {
           ),
         ),
       );
+
+  Future openDialog(String text) => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: Color.fromARGB(255, 230, 241, 248),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          title: Text("WarTracker", style: TextStyle(fontSize: 17)),
+          content: Text(
+            text,
+            style: TextStyle(fontSize: 15),
+          ),
+          actions: [
+            TextButton(
+              child: const Text('OK'),
+              onPressed: submit,
+            ),
+          ],
+        ),
+      );
+  void submit() {
+    Navigator.of(context, rootNavigator: true).pop();
+  }
 }

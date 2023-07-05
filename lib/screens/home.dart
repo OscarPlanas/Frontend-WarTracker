@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/data/data.dart';
 import 'package:get/get.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/models/blog.dart';
@@ -42,8 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: ListTile(
                         title: Text(blog.title),
                         subtitle: Text(blog.description),
-                        leading:
-                            Image.asset("assets/images/laptopplaceholder.png"),
+                        leading: Image.network(blog.imageUrl),
                         trailing: Icon(Icons.arrow_forward_ios),
                         onTap: () {
                           Get.to(BlogScreen(blog));
@@ -62,7 +62,9 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: () {
           Get.offAll(CreateBlog());
         },
-        child: Icon(Icons.add, color: ButtonBlack),
+        child: Text("Create blog",
+            style: TextStyle(color: ButtonBlack, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center),
         backgroundColor: Background,
       ),
     );

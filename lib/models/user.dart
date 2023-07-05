@@ -4,18 +4,20 @@ class User {
   String username;
   String email;
   String password;
-  //final String image;
-  //final String author;
+  String imageUrl;
+  String backgroundImageUrl;
+  String about;
   //final String date;
 
   User({
     required this.id,
     required this.name,
     required this.username,
-    //required this.image,
+    required this.imageUrl,
     required this.email,
     required this.password,
-    //required this.author,
+    required this.backgroundImageUrl,
+    required this.about,
     //required this.date
   });
 
@@ -24,10 +26,11 @@ class User {
       id: json['id'],
       name: json['name'],
       username: json['username'],
-      //image: json['image'],
+      imageUrl: json['imageUrl'],
       email: json['email'],
       password: json['password'],
-      //author: json['author'],
+      backgroundImageUrl: json['backgroundImageUrl'],
+      about: json['about'],
       //date: json['date']
     );
   }

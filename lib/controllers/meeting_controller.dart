@@ -8,16 +8,116 @@ import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
 import 'package:frontend/data/data.dart';
 import 'package:frontend/models/comment.dart';
+import 'package:frontend/screens/home.dart';
 
 class MeetingController extends GetxController {
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
-  TextEditingController contentController = TextEditingController();
+  TextEditingController locationController = TextEditingController();
+  TextEditingController feeController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
 
   TextEditingController commentController = TextEditingController();
   TextEditingController replyController = TextEditingController();
 
   final LocalStorage storage = new LocalStorage('My App');
+
+  Future<String> createMeeting(currentPhoto) async {
+    try {
+      var headers = {'Content-Type': 'application/json'};
+      print(titleController.text);
+      print("controller arriba");
+
+      print('Crear meeting');
+      var url = Uri.parse('http://10.0.2.2:5432/api/meetings');
+      Map body = {
+        'title': titleController.text.trim(),
+        'description': descriptionController.text,
+        'organizer': currentUser.id,
+        'location': locationController.text,
+        'registration_fee': feeController.text,
+        'date': dateController.text,
+        'imageUrl': currentPhoto,
+      };
+
+      print(body['author']);
+      print('datos de crear meeting');
+      print(body);
+
+      http.Response response =
+          await http.post(url, body: jsonEncode(body), headers: headers);
+
+      print('response de crear meeting');
+      print(response.body);
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        print("correcto");
+        if (json['status'] == "Meeting saved") {
+          titleController.clear();
+          descriptionController.clear();
+          locationController.clear();
+          feeController.clear();
+          Get.off(HomeScreen());
+        } else if (json['status'] == false) {
+          var message = jsonDecode(response.body)['message'];
+          return message;
+        }
+      } else {
+        var message2 = jsonDecode(response.body)['message'];
+        return message2;
+      }
+      return "Unknown Error Occured";
+    } catch (error) {
+      Get.back();
+      return "Unknown Error Occured";
+    }
+  }
+
+  void editMeeting(idMeeting, currentPhoto) async {
+    print("entra en EditMeeting");
+    print("currentPhoto " + currentPhoto);
+    try {
+      var headers = {'Content-Type': 'application/json'};
+      print(replyController.text);
+
+      print('Crear comentario');
+      var url =
+          Uri.parse('http://10.0.2.2:5432/api/meetings/edit/' + idMeeting);
+
+      Map body = {
+        'title': titleController.text.trim(),
+        'location': locationController.text.trim(),
+        'registration_fee': feeController.text.trim(),
+        'date': dateController.text.trim(),
+        'description': descriptionController.text,
+        'imageUrl': currentPhoto,
+      };
+
+      print('datos de editar meeting');
+      print(body);
+
+      http.Response response =
+          await http.put(url, body: jsonEncode(body), headers: headers);
+
+      print('response de editar meeting');
+      print(response.body);
+
+      await getMeetings();
+
+      if (response.statusCode == 200) {
+        print("correcto");
+
+        titleController.clear();
+        locationController.clear();
+        feeController.clear();
+        dateController.clear();
+        descriptionController.clear();
+      } else {
+        print("incorrecto");
+      }
+    } catch (e) {}
+  }
 
   Future<List<Meeting>> getMeetings() async {
     List<Meeting> meetings = [];
@@ -30,7 +130,7 @@ class MeetingController extends GetxController {
           description: u["description"],
           organizer: u["organizer"],
           date: u["date"],
-          //image: u["image"],
+          imageUrl: u["imageUrl"],
           location: u["location"],
           registration_fee: u["registration_fee"],
           participants: u["participants"]);
@@ -53,7 +153,7 @@ class MeetingController extends GetxController {
         description: jsonData["description"],
         organizer: jsonData["organizer"],
         date: jsonData["date"],
-        //image: u["image"],
+        imageUrl: jsonData["imageUrl"],
         location: jsonData["location"],
         registration_fee: jsonData["registration_fee"],
         participants: jsonData["participants"]);

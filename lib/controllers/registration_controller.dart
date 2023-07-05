@@ -29,6 +29,8 @@ class RegistrationController extends GetxController {
         'email': emailController.text,
         'password': passwordController.text,
         'repeatPassword': repeatPasswordController.text,
+        'imageUrl': "",
+        'backgroundImageUrl': "",
       };
 
       http.Response response =

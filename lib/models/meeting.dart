@@ -7,14 +7,13 @@ class Meeting {
   String location;
   int registration_fee;
   final List<dynamic> participants;
-  //final String image;
-  //final String date;
+  String imageUrl;
 
   Meeting(
       {required this.id,
       required this.title,
       required this.description,
-      //required this.image,
+      required this.imageUrl,
       required this.date,
       required this.organizer,
       required this.location,
@@ -26,7 +25,7 @@ class Meeting {
         id: json['id'],
         title: json['title'],
         description: json['description'],
-        //image: json['image'],
+        imageUrl: json['imageUrl'],
         date: json['date'],
         organizer: json['organizer'],
         location: json['location'],

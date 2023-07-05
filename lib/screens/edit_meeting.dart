@@ -1,32 +1,35 @@
-import 'dart:io';
-
-import 'package:cloudinary_public/cloudinary_public.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
-import 'package:frontend/controllers/blog_controller.dart';
+import 'package:frontend/controllers/meeting_controller.dart';
 import 'package:frontend/data/data.dart';
-import 'package:frontend/models/blog.dart';
+import 'package:frontend/models/meeting.dart';
+import 'package:intl/intl.dart';
+import 'package:dio/dio.dart';
+import 'package:cloudinary_public/cloudinary_public.dart';
+import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
-class EditBlog extends StatefulWidget {
-  final Blog blog;
+class EditMeeting extends StatefulWidget {
+  final Meeting meeting;
 
-  EditBlog(this.blog) : selectedImage = NetworkImage(blog.imageUrl);
+  EditMeeting(this.meeting) : selectedImage = NetworkImage(meeting.imageUrl);
   final ImageProvider selectedImage;
 
   @override
-  State<EditBlog> createState() => _EditBlogState();
+  State<EditMeeting> createState() => _EditMeetingState();
 }
 
-class _EditBlogState extends State<EditBlog> {
-  BlogController blogController = BlogController();
+class _EditMeetingState extends State<EditMeeting> {
+  MeetingController meetingController = MeetingController();
+
   bool _validatetitle = false;
+  bool _validatefee = false;
+  bool _validatelocation = false;
+  bool _validatedate = false;
   bool _validatedesc = false;
-  bool _validatebody = false;
+  DateTime selectedDate = DateTime.now();
 
   bool isloading = false;
-
   File? imageFile;
 
   final cloudinary = CloudinaryPublic("dagbarc6g", 'WarTracker', cache: false);
@@ -157,11 +160,13 @@ class _EditBlogState extends State<EditBlog> {
   @override
   void initState() {
     super.initState();
-
     // Set initial values for the text controllers
-    blogController.titleController.text = widget.blog.title;
-    blogController.descriptionController.text = widget.blog.description;
-    blogController.contentController.text = widget.blog.body_text;
+    meetingController.titleController.text = widget.meeting.title;
+    meetingController.descriptionController.text = widget.meeting.description;
+    meetingController.feeController.text =
+        widget.meeting.registration_fee.toString();
+    meetingController.locationController.text = widget.meeting.location;
+    meetingController.dateController.text = widget.meeting.date;
   }
 
   @override
@@ -175,7 +180,8 @@ class _EditBlogState extends State<EditBlog> {
             icon: Icon(Icons.arrow_back),
             onPressed: () => Navigator.pop(context),
           ),
-          title: Text("Edit your blog", style: TextStyle(color: ButtonBlack)),
+          title:
+              Text("Edit your meeting", style: TextStyle(color: ButtonBlack)),
           iconTheme: IconThemeData(color: ButtonBlack),
           backgroundColor: Background,
         ),
@@ -198,9 +204,9 @@ class _EditBlogState extends State<EditBlog> {
                               image: selectedImage!,
                               fit: BoxFit.cover,
                             )
-                          : widget.blog.imageUrl != null
+                          : widget.meeting.imageUrl != ""
                               ? DecorationImage(
-                                  image: NetworkImage(widget.blog.imageUrl),
+                                  image: NetworkImage(widget.meeting.imageUrl),
                                   fit: BoxFit.cover,
                                 )
                               : null,
@@ -234,7 +240,7 @@ class _EditBlogState extends State<EditBlog> {
               margin: EdgeInsets.symmetric(horizontal: 16),
               child: Column(children: <Widget>[
                 TextField(
-                  controller: blogController.titleController,
+                  controller: meetingController.titleController,
                   decoration: InputDecoration(
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Background),
@@ -249,13 +255,72 @@ class _EditBlogState extends State<EditBlog> {
                           fontWeight: FontWeight.bold)),
                   maxLength: 30,
                 ),
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: TextField(
+                        controller: meetingController.feeController,
+                        decoration: InputDecoration(
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Background),
+                            ),
+                            errorText: _validatefee ? 'Can\'t Be Empty' : null,
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Background),
+                            ),
+                            counterStyle: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 12.0,
+                                fontWeight: FontWeight.bold)),
+                        maxLength: 3,
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: TextField(
+                        controller: meetingController.locationController,
+                        decoration: InputDecoration(
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Background),
+                            ),
+                            errorText:
+                                _validatelocation ? 'Can\'t Be Empty' : null,
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Background),
+                            ),
+                            counterStyle: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 12.0,
+                                fontWeight: FontWeight.bold)),
+                        maxLength: 40,
+                      ),
+                    )
+                  ],
+                ),
+                SizedBox(height: 8),
                 TextField(
-                  controller: blogController.descriptionController,
+                  controller: meetingController.dateController,
+                  onTap: () async {
+                    final DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateFormat("yyyy-MM-dd")
+                            .parseStrict(meetingController.dateController.text),
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime(2028));
+                    if (pickedDate != null) {
+                      setState(() {
+                        selectedDate = pickedDate;
+
+                        meetingController.dateController.text =
+                            DateFormat('yyyy-MM-dd').format(selectedDate);
+                      });
+                    }
+                  },
                   decoration: InputDecoration(
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Background),
                       ),
-                      errorText: _validatedesc ? 'Can\'t Be Empty' : null,
+                      errorText: _validatedate ? 'Can\'t Be Empty' : null,
                       focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Background),
                       ),
@@ -263,15 +328,14 @@ class _EditBlogState extends State<EditBlog> {
                           color: Colors.black,
                           fontSize: 12.0,
                           fontWeight: FontWeight.bold)),
-                  maxLength: 50,
                 ),
                 TextField(
-                  controller: blogController.contentController,
+                  controller: meetingController.descriptionController,
                   decoration: InputDecoration(
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Background),
                       ),
-                      errorText: _validatebody ? 'Can\'t Be Empty' : null,
+                      errorText: _validatedesc ? 'Can\'t Be Empty' : null,
                       focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Background),
                       ),
@@ -288,38 +352,51 @@ class _EditBlogState extends State<EditBlog> {
                   ),
                   onPressed: () async {
                     setState(() {
-                      blogController.titleController.text.isEmpty
+                      meetingController.titleController.text.isEmpty
                           ? _validatetitle = true
                           : _validatetitle = false;
-                      blogController.descriptionController.text.isEmpty
+                      meetingController.descriptionController.text.isEmpty
                           ? _validatedesc = true
                           : _validatedesc = false;
-                      blogController.contentController.text.isEmpty
-                          ? _validatebody = true
-                          : _validatebody = false;
+                      meetingController.feeController.text.isEmpty
+                          ? _validatefee = true
+                          : _validatefee = false;
+                      meetingController.locationController.text.isEmpty
+                          ? _validatelocation = true
+                          : _validatelocation = false;
+                      meetingController.dateController.text.isEmpty
+                          ? _validatedate = true
+                          : _validatedate = false;
                     });
                     if (currentPhoto == "" || currentPhoto == " ") {
-                      currentPhoto = widget.blog.imageUrl;
+                      currentPhoto = widget.meeting.imageUrl;
                     }
-                    if (blogController.titleController.text.isNotEmpty &&
-                        blogController.descriptionController.text.isNotEmpty &&
-                        blogController.contentController.text.isNotEmpty) {
-                      blogController.editBlog(widget.blog.id, currentPhoto);
+                    if (meetingController.titleController.text.isNotEmpty &&
+                        meetingController
+                            .descriptionController.text.isNotEmpty &&
+                        meetingController.feeController.text.isNotEmpty &&
+                        meetingController.locationController.text.isNotEmpty &&
+                        meetingController.dateController.text.isNotEmpty) {
+                      meetingController.editMeeting(
+                          widget.meeting.id, currentPhoto);
                       // Create the updated blog object
-                      Blog updatedBlog = Blog(
-                        author: widget.blog.author,
-                        id: widget.blog.id,
-                        title: blogController.titleController.text,
-                        description: blogController.descriptionController.text,
-                        body_text: blogController.contentController.text,
-                        date: widget.blog.date,
+                      Meeting updatedMeeting = Meeting(
+                        organizer: widget.meeting.organizer,
+                        id: widget.meeting.id,
+                        title: meetingController.titleController.text,
+                        description:
+                            meetingController.descriptionController.text,
+                        location: meetingController.locationController.text,
+                        registration_fee:
+                            int.parse(meetingController.feeController.text),
+                        date: meetingController.dateController.text,
+                        participants: widget.meeting.participants,
                         imageUrl: currentPhoto,
                       );
                       change = "";
                       currentPhoto = "";
-
                       // Pass the updated blog as a separate parameter
-                      Navigator.pop(context, updatedBlog);
+                      Navigator.pop(context, updatedMeeting);
                     }
                   },
                   child: Text(

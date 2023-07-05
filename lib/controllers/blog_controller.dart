@@ -2,8 +2,6 @@ import 'dart:convert';
 
 import 'package:date_format/date_format.dart';
 import 'package:frontend/models/blog.dart';
-import 'package:frontend/screens/blog.dart';
-
 import 'package:frontend/screens/home.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -22,7 +20,9 @@ class BlogController extends GetxController {
 
   final LocalStorage storage = new LocalStorage('My App');
 
-  Future<String> createBlog() async {
+  Future<String> createBlog(String imageUrl) async {
+    print("entra en createBlog");
+    print("currentPhoto: " + currentPhoto);
     try {
       var headers = {'Content-Type': 'application/json'};
       print(titleController.text);
@@ -36,6 +36,7 @@ class BlogController extends GetxController {
         'body_text': contentController.text,
         'author': currentUser.id,
         'date': formatDate(DateTime.now(), [dd, '/', mm, '/', yyyy]),
+        'imageUrl': imageUrl,
       };
       print("as");
       print(currentUser.id);
@@ -58,6 +59,7 @@ class BlogController extends GetxController {
           titleController.clear();
           descriptionController.clear();
           contentController.clear();
+          currentPhoto = "";
           Get.off(HomeScreen());
         } else if (json['status'] == false) {
           var message = jsonDecode(response.body)['message'];
@@ -86,25 +88,18 @@ class BlogController extends GetxController {
           description: u["description"],
           body_text: u["body_text"],
           author: u["author"],
-          //image: u["image"],
-
+          imageUrl: u["imageUrl"],
           date: u["date"]);
-      //var owner = json.decode(blog.author.toString());
-      print("VEmOS AUTHOR " + blog.author['username']);
-      print("VEMOS DATE" + blog.date);
+
       blogs.add(blog);
     }
-    //print(blogs.length);
     return blogs;
   }
 
   void addComment(idBlog) async {
-    print("entra en addComment");
     try {
       var headers = {'Content-Type': 'application/json'};
-      print(commentController.text);
 
-      print('Crear comentario');
       var url =
           Uri.parse('http://10.0.2.2:5432/api/blogs/addcomment/' + idBlog);
       Map body = {
@@ -112,18 +107,11 @@ class BlogController extends GetxController {
         'owner': currentUser.id,
       };
 
-      print('datos de crear comentario');
-      print(body);
-
       http.Response response =
           await http.post(url, body: jsonEncode(body), headers: headers);
 
-      print('response de crear comentario');
-      print(response.body);
-
       await getComments(idBlog);
       if (response.statusCode == 200) {
-        print("correcto");
         commentController.clear();
       } else {
         print("incorrecto");
@@ -134,12 +122,9 @@ class BlogController extends GetxController {
   }
 
   void addReply(idComment) async {
-    print("entra en addReply");
     try {
       var headers = {'Content-Type': 'application/json'};
-      print(replyController.text);
 
-      print('Crear comentario');
       var url =
           Uri.parse('http://10.0.2.2:5432/api/blogs/addreply/' + idComment);
       Map body = {
@@ -147,14 +132,8 @@ class BlogController extends GetxController {
         'owner': currentUser.id,
       };
 
-      print('datos de crear reply');
-      print(body);
-
       http.Response response =
           await http.post(url, body: jsonEncode(body), headers: headers);
-
-      print('response de crear reply');
-      print(response.body);
 
       if (response.statusCode == 200) {
         print("correcto");
@@ -167,8 +146,9 @@ class BlogController extends GetxController {
     }
   }
 
-  void editBlog(idBlog) async {
+  void editBlog(idBlog, imageUrl) async {
     print("entra en EditBlog");
+    print("currentPhoto: " + currentPhoto);
     try {
       var headers = {'Content-Type': 'application/json'};
       print(replyController.text);
@@ -180,6 +160,7 @@ class BlogController extends GetxController {
         'title': titleController.text.trim(),
         'description': descriptionController.text,
         'body_text': contentController.text,
+        'imageUrl': imageUrl,
       };
 
       print('datos de editar blog');

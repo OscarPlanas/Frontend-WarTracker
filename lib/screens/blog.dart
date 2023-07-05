@@ -5,6 +5,10 @@ import 'package:frontend/widgets/comment_post.dart';
 import 'package:get/get.dart';
 import 'package:frontend/screens/edit_blog.dart';
 import 'package:frontend/screens/home.dart';
+import 'package:frontend/controllers/blog_controller.dart';
+import 'package:frontend/data/data.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class BlogScreen extends StatefulWidget {
   final Blog blog;
@@ -16,6 +20,28 @@ class BlogScreen extends StatefulWidget {
 }
 
 class _BlogScreenState extends State<BlogScreen> {
+  BlogController blogController = Get.put(BlogController());
+
+  bool isOwner = false;
+
+  @override
+  void initState() {
+    super.initState();
+    checkIsOwner();
+  }
+
+  Future<void> checkIsOwner() async {
+    var url = Uri.parse('http://10.0.2.2:5432/api/blogs/' + widget.blog.id);
+    var response = await http.get(url);
+    var data = jsonDecode(response.body);
+
+    setState(() {
+      currentUser.username == data['author']['username']
+          ? isOwner = true
+          : isOwner = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,7 +85,8 @@ class _BlogScreenState extends State<BlogScreen> {
                   SizedBox(height: 5),
                   Container(
                     width: double.infinity,
-                    child: Image.asset("assets/images/laptopplaceholder.png"),
+                    child:
+                        Image.network(widget.blog.imageUrl, fit: BoxFit.cover),
                   ),
                   SizedBox(height: 5),
                   Padding(
@@ -124,18 +151,24 @@ class _BlogScreenState extends State<BlogScreen> {
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          //if (isOwner)
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-                backgroundColor: ButtonBlack, foregroundColor: Background),
-            onPressed: () async {
-              setState(() {
-                // Refresh the page
-                Get.to(EditBlog(widget.blog));
-              });
-            },
-            child: Icon(Icons.edit),
-          ),
+          if (isOwner)
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: ButtonBlack, foregroundColor: Background),
+              onPressed: () async {
+                final updatedBlog = await Get.to(EditBlog(widget.blog));
+                if (updatedBlog != null) {
+                  setState(() {
+                    // Update the blog object with the new data
+                    widget.blog.title = updatedBlog.title;
+                    widget.blog.description = updatedBlog.description;
+                    widget.blog.body_text = updatedBlog.body_text;
+                    widget.blog.imageUrl = updatedBlog.imageUrl;
+                  });
+                }
+              },
+              child: Icon(Icons.edit),
+            ),
         ],
       ),
     );

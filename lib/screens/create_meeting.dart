@@ -1,33 +1,36 @@
-import 'dart:async';
-
-import 'package:cloudinary_public/cloudinary_public.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
-import 'package:frontend/controllers/blog_controller.dart';
-import 'package:frontend/data/data.dart';
-import 'package:frontend/screens/home.dart';
+import 'package:frontend/controllers/meeting_controller.dart';
+import 'package:frontend/screens/tournaments.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+import 'dart:async';
+import 'package:cloudinary_public/cloudinary_public.dart';
+import 'package:frontend/data/data.dart';
+import 'package:dio/dio.dart';
 
-class CreateBlog extends StatefulWidget {
+class CreateMeeting extends StatefulWidget {
   @override
-  State<CreateBlog> createState() => _CreateBlogState();
+  State<CreateMeeting> createState() => _CreateMeetingState();
 }
 
-class _CreateBlogState extends State<CreateBlog> {
-  BlogController blogController = BlogController();
+class _CreateMeetingState extends State<CreateMeeting> {
+  MeetingController meetingController = MeetingController();
 
   bool _validatetitle = false;
   bool _validatedesc = false;
   bool _validatebody = false;
+  bool _validatelocation = false;
+  bool _validatedate = false;
+  bool _validatefee = false;
   bool isloading = false;
+  DateTime selectedDate = DateTime.now();
 
   ImageProvider? selectedImage; // Store the selected image
 
   final cloudinary = CloudinaryPublic("dagbarc6g", 'WarTracker', cache: false);
 
   XFile? image;
-
   final ImagePicker picker = ImagePicker();
 
   Future uploadImage() async {
@@ -158,13 +161,11 @@ class _CreateBlogState extends State<CreateBlog> {
         appBar: AppBar(
           leading: IconButton(
               icon: Icon(Icons.arrow_back),
-              onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) {
-                      return HomeScreen();
-                    }),
-                  )),
-          title: Text("Create a blog", style: TextStyle(color: ButtonBlack)),
+              onPressed: () =>
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return TournamentScreen();
+                  }))),
+          title: Text("Create a meeting", style: TextStyle(color: ButtonBlack)),
           iconTheme: IconThemeData(color: ButtonBlack),
           backgroundColor: Background,
         ),
@@ -194,12 +195,12 @@ class _CreateBlogState extends State<CreateBlog> {
                   : null,
             ),
           ),
-          SizedBox(height: 8),
+          SizedBox(height: 12),
           Container(
             margin: EdgeInsets.symmetric(horizontal: 16),
             child: Column(children: <Widget>[
               TextField(
-                controller: blogController.titleController,
+                controller: meetingController.titleController,
                 decoration: InputDecoration(
                     enabledBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Background),
@@ -207,7 +208,7 @@ class _CreateBlogState extends State<CreateBlog> {
                     focusedBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Background),
                     ),
-                    hintText: "Write the title of your blog",
+                    hintText: "Write the title of your meeting",
                     errorText: _validatetitle ? 'Can\'t Be Empty' : null,
                     counterStyle: const TextStyle(
                         color: Colors.black,
@@ -215,25 +216,95 @@ class _CreateBlogState extends State<CreateBlog> {
                         fontWeight: FontWeight.bold)),
                 maxLength: 30,
               ),
-              TextField(
-                controller: blogController.descriptionController,
-                decoration: InputDecoration(
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Background),
+              SizedBox(height: 20),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: TextField(
+                      controller: meetingController.feeController,
+                      decoration: InputDecoration(
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Background),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Background),
+                        ),
+                        hintText: "Inscription fee in €",
+                        errorText: _validatefee ? 'Can\'t Be Empty' : null,
+                        counterStyle: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 12.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      maxLength: 3,
                     ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Background),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: TextField(
+                      controller: meetingController.locationController,
+                      decoration: InputDecoration(
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Background),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Background),
+                        ),
+                        hintText: "Location of the meeting",
+                        errorText: _validatelocation ? 'Can\'t Be Empty' : null,
+                        counterStyle: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 12.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      maxLength: 40,
                     ),
-                    hintText: "Write a description of your blog",
-                    errorText: _validatedesc ? 'Can\'t Be Empty' : null,
-                    counterStyle: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 12.0,
-                        fontWeight: FontWeight.bold)),
-                maxLength: 50,
+                  ),
+                ],
               ),
+              SizedBox(height: 8),
               TextField(
-                controller: blogController.contentController,
+                controller: meetingController.dateController,
+                onTap: () async {
+                  // Show date picker dialog
+                  final DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2022),
+                    lastDate: DateTime(2024),
+                  );
+
+                  if (pickedDate != null) {
+                    setState(() {
+                      // Store the selected date
+                      selectedDate = pickedDate;
+                      // Update the text field with the selected date
+                      meetingController.dateController.text =
+                          DateFormat('yyyy-MM-dd').format(selectedDate);
+                    });
+                  }
+                },
+                decoration: InputDecoration(
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Background),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Background),
+                  ),
+                  hintText: "Date of the meeting",
+                  errorText: _validatedate ? 'Can\'t Be Empty' : null,
+                  counterStyle: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 12.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              SizedBox(height: 8),
+              TextField(
+                controller: meetingController.descriptionController,
                 decoration: InputDecoration(
                     enabledBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Background),
@@ -241,8 +312,8 @@ class _CreateBlogState extends State<CreateBlog> {
                     focusedBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Background),
                     ),
-                    hintText: "Write your blog",
-                    errorText: _validatebody ? 'Can\'t Be Empty' : null,
+                    hintText: "Write the description",
+                    errorText: _validatedesc ? 'Can\'t Be Empty' : null,
                     counterStyle: const TextStyle(
                         color: Colors.black,
                         fontSize: 12.0,
@@ -256,30 +327,42 @@ class _CreateBlogState extends State<CreateBlog> {
                 ),
                 onPressed: () async => {
                   setState(() {
-                    blogController.titleController.text.isEmpty
+                    meetingController.titleController.text.isEmpty
                         ? _validatetitle = true
                         : _validatetitle = false;
-                    blogController.descriptionController.text.isEmpty
+                    meetingController.descriptionController.text.isEmpty
                         ? _validatedesc = true
                         : _validatedesc = false;
-                    blogController.contentController.text.isEmpty
+                    meetingController.feeController.text.isEmpty
                         ? _validatebody = true
                         : _validatebody = false;
+                    meetingController.locationController.text.isEmpty
+                        ? _validatelocation = true
+                        : _validatelocation = false;
+                    meetingController.dateController.text.isEmpty
+                        ? _validatedate = true
+                        : _validatedate = false;
+                    meetingController.feeController.text.isEmpty
+                        ? _validatefee = true
+                        : _validatefee = false;
                   }),
-                  if (blogController.titleController.text.isNotEmpty &&
-                      blogController.descriptionController.text.isNotEmpty &&
-                      blogController.contentController.text.isNotEmpty &&
+                  if (meetingController.titleController.text.isNotEmpty &&
+                      meetingController.descriptionController.text.isNotEmpty &&
+                      meetingController.feeController.text.isNotEmpty &&
+                      meetingController.locationController.text.isNotEmpty &&
+                      meetingController.dateController.text.isNotEmpty &&
+                      meetingController.feeController.text.isNotEmpty &&
+                      meetingController.locationController.text.isNotEmpty &&
+                      meetingController.dateController.text.isNotEmpty &&
                       selectedImage != null)
                     {
-                      await blogController.createBlog(currentPhoto),
+                      await meetingController.createMeeting(currentPhoto),
                       change = "",
                       currentPhoto = "",
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) {
-                          return HomeScreen();
-                        }),
-                      )
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return TournamentScreen();
+                      })),
                     }
                   else if (selectedImage == null)
                     {

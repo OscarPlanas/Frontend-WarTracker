@@ -22,9 +22,7 @@ class _GameScreenState extends State<GameScreen> {
   bool _sortAscending = true;
   int _nextId = 1;
   bool isOwner = false;
-  bool? _isEditMode = false;
-  Map<int, bool> _editableCells =
-      {}; // Map to track the editing state of each cell
+
   List<List<TextEditingController>> controllersList = [];
 
   Future<List<Map<String, dynamic>>> fetchGames(String meetingId) async {
@@ -36,7 +34,6 @@ class _GameScreenState extends State<GameScreen> {
       final List<dynamic> data = jsonDecode(response.body);
       final List<Map<String, dynamic>> games =
           List<Map<String, dynamic>>.from(data);
-      //print(games);
       return games;
     } else {
       throw Exception('Failed to fetch games');
@@ -74,10 +71,7 @@ class _GameScreenState extends State<GameScreen> {
                 try {
                   game['victory_points_favour'] = int.parse(newValue);
                 } catch (e) {
-                  // Handle the exception, such as displaying an error message
-                  //if (newValue == "") {
                   print('Invalid input for points favour: $newValue');
-                  //} else {
                 }
               },
             )),
@@ -136,9 +130,6 @@ class _GameScreenState extends State<GameScreen> {
             DataCell(IconButton(
               icon: Icon(Icons.delete),
               onPressed: () {
-                print("game de una fila");
-                print(game);
-                print(game['_id']);
                 // Delete the row when the delete button is pressed
                 _deleteRow(game);
               },
@@ -158,7 +149,6 @@ class _GameScreenState extends State<GameScreen> {
 
   void _deleteRow(Map<String, dynamic> game) async {
     var gameId = game['_id'];
-    print("entramos en _deleteRow");
     if (isOwner) {
       var url = Uri.parse('http://10.0.2.2:5432/api/games/row/$gameId');
       var response = await http.delete(url);
@@ -171,7 +161,6 @@ class _GameScreenState extends State<GameScreen> {
       }
       print("delete");
     } else {
-      print("no eres el owner");
       openDialog("You can't delete this row, you are not the owner");
     }
   }
@@ -250,24 +239,19 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Future<void> checkIsOwner() async {
-    print("checkIsOwner");
     var url =
         Uri.parse('http://10.0.2.2:5432/api/meetings/' + widget.meetingId);
     var response = await http.get(url);
     var data = jsonDecode(response.body);
-    print(data['organizer']['username']);
 
     currentUser.username == data['organizer']['username']
         ? isOwner = true
         : isOwner = false;
-
-    print(isOwner);
   }
 
   @override
   void initState() {
     super.initState();
-    print("initState");
     _updateTableData();
     checkIsOwner();
   }
@@ -639,7 +623,6 @@ class _GameScreenState extends State<GameScreen> {
 
       // Print the non-participant usernames
       for (var username in nonParticipantUsers) {
-        print(username);
         openDialog("The user " + username + " is not a participant");
       }
     }
