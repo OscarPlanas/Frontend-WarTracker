@@ -1,16 +1,16 @@
 import 'dart:io';
-
+import 'package:intl/intl.dart';
 import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/controllers/user_controller.dart';
 import 'package:frontend/data/data.dart';
 import 'package:frontend/models/user.dart';
+import 'package:frontend/screens/home.dart';
 import 'package:frontend/screens/profile.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:frontend/screens/home.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class EditProfile extends StatefulWidget {
   final User user;
@@ -25,6 +25,7 @@ class _EditProfileState extends State<EditProfile> {
   UserController userController = UserController();
   bool _validatename = false;
   bool _validateusername = false;
+  bool _validatedate = false;
 
   bool _validatepassword = false;
 
@@ -33,12 +34,15 @@ class _EditProfileState extends State<EditProfile> {
   TextEditingController currentPasswordController = TextEditingController();
   TextEditingController newPasswordController = TextEditingController();
 
+  DateTime selectedDate = DateTime.now();
+
   @override
   void initState() {
     super.initState();
     userController.nameController.text = widget.user.name;
     userController.usernameController.text = widget.user.username;
     userController.emailController.text = widget.user.email;
+    userController.dateController.text = widget.user.date;
     userController.passwordController.text = widget.user.password;
     userController.repeatPasswordController.text = widget.user.password;
     userController.aboutController.text = widget.user.about;
@@ -63,6 +67,7 @@ class _EditProfileState extends State<EditProfile> {
   Future uploadImage() async {
     const url =
         "https://api.cloudinary.com/v1_1/dagbarc6g/auto/upload/w_200,h_200,c_fill,r_max";
+    print(url);
     var image = await ImagePicker.platform.getImage(source: ImageSource.camera);
 
     if (image == null) {
@@ -74,6 +79,7 @@ class _EditProfileState extends State<EditProfile> {
       isloading = true;
     });
     Dio dio = Dio();
+    print(dio);
     FormData formData = new FormData.fromMap({
       "file": await MultipartFile.fromFile(
         image.path,
@@ -81,6 +87,7 @@ class _EditProfileState extends State<EditProfile> {
       "upload_preset": "WarTracker",
       "cloud_name": "dagbarc6g",
     });
+    print(formData);
     try {
       CloudinaryResponse response = await cloudinary.uploadFile(
           CloudinaryFile.fromFile(image.path,
@@ -99,6 +106,7 @@ class _EditProfileState extends State<EditProfile> {
   Future uploadImage2() async {
     const url =
         "https://api.cloudinary.com/v1_1/dagbarc6g/auto/upload/w_200,h_200,c_fill,r_max";
+    print(url);
     var image =
         await ImagePicker.platform.getImage(source: ImageSource.gallery);
     if (image == null) {
@@ -111,6 +119,7 @@ class _EditProfileState extends State<EditProfile> {
     });
 
     Dio dio = Dio();
+    print(dio);
     FormData formData = new FormData.fromMap({
       "file": await MultipartFile.fromFile(
         image.path,
@@ -118,6 +127,7 @@ class _EditProfileState extends State<EditProfile> {
       "upload_preset": "WarTracker",
       "cloud_name": "dagbarc6g",
     });
+    print(formData);
     try {
       CloudinaryResponse response = await cloudinary.uploadFile(
           CloudinaryFile.fromFile(image.path,
@@ -136,6 +146,7 @@ class _EditProfileState extends State<EditProfile> {
   Future uploadCoverImage() async {
     const url =
         "https://api.cloudinary.com/v1_1/dagbarc6g/auto/upload/w_200,h_200,c_fill,r_max";
+    print(url);
     var image = await ImagePicker.platform.getImage(source: ImageSource.camera);
 
     if (image == null) {
@@ -147,6 +158,7 @@ class _EditProfileState extends State<EditProfile> {
       isloading = true;
     });
     Dio dio = Dio();
+    print(dio);
     FormData formData = new FormData.fromMap({
       "file": await MultipartFile.fromFile(
         image.path,
@@ -154,6 +166,7 @@ class _EditProfileState extends State<EditProfile> {
       "upload_preset": "WarTracker",
       "cloud_name": "dagbarc6g",
     });
+    print(formData);
     try {
       CloudinaryResponse response = await cloudinary.uploadFile(
           CloudinaryFile.fromFile(image.path,
@@ -172,6 +185,7 @@ class _EditProfileState extends State<EditProfile> {
   Future uploadCoverImage2() async {
     const url =
         "https://api.cloudinary.com/v1_1/dagbarc6g/auto/upload/w_200,h_200,c_fill,r_max";
+    print(url);
     var image =
         await ImagePicker.platform.getImage(source: ImageSource.gallery);
     if (image == null) {
@@ -184,6 +198,7 @@ class _EditProfileState extends State<EditProfile> {
     });
 
     Dio dio = Dio();
+    print(dio);
     FormData formData = new FormData.fromMap({
       "file": await MultipartFile.fromFile(
         image.path,
@@ -191,6 +206,7 @@ class _EditProfileState extends State<EditProfile> {
       "upload_preset": "WarTracker",
       "cloud_name": "dagbarc6g",
     });
+    print(formData);
     try {
       CloudinaryResponse response = await cloudinary.uploadFile(
           CloudinaryFile.fromFile(image.path,
@@ -393,6 +409,41 @@ class _EditProfileState extends State<EditProfile> {
                     ),
                   ),
                 ),
+                Text("Birthday",
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black)),
+                Padding(
+                  padding: EdgeInsets.only(bottom: 30),
+                  child: TextField(
+                    controller: userController.dateController,
+                    onTap: () async {
+                      final DateTime? pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateFormat("dd-MM-yyyy")
+                              .parseStrict(userController.dateController.text),
+                          firstDate: DateTime(1930),
+                          lastDate: DateTime.now());
+                      if (pickedDate != null) {
+                        setState(() {
+                          selectedDate = pickedDate;
+
+                          userController.dateController.text =
+                              DateFormat("dd-MM-yyyy").format(selectedDate);
+                        });
+                      }
+                    },
+                    decoration: InputDecoration(
+                      errorText: _validatedate ? 'Can\'t Be Empty' : null,
+                    ),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
                 Text("Email",
                     style: TextStyle(
                         fontSize: 18,
@@ -465,7 +516,9 @@ class _EditProfileState extends State<EditProfile> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     OutlinedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
                       child: Text(
                         "CANCEL",
                         style: TextStyle(
@@ -481,38 +534,20 @@ class _EditProfileState extends State<EditProfile> {
                     ),
                     ElevatedButton(
                       onPressed: () async {
-                        /*setState(() {
-                      userController.nameController.text.isEmpty
-                          ? _validatename = true
-                          : _validatename = false;
-                      userController.usernameController.text.isEmpty
-                          ? _validateusername = true
-                          : _validateusername = false;
-                      userController.emailController.text.isEmpty
-                          ? _validateemail = true
-                          : _validateemail = false;
-                      userController.passwordController.text.isEmpty
-                          ? _validatepassword = true
-                          : _validatepassword = false;
-
-                
-                    });*/
-                        /*if (currentPhoto == "" || currentPhoto == " ") {
-                      currentPhoto = widget.blog.imageUrl;
-                    }*/
-                        /*if (blogController.titleController.text.isNotEmpty &&
-                        blogController.descriptionController.text.isNotEmpty &&
-                        blogController.contentController.text.isNotEmpty) {*/
                         if ((currentPhoto == "" || currentPhoto == " ") &&
                             (currentBackgroundPhoto == "" ||
                                 currentBackgroundPhoto == " ")) {
                           currentPhoto = widget.user.imageUrl;
                           currentBackgroundPhoto =
                               widget.user.backgroundImageUrl;
-                        } /*userController.changePassword(
-                    currentPasswordController.text,
-                    newPasswordController.text,
-                  );*/
+                        } else if (currentPhoto == "" || currentPhoto == " ") {
+                          currentPhoto = widget.user.imageUrl;
+                        } else if (currentBackgroundPhoto == "" ||
+                            currentBackgroundPhoto == " ") {
+                          currentBackgroundPhoto =
+                              widget.user.backgroundImageUrl;
+                        }
+
                         int success = await userController.editUser(
                             widget.user.id,
                             currentPhoto,
@@ -527,10 +562,14 @@ class _EditProfileState extends State<EditProfile> {
                             name: userController.nameController.text,
                             username: userController.usernameController.text,
                             email: widget.user.email,
+                            date: userController.dateController.text,
                             password: widget.user.password,
                             imageUrl: currentPhoto,
                             backgroundImageUrl: currentBackgroundPhoto,
                             about: userController.aboutController.text,
+                            meetingsFollowed: widget.user.meetingsFollowed,
+                            followers: widget.user.followers,
+                            following: widget.user.following,
                           );
                           change = "";
                           currentPhoto = "";
@@ -555,6 +594,8 @@ class _EditProfileState extends State<EditProfile> {
                           userController.usernameController.clear();
                           userController.passwordController.clear();
                           userController.repeatPasswordController.clear();
+                          userController.aboutController.clear();
+                          userController.dateController.clear();
                         } else if (success == 1) {
                           openDialog("Wrong password");
                         } else if (success == 2) {

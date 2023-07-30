@@ -9,6 +9,13 @@ import 'package:frontend/models/comment.dart';
 import 'package:frontend/controllers/meeting_controller.dart';
 import 'package:frontend/models/meeting.dart';
 import 'package:get/get.dart';
+import 'package:frontend/models/user.dart';
+import 'package:frontend/screens/profile.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:frontend/models/Chat.dart';
+import 'package:frontend/screens/messages.dart';
+import 'package:frontend/controllers/chat_controller.dart';
 
 class CommentMeeting extends StatefulWidget {
   final Meeting meeting; // New parameter to hold the meeting ID
@@ -27,6 +34,8 @@ class _CommentMeetingState extends State<CommentMeeting> {
 
   List<Comments> comments = []; // Updated to store comments
   final commentController = TextEditingController();
+
+  ChatController chatController = Get.put(ChatController());
 
   @override
   void initState() {
@@ -122,7 +131,7 @@ class _CommentMeetingState extends State<CommentMeeting> {
                                     borderRadius: BorderRadius.circular(100),
                                     image: new DecorationImage(
                                       image: CachedNetworkImageProvider(
-                                        'https://naijacrawl.com/logo/logo.webp',
+                                        comment.owner['imageUrl'],
                                         scale: 1.0,
                                       ),
                                       fit: BoxFit.fill,
@@ -130,11 +139,71 @@ class _CommentMeetingState extends State<CommentMeeting> {
                                   ),
                                 ),
                               ),
-                              TextSpan(
-                                text: comment.owner['username'],
-                                style: GoogleFonts.roboto(
-                                  fontSize: 16,
-                                  color: ButtonBlack,
+                              WidgetSpan(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return Container(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              ListTile(
+                                                leading: Icon(Icons.person),
+                                                title: Text('View Profile'),
+                                                onTap: () {
+                                                  // Handle the "View Profile" option
+                                                  // Navigate to the user's profile screen
+                                                  //Navigator.pop(
+                                                  //  context); // Close the bottom sheet
+
+                                                  navigateToUserProfile(
+                                                      comment.owner['_id']);
+                                                },
+                                              ),
+                                              if (comment.owner['_id'] !=
+                                                  currentUser.id)
+                                                ListTile(
+                                                  leading: Icon(Icons.message),
+                                                  title: Text('Send Message'),
+                                                  onTap: () {
+                                                    // Handle the "Send Message" option
+                                                    // Show a dialog or navigate to the messaging screen
+                                                    print(
+                                                        "Sending message to user");
+
+                                                    sendMessageToUser(
+                                                        comment.owner['_id']);
+                                                  },
+                                                ),
+                                              if (comment.owner['_id'] !=
+                                                  currentUser.id)
+                                                ListTile(
+                                                  leading: Icon(Icons.report),
+                                                  title: Text('Report User'),
+                                                  onTap: () {
+                                                    // Handle the "Report User" option
+                                                    // Show a dialog or perform the reporting logic
+                                                    Navigator.pop(
+                                                        context); // Close the bottom sheet
+                                                  },
+                                                ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: RichText(
+                                    text: TextSpan(
+                                      text: comment.owner['username'],
+                                      style: GoogleFonts.roboto(
+                                        fontSize: 16,
+                                        color: ButtonBlack,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],
@@ -320,11 +389,13 @@ class _CommentMeetingState extends State<CommentMeeting> {
                       children: [
                         ...comment.replies.map<Widget>((replyDetails) {
                           String replyOwner = replyDetails['owner']['username'];
+                          String replyId = replyDetails['owner']['_id'];
                           String replyContent = replyDetails['content'];
                           String replyLike =
                               replyDetails['likes'].length.toString();
                           String replyDislike =
                               replyDetails['dislikes'].length.toString();
+                          String replyImage = replyDetails['owner']['imageUrl'];
 
                           bool isReplyLiked = replyDetails['likes'].contains(
                               currentUser
@@ -375,7 +446,7 @@ class _CommentMeetingState extends State<CommentMeeting> {
                                                     image: new DecorationImage(
                                                       image:
                                                           CachedNetworkImageProvider(
-                                                        'https://naijacrawl.com/logo/logo.webp',
+                                                        replyImage,
                                                         scale: 1.0,
                                                       ),
                                                       fit: BoxFit.fill,
@@ -383,11 +454,80 @@ class _CommentMeetingState extends State<CommentMeeting> {
                                                   ),
                                                 ),
                                               ),
-                                              TextSpan(
-                                                text: replyOwner,
-                                                style: GoogleFonts.roboto(
-                                                  fontSize: 16,
-                                                  color: ButtonBlack,
+                                              WidgetSpan(
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    showModalBottomSheet(
+                                                      context: context,
+                                                      builder: (BuildContext
+                                                          context) {
+                                                        return Container(
+                                                          child: Column(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: [
+                                                              ListTile(
+                                                                leading: Icon(
+                                                                    Icons
+                                                                        .person),
+                                                                title: Text(
+                                                                    'View Profile'),
+                                                                onTap: () {
+                                                                  navigateToUserProfile(
+                                                                      replyId);
+                                                                },
+                                                              ),
+                                                              if (replyId !=
+                                                                  currentUser
+                                                                      .id)
+                                                                ListTile(
+                                                                  leading: Icon(
+                                                                      Icons
+                                                                          .message),
+                                                                  title: Text(
+                                                                      'Send Message'),
+                                                                  onTap: () {
+                                                                    // Handle the "Send Message" option
+                                                                    // Show a dialog or navigate to the messaging screen
+                                                                    print(
+                                                                        "Sending message to user");
+
+                                                                    sendMessageToUser(
+                                                                        replyId);
+                                                                  },
+                                                                ),
+                                                              if (replyId !=
+                                                                  currentUser
+                                                                      .id)
+                                                                ListTile(
+                                                                  leading: Icon(
+                                                                      Icons
+                                                                          .report),
+                                                                  title: Text(
+                                                                      'Report User'),
+                                                                  onTap: () {
+                                                                    // Handle the "Report User" option
+                                                                    // Show a dialog or perform the reporting logic
+                                                                    Navigator.pop(
+                                                                        context); // Close the bottom sheet
+                                                                  },
+                                                                ),
+                                                            ],
+                                                          ),
+                                                        );
+                                                      },
+                                                    );
+                                                  },
+                                                  child: RichText(
+                                                    text: TextSpan(
+                                                      text: replyOwner,
+                                                      style: GoogleFonts.roboto(
+                                                        fontSize: 16,
+                                                        color: ButtonBlack,
+                                                      ),
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
                                             ],
@@ -671,5 +811,59 @@ class _CommentMeetingState extends State<CommentMeeting> {
         );
       },
     );
+  }
+
+  Future<void> navigateToUserProfile(idUser) async {
+    final data =
+        await http.get(Uri.parse('http://10.0.2.2:5432/api/users/' + idUser));
+    var jsonData = json.decode(data.body);
+    print(jsonData);
+    User user = User(
+      id: jsonData["_id"],
+      username: jsonData["username"],
+      password: jsonData["password"],
+      email: jsonData["email"],
+      name: jsonData["name"],
+      date: jsonData["date"],
+      imageUrl: jsonData["imageUrl"],
+      backgroundImageUrl: jsonData["backgroundImageUrl"],
+      about: jsonData["about"],
+      meetingsFollowed: jsonData["meetingsFollowed"],
+      followers: jsonData["followers"] ?? [],
+      following: jsonData["following"] ?? [],
+    );
+
+    Get.to(Profile(user));
+  }
+
+  Future<void> sendMessageToUser(recipientId) async {
+    print("Sending message to user with ID: " + recipientId);
+    final data = await http
+        .get(Uri.parse('http://10.0.2.2:5432/api/users/' + recipientId));
+    var jsonData = json.decode(data.body);
+
+    User user = User(
+      id: jsonData["_id"],
+      username: jsonData["username"],
+      password: jsonData["password"],
+      email: jsonData["email"],
+      date: jsonData["date"],
+      name: jsonData["name"],
+      imageUrl: jsonData["imageUrl"],
+      backgroundImageUrl: jsonData["backgroundImageUrl"],
+      about: jsonData["about"],
+      meetingsFollowed: jsonData["meetingsFollowed"],
+      followers: jsonData["followers"] ?? [],
+      following: jsonData["following"] ?? [],
+    );
+
+    ChatModel? chat = await chatController.getChat(currentUser.id, user.id);
+    if (chat == null) {
+      // If the chat is null, it means no chat exists, so we create a new chat
+      chatController.createChat(currentUser.id, user.id);
+    }
+
+    Get.to(MessagesScreen(user));
+    // Perform the logic for sending a message to a user
   }
 }

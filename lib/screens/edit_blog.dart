@@ -38,6 +38,7 @@ class _EditBlogState extends State<EditBlog> {
   Future uploadImage() async {
     const url =
         "https://api.cloudinary.com/v1_1/dagbarc6g/auto/upload/w_200,h_200,c_fill,r_max";
+    print(url);
     var image = await ImagePicker.platform.getImage(source: ImageSource.camera);
 
     if (image == null) {
@@ -49,6 +50,7 @@ class _EditBlogState extends State<EditBlog> {
       isloading = true;
     });
     Dio dio = Dio();
+    print(dio);
     FormData formData = new FormData.fromMap({
       "file": await MultipartFile.fromFile(
         image.path,
@@ -56,6 +58,7 @@ class _EditBlogState extends State<EditBlog> {
       "upload_preset": "WarTracker",
       "cloud_name": "dagbarc6g",
     });
+    print(formData);
     try {
       CloudinaryResponse response = await cloudinary.uploadFile(
           CloudinaryFile.fromFile(image.path,
@@ -74,6 +77,7 @@ class _EditBlogState extends State<EditBlog> {
   Future uploadImage2() async {
     const url =
         "https://api.cloudinary.com/v1_1/dagbarc6g/auto/upload/w_200,h_200,c_fill,r_max";
+    print(url);
     var image =
         await ImagePicker.platform.getImage(source: ImageSource.gallery);
     if (image == null) {
@@ -86,6 +90,7 @@ class _EditBlogState extends State<EditBlog> {
     });
 
     Dio dio = Dio();
+    print(dio);
     FormData formData = new FormData.fromMap({
       "file": await MultipartFile.fromFile(
         image.path,
@@ -93,6 +98,7 @@ class _EditBlogState extends State<EditBlog> {
       "upload_preset": "WarTracker",
       "cloud_name": "dagbarc6g",
     });
+    print(formData);
     try {
       CloudinaryResponse response = await cloudinary.uploadFile(
           CloudinaryFile.fromFile(image.path,
@@ -198,7 +204,7 @@ class _EditBlogState extends State<EditBlog> {
                               image: selectedImage!,
                               fit: BoxFit.cover,
                             )
-                          : widget.blog.imageUrl != null
+                          : widget.blog.imageUrl != ""
                               ? DecorationImage(
                                   image: NetworkImage(widget.blog.imageUrl),
                                   fit: BoxFit.cover,
@@ -314,6 +320,7 @@ class _EditBlogState extends State<EditBlog> {
                         body_text: blogController.contentController.text,
                         date: widget.blog.date,
                         imageUrl: currentPhoto,
+                        usersLiked: widget.blog.usersLiked,
                       );
                       change = "";
                       currentPhoto = "";

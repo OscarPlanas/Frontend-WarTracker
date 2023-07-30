@@ -1,15 +1,21 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/controllers/meeting_controller.dart';
+import 'package:frontend/controllers/chat_controller.dart';
+import 'package:frontend/data/data.dart';
+import 'package:frontend/models/Chat.dart';
 import 'package:frontend/models/meeting.dart';
+import 'package:frontend/models/user.dart';
 import 'package:frontend/screens/edit_meeting.dart';
 import 'package:frontend/screens/game.dart';
+import 'package:frontend/screens/messages.dart';
+import 'package:frontend/screens/profile.dart';
 import 'package:frontend/screens/tournaments.dart';
-import 'package:get/get.dart';
 import 'package:frontend/widgets/comment_meeting.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:frontend/data/data.dart';
 
 class MeetingScreen extends StatefulWidget {
   final Meeting meeting;
@@ -21,6 +27,7 @@ class MeetingScreen extends StatefulWidget {
 
 class _MeetingScreenState extends State<MeetingScreen> {
   MeetingController meetingController = Get.put(MeetingController());
+  ChatController chatController = Get.put(ChatController());
 
   //var meeting;
   var listParticipants = 0;
@@ -132,19 +139,90 @@ class _MeetingScreenState extends State<MeetingScreen> {
                                 Text.rich(
                                   TextSpan(children: [
                                     WidgetSpan(
-                                        child: Icon(
-                                      Icons.person,
-                                      size: 16.0,
-                                      color: Colors.grey,
-                                    )),
-                                    TextSpan(
-                                        text: "Organized by " +
-                                            widget
-                                                .meeting.organizer["username"]),
+                                      child: Icon(
+                                        Icons.person,
+                                        size: 16.0,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    TextSpan(text: "Organized by "),
+                                    WidgetSpan(
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          showModalBottomSheet(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return Container(
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    ListTile(
+                                                      leading:
+                                                          Icon(Icons.person),
+                                                      title:
+                                                          Text('View Profile'),
+                                                      onTap: () {
+                                                        navigateToUserProfile(
+                                                            widget.meeting
+                                                                    .organizer[
+                                                                "_id"]);
+                                                      },
+                                                    ),
+                                                    if (currentUser.id !=
+                                                        widget.meeting
+                                                            .organizer["_id"])
+                                                      ListTile(
+                                                        leading:
+                                                            Icon(Icons.message),
+                                                        title: Text(
+                                                            'Send Message'),
+                                                        onTap: () {
+                                                          // Handle the "Send Message" option
+                                                          // Show a dialog or navigate to the messaging screen
+                                                          print(
+                                                              "Sending message to user");
+                                                          sendMessageToUser(
+                                                              widget.meeting
+                                                                      .organizer[
+                                                                  "_id"]);
+                                                        },
+                                                      ),
+                                                    if (currentUser.id !=
+                                                        widget.meeting
+                                                            .organizer["_id"])
+                                                      ListTile(
+                                                        leading:
+                                                            Icon(Icons.report),
+                                                        title:
+                                                            Text('Report User'),
+                                                        onTap: () {
+                                                          // Handle the "Report User" option
+                                                          // Show a dialog or perform the reporting logic
+                                                          Navigator.pop(
+                                                              context); // Close the bottom sheet
+                                                        },
+                                                      ),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        },
+                                        child: Text(
+                                          widget.meeting.organizer["username"],
+                                          style: TextStyle(
+                                            color: ButtonBlack,
+                                            decoration:
+                                                TextDecoration.underline,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ]),
                                   style: TextStyle(
                                       color: Colors.grey, fontSize: 12.0),
-                                )
+                                ),
                               ],
                             ),
                           ),
@@ -333,5 +411,60 @@ class _MeetingScreenState extends State<MeetingScreen> {
       listParticipants = participants.length;
       print("listParticipants: $listParticipants");
     });
+  }
+
+  Future<void> navigateToUserProfile(idUser) async {
+    final data =
+        await http.get(Uri.parse('http://10.0.2.2:5432/api/users/' + idUser));
+    var jsonData = json.decode(data.body);
+
+    User user = User(
+      id: jsonData["_id"],
+      username: jsonData["username"],
+      password: jsonData["password"],
+      email: jsonData["email"],
+      date: jsonData["date"],
+      name: jsonData["name"],
+      imageUrl: jsonData["imageUrl"],
+      backgroundImageUrl: jsonData["backgroundImageUrl"],
+      about: jsonData["about"],
+      meetingsFollowed: jsonData["meetingsFollowed"],
+      followers: jsonData["followers"] ??
+          [], // This is a list of IDs, so it should be initialized as an empty list
+      following: jsonData["following"] ?? [],
+    );
+
+    Get.to(Profile(user));
+  }
+
+  Future<void> sendMessageToUser(recipientId) async {
+    print("Sending message to user with ID: " + recipientId);
+    final data = await http
+        .get(Uri.parse('http://10.0.2.2:5432/api/users/' + recipientId));
+    var jsonData = json.decode(data.body);
+
+    User user = User(
+      id: jsonData["_id"],
+      username: jsonData["username"],
+      password: jsonData["password"],
+      email: jsonData["email"],
+      date: jsonData["date"],
+      name: jsonData["name"],
+      imageUrl: jsonData["imageUrl"],
+      backgroundImageUrl: jsonData["backgroundImageUrl"],
+      about: jsonData["about"],
+      meetingsFollowed: jsonData["meetingsFollowed"],
+      followers: jsonData["followers"] ?? [],
+      following: jsonData["following"] ?? [],
+    );
+
+    ChatModel? chat = await chatController.getChat(currentUser.id, user.id);
+    if (chat == null) {
+      // If the chat is null, it means no chat exists, so we create a new chat
+      chatController.createChat(currentUser.id, user.id);
+    }
+
+    Get.to(MessagesScreen(user));
+    // Perform the logic for sending a message to a user
   }
 }

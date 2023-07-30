@@ -6,6 +6,7 @@ class Blog {
   Map<String, dynamic> author;
   String date;
   String imageUrl;
+  final List<dynamic> usersLiked;
 
   Blog(
       {required this.id,
@@ -14,7 +15,8 @@ class Blog {
       required this.body_text,
       required this.author,
       required this.date,
-      required this.imageUrl});
+      required this.imageUrl,
+      required this.usersLiked});
 
   factory Blog.fromJson(Map<String, dynamic> json) {
     return Blog(
@@ -24,6 +26,7 @@ class Blog {
         body_text: json['body_text'],
         author: json['author'],
         date: json['date'],
-        imageUrl: json['imageUrl']);
+        imageUrl: json['imageUrl'],
+        usersLiked: json['usersLiked']);
   }
 }

@@ -41,6 +41,7 @@ class _EditMeetingState extends State<EditMeeting> {
   Future uploadImage() async {
     const url =
         "https://api.cloudinary.com/v1_1/dagbarc6g/auto/upload/w_200,h_200,c_fill,r_max";
+    print(url);
     var image = await ImagePicker.platform.getImage(source: ImageSource.camera);
 
     if (image == null) {
@@ -52,6 +53,7 @@ class _EditMeetingState extends State<EditMeeting> {
       isloading = true;
     });
     Dio dio = Dio();
+    print(dio);
     FormData formData = new FormData.fromMap({
       "file": await MultipartFile.fromFile(
         image.path,
@@ -59,6 +61,7 @@ class _EditMeetingState extends State<EditMeeting> {
       "upload_preset": "WarTracker",
       "cloud_name": "dagbarc6g",
     });
+    print(formData);
     try {
       CloudinaryResponse response = await cloudinary.uploadFile(
           CloudinaryFile.fromFile(image.path,
@@ -77,6 +80,7 @@ class _EditMeetingState extends State<EditMeeting> {
   Future uploadImage2() async {
     const url =
         "https://api.cloudinary.com/v1_1/dagbarc6g/auto/upload/w_200,h_200,c_fill,r_max";
+    print(url);
     var image =
         await ImagePicker.platform.getImage(source: ImageSource.gallery);
     if (image == null) {
@@ -89,6 +93,7 @@ class _EditMeetingState extends State<EditMeeting> {
     });
 
     Dio dio = Dio();
+    print(dio);
     FormData formData = new FormData.fromMap({
       "file": await MultipartFile.fromFile(
         image.path,
@@ -96,6 +101,7 @@ class _EditMeetingState extends State<EditMeeting> {
       "upload_preset": "WarTracker",
       "cloud_name": "dagbarc6g",
     });
+    print(formData);
     try {
       CloudinaryResponse response = await cloudinary.uploadFile(
           CloudinaryFile.fromFile(image.path,

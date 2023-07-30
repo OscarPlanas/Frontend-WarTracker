@@ -10,6 +10,8 @@ import 'package:frontend/controllers/registration_controller.dart';
 import 'package:frontend/screens/login.dart';
 import 'package:get/get.dart';
 
+import 'package:intl/intl.dart';
+
 class Body extends StatefulWidget {
   const Body({
     Key? key,
@@ -22,6 +24,10 @@ class Body extends StatefulWidget {
 class _BodyState extends State<Body> {
   RegistrationController registrationController =
       Get.put(RegistrationController());
+  bool _validatedate = false;
+  final _formKey = GlobalKey<FormState>();
+
+  DateTime selectedDate = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -30,78 +36,129 @@ class _BodyState extends State<Body> {
 
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: 40, vertical: 100),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            "REGISTRO",
-            style: TextStyle(
-                fontWeight: FontWeight.bold, fontSize: 24, color: ButtonBlack),
-          ),
-          SizedBox(height: size.height * 0.10),
-          InputTextFieldWidget(registrationController.nameController, 'name',
-              Icons.person, "Nombre"),
-          SizedBox(height: size.height * 0.03),
-          InputTextFieldWidget(registrationController.usernameController,
-              'username', Icons.person_2_outlined, "Nombre de usuario"),
-          SizedBox(height: size.height * 0.03),
-          InputTextFieldWidget(registrationController.emailController, 'email',
-              Icons.email, "Correo"),
-          SizedBox(height: size.height * 0.03),
-          InputTextFieldWidget(registrationController.passwordController,
-              'password', Icons.lock, "Contraseña"),
-          SizedBox(height: size.height * 0.03),
-          InputTextFieldWidget(registrationController.repeatPasswordController,
-              'password', Icons.lock, "Repetir Contraseña"),
-          SizedBox(height: size.height * 0.08),
-          SubmitButton(
-            onPressed: () async => {
-              if (registrationController.nameController.text.isEmpty ||
-                  registrationController.usernameController.text.isEmpty ||
-                  registrationController.emailController.text.isEmpty ||
-                  registrationController.passwordController.text.isEmpty ||
-                  registrationController.repeatPasswordController.text.isEmpty)
-                {
-                  openDialog("Fill all the fields"),
+      child: Form(
+        key: _formKey, // Add the form key
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              "REGISTRO",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24,
+                  color: ButtonBlack),
+            ),
+            SizedBox(height: size.height * 0.10),
+            InputTextFieldWidget(registrationController.nameController, 'name',
+                Icons.person, "Nombre"),
+            SizedBox(height: size.height * 0.03),
+            InputTextFieldWidget(registrationController.usernameController,
+                'username', Icons.person_2_outlined, "Nombre de usuario"),
+            SizedBox(height: size.height * 0.03),
+            TextFormField(
+              controller: registrationController.dateController,
+              validator: _validateAge,
+              onTap: () async {
+                DateTime initialDate = DateTime.now();
+                if (registrationController.dateController.text.isNotEmpty) {
+                  initialDate = DateFormat("dd-MM-yyyy")
+                      .parseStrict(registrationController.dateController.text);
                 }
-              else if (registrationController.passwordController.text !=
-                  registrationController.repeatPasswordController.text)
-                {
-                  openDialog("Passwords don't match"),
+
+                final DateTime? pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate: initialDate,
+                  firstDate: DateTime(1930),
+                  lastDate: DateTime.now(),
+                );
+
+                if (pickedDate != null) {
+                  setState(() {
+                    selectedDate = pickedDate;
+                    registrationController.dateController.text =
+                        DateFormat("dd-MM-yyyy").format(selectedDate);
+                  });
                 }
-              else if (emailValid !=
-                  RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(
-                      registrationController.emailController.text.toString()))
-                {
-                  openDialog("Email is not valid"),
-                }
-              else if (registrationController.passwordController.text.length <
-                  6)
-                {
-                  openDialog("Password must be at least 6 characters"),
-                }
-              else
-                {
-                  await registrationController.registerWithEmail(),
-                }
-            },
-            title: 'SignUp',
-          ),
-          SizedBox(height: size.height * 0.02),
-          AlreadyHaveAnAccountCheck(
-            login: false,
-            press: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return LoginScreen();
-                  },
-                ),
-              );
-            },
-          ),
-        ],
+              },
+              decoration: InputDecoration(
+                  prefixIcon: Icon(
+                    Icons.calendar_today_outlined,
+                    color: Colors.black,
+                  ),
+                  alignLabelWithHint: true,
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0)),
+                  fillColor: Colors.white54,
+                  hintText: "Fecha de nacimiento",
+                  hintStyle: TextStyle(
+                      color: ButtonBlack, fontWeight: FontWeight.bold),
+                  contentPadding: EdgeInsets.only(bottom: 15),
+                  focusColor: Colors.white60),
+            ),
+            SizedBox(height: size.height * 0.03),
+            InputTextFieldWidget(registrationController.emailController,
+                'email', Icons.email, "Correo"),
+            SizedBox(height: size.height * 0.03),
+            InputTextFieldWidget(registrationController.passwordController,
+                'password', Icons.lock, "Contraseña"),
+            SizedBox(height: size.height * 0.03),
+            InputTextFieldWidget(
+                registrationController.repeatPasswordController,
+                'password',
+                Icons.lock,
+                "Repetir Contraseña"),
+            SizedBox(height: size.height * 0.08),
+            SubmitButton(
+              onPressed: () async => {
+                if (registrationController.nameController.text.isEmpty ||
+                    registrationController.usernameController.text.isEmpty ||
+                    registrationController.emailController.text.isEmpty ||
+                    registrationController.passwordController.text.isEmpty ||
+                    registrationController
+                        .repeatPasswordController.text.isEmpty ||
+                    registrationController.dateController.text.isEmpty)
+                  {
+                    openDialog("Fill all the fields"),
+                  }
+                else if (registrationController.passwordController.text !=
+                    registrationController.repeatPasswordController.text)
+                  {
+                    openDialog("Passwords don't match"),
+                  }
+                else if (emailValid !=
+                    RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(
+                        registrationController.emailController.text.toString()))
+                  {
+                    openDialog("Email is not valid"),
+                  }
+                else if (registrationController.passwordController.text.length <
+                    6)
+                  {
+                    openDialog("Password must be at least 6 characters"),
+                  }
+                else if (_formKey.currentState!.validate())
+                  {
+                    await registrationController.registerWithEmail(),
+                  }
+              },
+              title: 'SignUp',
+            ),
+            SizedBox(height: size.height * 0.02),
+            AlreadyHaveAnAccountCheck(
+              login: false,
+              press: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return LoginScreen();
+                    },
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -127,6 +184,29 @@ class _BodyState extends State<Body> {
       );
   void submit() {
     Navigator.of(context, rootNavigator: true).pop();
+  }
+
+  String? _validateAge(String? value) {
+    if (value == null || value.isEmpty) {
+      openDialog("Enter your date of birth");
+      return "Enter your date of birth";
+    }
+
+    final currentDate = DateTime.now();
+
+    int age = currentDate.year - selectedDate.year;
+
+    if (currentDate.month < selectedDate.month ||
+        (currentDate.month == selectedDate.month &&
+            currentDate.day < selectedDate.day)) {
+      age--;
+    }
+
+    if (age < 18) {
+      openDialog("You must be at least 18 years old");
+      return "You must be at least 18 years old";
+    }
+    return null;
   }
 }
 

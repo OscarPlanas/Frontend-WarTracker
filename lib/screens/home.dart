@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/data/data.dart';
 import 'package:get/get.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/models/blog.dart';

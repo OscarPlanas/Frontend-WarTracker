@@ -13,7 +13,7 @@ class RegistrationController extends GetxController {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController repeatPasswordController = TextEditingController();
-  //TextEditingController dateController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
 
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   final LocalStorage storage = new LocalStorage('My App');
@@ -29,6 +29,7 @@ class RegistrationController extends GetxController {
         'email': emailController.text,
         'password': passwordController.text,
         'repeatPassword': repeatPasswordController.text,
+        'date': dateController.text,
         'imageUrl': "",
         'backgroundImageUrl': "",
       };
@@ -51,6 +52,7 @@ class RegistrationController extends GetxController {
           nameController.clear();
           usernameController.clear();
           repeatPasswordController.clear();
+          dateController.clear();
           print("correcto");
           storage.setItem('token', token);
           Get.off(HomeScreen());

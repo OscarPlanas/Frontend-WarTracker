@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
+import 'package:frontend/models/Chat.dart';
 import 'package:frontend/models/blog.dart';
+import 'package:frontend/screens/messages.dart';
 import 'package:frontend/widgets/comment_post.dart';
 import 'package:get/get.dart';
 import 'package:frontend/screens/edit_blog.dart';
@@ -9,6 +11,10 @@ import 'package:frontend/controllers/blog_controller.dart';
 import 'package:frontend/data/data.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:frontend/models/user.dart';
+import 'package:frontend/screens/profile.dart';
+import 'package:frontend/controllers/chat_controller.dart';
 
 class BlogScreen extends StatefulWidget {
   final Blog blog;
@@ -22,12 +28,17 @@ class BlogScreen extends StatefulWidget {
 class _BlogScreenState extends State<BlogScreen> {
   BlogController blogController = Get.put(BlogController());
 
+  ChatController chatController = Get.put(ChatController());
+
   bool isOwner = false;
+  bool hasLiked = false;
+  bool _flagLiked = false;
 
   @override
   void initState() {
     super.initState();
     checkIsOwner();
+    checkHasLiked();
   }
 
   Future<void> checkIsOwner() async {
@@ -83,10 +94,44 @@ class _BlogScreenState extends State<BlogScreen> {
                     ),
                   ),
                   SizedBox(height: 5),
-                  Container(
-                    width: double.infinity,
-                    child:
-                        Image.network(widget.blog.imageUrl, fit: BoxFit.cover),
+                  Stack(
+                    alignment: Alignment.bottomLeft,
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        child: Image.network(
+                          widget.blog.imageUrl,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 10,
+                        left: 10,
+                        child: FloatingActionButton(
+                          backgroundColor: Colors.white,
+                          foregroundColor: ButtonBlack,
+                          onPressed: () => {
+                            setState(() {
+                              _flagLiked = !_flagLiked;
+                            }),
+                            if (_flagLiked)
+                              {
+                                blogController.deleteUserLike(widget.blog.id),
+                              }
+                            else
+                              {
+                                blogController.addUserLike(widget.blog.id),
+                              },
+                          },
+                          child: Icon(
+                            _flagLiked
+                                ? FontAwesomeIcons.heartBroken
+                                : FontAwesomeIcons.solidHeart,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   SizedBox(height: 5),
                   Padding(
@@ -97,17 +142,69 @@ class _BlogScreenState extends State<BlogScreen> {
                       children: <Widget>[
                         ClipRRect(
                           borderRadius: BorderRadius.circular(50),
-                          child: Image.asset(
-                            "assets/images/groguplaceholder.png",
+                          child: Image.network(
+                            widget.blog.author["imageUrl"],
                             width: 50,
                             height: 50,
                           ),
                         ),
                         SizedBox(width: 10),
-                        Text(
-                          "By ${widget.blog.author["username"]}",
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                        GestureDetector(
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Container(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      ListTile(
+                                        leading: Icon(Icons.person),
+                                        title: Text('View Profile'),
+                                        onTap: () {
+                                          navigateToUserProfile(
+                                              widget.blog.author["_id"]);
+                                        },
+                                      ),
+                                      if (currentUser.id !=
+                                          widget.blog.author["_id"])
+                                        ListTile(
+                                          leading: Icon(Icons.message),
+                                          title: Text('Send Message'),
+                                          onTap: () {
+                                            // Handle the "Send Message" option
+                                            // Show a dialog or navigate to the messaging screen
+                                            print("Sending message to user");
+
+                                            sendMessageToUser(
+                                                widget.blog.author["_id"]);
+                                          },
+                                        ),
+                                      if (currentUser.id !=
+                                          widget.blog.author["_id"])
+                                        ListTile(
+                                          leading: Icon(Icons.report),
+                                          title: Text('Report User'),
+                                          onTap: () {
+                                            // Handle the "Report User" option
+                                            // Show a dialog or perform the reporting logic
+                                            Navigator.pop(
+                                                context); // Close the bottom sheet
+                                          },
+                                        ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          child: Text(
+                            "By ${widget.blog.author["username"]}",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                         SizedBox(width: 10),
                         Text(
@@ -172,5 +269,78 @@ class _BlogScreenState extends State<BlogScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> checkHasLiked() async {
+    BlogController blogController = await Get.put(BlogController());
+
+    bool _hasLiked = await blogController.userHasLiked(widget.blog.id);
+
+    if (_hasLiked == true) {
+      setState(() {
+        _flagLiked = false;
+        //listParticipants += 1;
+      });
+    } else {
+      setState(() {
+        _flagLiked = true;
+        //listParticipants -= 1;
+      });
+    }
+  }
+
+  Future<void> navigateToUserProfile(idUser) async {
+    final data =
+        await http.get(Uri.parse('http://10.0.2.2:5432/api/users/' + idUser));
+    var jsonData = json.decode(data.body);
+
+    User user = User(
+      id: jsonData["_id"],
+      username: jsonData["username"],
+      password: jsonData["password"],
+      email: jsonData["email"],
+      date: jsonData["date"],
+      name: jsonData["name"],
+      imageUrl: jsonData["imageUrl"],
+      backgroundImageUrl: jsonData["backgroundImageUrl"],
+      about: jsonData["about"],
+      meetingsFollowed: jsonData["meetingsFollowed"],
+      followers: jsonData["followers"] ??
+          [], // This is a list of IDs, so it should be initialized as an empty list
+      following: jsonData["following"] ?? [],
+    );
+
+    Get.to(Profile(user));
+  }
+
+  Future<void> sendMessageToUser(recipientId) async {
+    print("Sending message to user with ID: " + recipientId);
+    final data = await http
+        .get(Uri.parse('http://10.0.2.2:5432/api/users/' + recipientId));
+    var jsonData = json.decode(data.body);
+
+    User user = User(
+      id: jsonData["_id"],
+      username: jsonData["username"],
+      password: jsonData["password"],
+      email: jsonData["email"],
+      date: jsonData["date"],
+      name: jsonData["name"],
+      imageUrl: jsonData["imageUrl"],
+      backgroundImageUrl: jsonData["backgroundImageUrl"],
+      about: jsonData["about"],
+      meetingsFollowed: jsonData["meetingsFollowed"],
+      followers: jsonData["followers"] ?? [],
+      following: jsonData["following"] ?? [],
+    );
+
+    ChatModel? chat = await chatController.getChat(currentUser.id, user.id);
+    if (chat == null) {
+      // If the chat is null, it means no chat exists, so we create a new chat
+      chatController.createChat(currentUser.id, user.id);
+    }
+
+    Get.to(MessagesScreen(user));
+    // Perform the logic for sending a message to a user
   }
 }

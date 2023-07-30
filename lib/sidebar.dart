@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/chats.dart';
 import 'package:frontend/screens/welcome.dart';
 import 'package:get/get.dart';
 import 'package:frontend/constants.dart';
@@ -77,10 +78,7 @@ class Sidebar extends StatelessWidget {
                 title: const Text('Chat'),
                 leading: const Icon(Icons.chat_outlined),
                 onTap: () {
-                  print(currentUser.username);
-                  print(currentUser.name);
-                  print(currentUser.email);
-                  print("Chat");
+                  Get.offAll(ChatsScreen());
                 }),
             ListTile(
               leading: const Icon(Icons.settings_outlined),

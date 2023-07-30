@@ -19,7 +19,6 @@ class _CreateMeetingState extends State<CreateMeeting> {
 
   bool _validatetitle = false;
   bool _validatedesc = false;
-  bool _validatebody = false;
   bool _validatelocation = false;
   bool _validatedate = false;
   bool _validatefee = false;
@@ -36,6 +35,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
   Future uploadImage() async {
     const url =
         "https://api.cloudinary.com/v1_1/dagbarc6g/auto/upload/w_200,h_200,c_fill,r_max";
+    print(url);
     var image = await ImagePicker.platform.getImage(source: ImageSource.camera);
 
     if (image == null) {
@@ -47,6 +47,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
       isloading = true;
     });
     Dio dio = Dio();
+    print(dio);
     FormData formData = new FormData.fromMap({
       "file": await MultipartFile.fromFile(
         image.path,
@@ -54,6 +55,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
       "upload_preset": "WarTracker",
       "cloud_name": "dagbarc6g",
     });
+    print(formData);
     try {
       CloudinaryResponse response = await cloudinary.uploadFile(
           CloudinaryFile.fromFile(image.path,
@@ -72,6 +74,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
   Future uploadImage2() async {
     const url =
         "https://api.cloudinary.com/v1_1/dagbarc6g/auto/upload/w_200,h_200,c_fill,r_max";
+    print(url);
     var image =
         await ImagePicker.platform.getImage(source: ImageSource.gallery);
     if (image == null) {
@@ -84,6 +87,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
     });
 
     Dio dio = Dio();
+    print(dio);
     FormData formData = new FormData.fromMap({
       "file": await MultipartFile.fromFile(
         image.path,
@@ -91,6 +95,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
       "upload_preset": "WarTracker",
       "cloud_name": "dagbarc6g",
     });
+    print(formData);
     try {
       CloudinaryResponse response = await cloudinary.uploadFile(
           CloudinaryFile.fromFile(image.path,
@@ -333,9 +338,6 @@ class _CreateMeetingState extends State<CreateMeeting> {
                     meetingController.descriptionController.text.isEmpty
                         ? _validatedesc = true
                         : _validatedesc = false;
-                    meetingController.feeController.text.isEmpty
-                        ? _validatebody = true
-                        : _validatebody = false;
                     meetingController.locationController.text.isEmpty
                         ? _validatelocation = true
                         : _validatelocation = false;
@@ -351,7 +353,6 @@ class _CreateMeetingState extends State<CreateMeeting> {
                       meetingController.feeController.text.isNotEmpty &&
                       meetingController.locationController.text.isNotEmpty &&
                       meetingController.dateController.text.isNotEmpty &&
-                      meetingController.feeController.text.isNotEmpty &&
                       meetingController.locationController.text.isNotEmpty &&
                       meetingController.dateController.text.isNotEmpty &&
                       selectedImage != null)

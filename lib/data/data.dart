@@ -9,6 +9,10 @@ User currentUser = User(
   imageUrl: "",
   backgroundImageUrl: "",
   about: "",
+  date: "",
+  meetingsFollowed: [],
+  followers: [],
+  following: [],
 );
 
 String currentPhoto = " ";
