@@ -8,6 +8,7 @@ import 'package:frontend/controllers/blog_controller.dart';
 import 'package:frontend/data/data.dart';
 import 'package:frontend/models/blog.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:frontend/theme_provider.dart';
 
 class EditBlog extends StatefulWidget {
   final Blog blog;
@@ -34,7 +35,7 @@ class _EditBlogState extends State<EditBlog> {
   XFile? image;
   final ImagePicker picker = ImagePicker();
   ImageProvider? selectedImage; // Store the selected image
-
+  ThemeMode _themeMode = ThemeMode.system; // Initialize with system mode
   Future uploadImage() async {
     const url =
         "https://api.cloudinary.com/v1_1/dagbarc6g/auto/upload/w_200,h_200,c_fill,r_max";
@@ -120,14 +121,24 @@ class _EditBlogState extends State<EditBlog> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            backgroundColor: _themeMode == ThemeMode.dark
+                ? Color.fromARGB(255, 32, 30, 30)
+                : Colors.white,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            title: Text('Please choose media to select'),
+            title: Text('Please choose media to select',
+                style: TextStyle(
+                    color: _themeMode == ThemeMode.dark
+                        ? Colors.white
+                        : Colors.black)),
             content: Container(
               height: MediaQuery.of(context).size.height / 6,
               child: Column(
                 children: [
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Background,
+                    ),
                     //if user click this button, user can upload image from gallery
                     onPressed: () {
                       Navigator.of(context).pop();
@@ -135,12 +146,16 @@ class _EditBlogState extends State<EditBlog> {
                     },
                     child: Row(
                       children: [
-                        Icon(Icons.image),
-                        Text('From Gallery'),
+                        Icon(Icons.image, color: ButtonBlack),
+                        Text('From Gallery',
+                            style: TextStyle(color: ButtonBlack)),
                       ],
                     ),
                   ),
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Background,
+                    ),
                     //if user click this button. user can upload image from camera
                     onPressed: () {
                       Navigator.of(context).pop();
@@ -148,8 +163,9 @@ class _EditBlogState extends State<EditBlog> {
                     },
                     child: Row(
                       children: [
-                        Icon(Icons.camera),
-                        Text('From Camera'),
+                        Icon(Icons.camera, color: ButtonBlack),
+                        Text('From Camera',
+                            style: TextStyle(color: ButtonBlack)),
                       ],
                     ),
                   ),
@@ -168,6 +184,16 @@ class _EditBlogState extends State<EditBlog> {
     blogController.titleController.text = widget.blog.title;
     blogController.descriptionController.text = widget.blog.description;
     blogController.contentController.text = widget.blog.body_text;
+    _loadThemeMode();
+  }
+
+  void _loadThemeMode() async {
+    // Retrieve the saved theme mode from SharedPreferences
+    ThemeMode savedThemeMode = await ThemeHelper.getThemeMode();
+    print(savedThemeMode);
+    setState(() {
+      _themeMode = savedThemeMode;
+    });
   }
 
   @override
@@ -176,6 +202,8 @@ class _EditBlogState extends State<EditBlog> {
       currentPhoto = change;
     }
     return Scaffold(
+        backgroundColor:
+            _themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
         appBar: AppBar(
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
@@ -198,6 +226,9 @@ class _EditBlogState extends State<EditBlog> {
                     margin: EdgeInsets.symmetric(horizontal: 16),
                     height: 150,
                     decoration: BoxDecoration(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.grey[800]
+                          : Colors.grey[300],
                       borderRadius: BorderRadius.circular(6),
                       image: selectedImage != null
                           ? DecorationImage(
@@ -213,24 +244,11 @@ class _EditBlogState extends State<EditBlog> {
                     ),
                     width: MediaQuery.of(context).size.width,
                     child: selectedImage == null
-                        ? Icon(Icons.add_a_photo, color: Colors.black)
+                        ? Icon(Icons.add_a_photo,
+                            color: _themeMode == ThemeMode.dark
+                                ? Colors.white
+                                : Colors.black)
                         : null,
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: IconButton(
-                        icon: Icon(Icons.add_a_photo, color: Colors.black),
-                        onPressed: () {
-                          myAlert();
-                        },
-                      ),
-                    ),
                   ),
                 ],
               ),
@@ -249,10 +267,17 @@ class _EditBlogState extends State<EditBlog> {
                       focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Background),
                       ),
-                      counterStyle: const TextStyle(
-                          color: Colors.black,
+                      counterStyle: TextStyle(
+                          color: _themeMode == ThemeMode.dark
+                              ? Colors.white
+                              : Colors.black,
                           fontSize: 12.0,
                           fontWeight: FontWeight.bold)),
+                  style: TextStyle(
+                    color: _themeMode == ThemeMode.dark
+                        ? Colors.white
+                        : Colors.black,
+                  ),
                   maxLength: 30,
                 ),
                 TextField(
@@ -265,10 +290,17 @@ class _EditBlogState extends State<EditBlog> {
                       focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Background),
                       ),
-                      counterStyle: const TextStyle(
-                          color: Colors.black,
+                      counterStyle: TextStyle(
+                          color: _themeMode == ThemeMode.dark
+                              ? Colors.white
+                              : Colors.black,
                           fontSize: 12.0,
                           fontWeight: FontWeight.bold)),
+                  style: TextStyle(
+                    color: _themeMode == ThemeMode.dark
+                        ? Colors.white
+                        : Colors.black,
+                  ),
                   maxLength: 50,
                 ),
                 TextField(
@@ -281,10 +313,17 @@ class _EditBlogState extends State<EditBlog> {
                       focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Background),
                       ),
-                      counterStyle: const TextStyle(
-                          color: Colors.black,
+                      counterStyle: TextStyle(
+                          color: _themeMode == ThemeMode.dark
+                              ? Colors.white
+                              : Colors.black,
                           fontSize: 12.0,
                           fontWeight: FontWeight.bold)),
+                  style: TextStyle(
+                    color: _themeMode == ThemeMode.dark
+                        ? Colors.white
+                        : Colors.black,
+                  ),
                   maxLength: 1000,
                   maxLines: 10,
                 ),

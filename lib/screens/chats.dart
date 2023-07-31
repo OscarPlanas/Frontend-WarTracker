@@ -7,9 +7,9 @@ import 'package:frontend/controllers/chat_controller.dart';
 import 'package:frontend/data/data.dart';
 import 'package:frontend/models/Chat.dart';
 import 'package:frontend/screens/messages.dart';
-//import 'package:frontend/models/ChatPlaceholder.dart';
 import 'package:frontend/sidebar.dart';
 import 'package:get/get.dart';
+import 'package:frontend/theme_provider.dart';
 
 class ChatsScreen extends StatefulWidget {
   const ChatsScreen({Key? key}) : super(key: key);
@@ -21,15 +21,28 @@ class ChatsScreen extends StatefulWidget {
 class _ChatsScreenState extends State<ChatsScreen> {
   ChatController chatController = Get.put(ChatController());
   List<ChatModel> chats = [];
+  ThemeMode _themeMode = ThemeMode.system;
   @override
   void initState() {
     super.initState();
     getChats();
+    _loadThemeMode();
+  }
+
+  void _loadThemeMode() async {
+    // Retrieve the saved theme mode from SharedPreferences
+    ThemeMode savedThemeMode = await ThemeHelper.getThemeMode();
+    print(savedThemeMode);
+    setState(() {
+      _themeMode = savedThemeMode;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor:
+          _themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
       drawer: Sidebar(),
       appBar: AppBar(
         iconTheme: IconThemeData(color: ButtonBlack),
@@ -49,7 +62,8 @@ class _ChatsScreenState extends State<ChatsScreen> {
                       Get.to(() => MessagesScreen(chats[index].client2));
                     else
                       Get.to(() => MessagesScreen(chats[index].client1));
-                  }),
+                  },
+                  themeMode: _themeMode),
             ),
           ),
         ],

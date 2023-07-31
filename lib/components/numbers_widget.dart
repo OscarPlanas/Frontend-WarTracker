@@ -4,16 +4,15 @@ import 'package:frontend/models/user.dart';
 class NumbersWidget extends StatefulWidget {
   final User user;
   final int followersCount;
+  final ThemeMode themeMode;
 
-  NumbersWidget(this.user, this.followersCount);
+  NumbersWidget(this.user, this.followersCount, this.themeMode);
   @override
   _NumbersWidgetState createState() => _NumbersWidgetState();
 }
 
 class _NumbersWidgetState extends State<NumbersWidget> {
-  int comments = 74;
-  int following = 432;
-  int followers = 4322;
+  //late ThemeMode themeMode;
 
   @override
   Widget build(BuildContext context) => Row(
@@ -29,7 +28,11 @@ class _NumbersWidgetState extends State<NumbersWidget> {
 
   Widget buildDivider() => Container(
         height: 24,
-        child: VerticalDivider(),
+        child: VerticalDivider(
+          color: widget.themeMode == ThemeMode.dark
+              ? Colors.white54
+              : Colors.black54,
+        ),
       );
 
   Widget buildButton({
@@ -46,12 +49,21 @@ class _NumbersWidgetState extends State<NumbersWidget> {
           children: <Widget>[
             Text(
               '$value',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: widget.themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black),
             ),
             SizedBox(height: 2),
             Text(
               text,
-              style: TextStyle(fontSize: 12),
+              style: TextStyle(
+                  fontSize: 12,
+                  color: widget.themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black),
             ),
           ],
         ),

@@ -10,6 +10,8 @@ import 'package:frontend/models/user.dart';
 import 'package:frontend/screens/chats.dart';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:frontend/theme_provider.dart';
+import 'package:frontend/constants.dart';
 
 class MessagesScreen extends StatefulWidget {
   final User user;
@@ -34,6 +36,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
   ChatModel? chat;
 
   final ScrollController _scrollController = ScrollController();
+
+  ThemeMode _themeMode = ThemeMode.system;
   @override
   void dispose() {
     // Dispose the ScrollController when the widget is disposed
@@ -48,6 +52,16 @@ class _MessagesScreenState extends State<MessagesScreen> {
     if (!_isChatFetched) {
       fetchChat();
     }
+    _loadThemeMode();
+  }
+
+  void _loadThemeMode() async {
+    // Retrieve the saved theme mode from SharedPreferences
+    ThemeMode savedThemeMode = await ThemeHelper.getThemeMode();
+    print(savedThemeMode);
+    setState(() {
+      _themeMode = savedThemeMode;
+    });
   }
 
   @override
@@ -135,6 +149,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Scaffold(
+              backgroundColor: _themeMode == ThemeMode.dark
+                  ? Colors.grey[900]
+                  : Colors.white,
               appBar: buildAppBar(),
               body: Center(
                 child: CircularProgressIndicator(),
@@ -142,6 +159,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
             );
           } else if (snapshot.hasError || snapshot.data == null) {
             return Scaffold(
+              backgroundColor: _themeMode == ThemeMode.dark
+                  ? Colors.grey[900]
+                  : Colors.white,
               appBar: buildAppBar(),
               body: Center(
                 child: Text("Error loading chat"),
@@ -164,6 +184,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
   Widget buildChatScreen() {
     return Scaffold(
+      backgroundColor:
+          _themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
       appBar: buildAppBar(),
       body: Column(
         children: [
@@ -176,7 +198,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 itemCount: messages.length,
                 itemBuilder: (context, index) {
                   if (messages[index].user == currentUser.id) {
-                    return OwnMessageCard(messageModel: messages[index]);
+                    return OwnMessageCard(
+                      messageModel: messages[index],
+                      themeMode: _themeMode,
+                    );
                   } else {
                     return ReplyCard(messageModel: messages[index]);
                   }
@@ -195,14 +220,14 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 BoxShadow(
                   offset: const Offset(0, 4),
                   blurRadius: 32,
-                  color: const Color(0xFF087949).withOpacity(0.08),
+                  color: Background.withOpacity(0.08),
                 ),
               ],
             ),
             child: SafeArea(
               child: Row(
                 children: [
-                  const Icon(Icons.mic, color: Colors.green),
+                  const Icon(Icons.mic, color: Background),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Container(

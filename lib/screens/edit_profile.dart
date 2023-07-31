@@ -11,6 +11,7 @@ import 'package:frontend/models/user.dart';
 import 'package:frontend/screens/home.dart';
 import 'package:frontend/screens/profile.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:frontend/theme_provider.dart';
 
 class EditProfile extends StatefulWidget {
   final User user;
@@ -36,6 +37,8 @@ class _EditProfileState extends State<EditProfile> {
 
   DateTime selectedDate = DateTime.now();
 
+  ThemeMode _themeMode = ThemeMode.system;
+
   @override
   void initState() {
     super.initState();
@@ -46,6 +49,16 @@ class _EditProfileState extends State<EditProfile> {
     userController.passwordController.text = widget.user.password;
     userController.repeatPasswordController.text = widget.user.password;
     userController.aboutController.text = widget.user.about;
+    _loadThemeMode();
+  }
+
+  void _loadThemeMode() async {
+    // Retrieve the saved theme mode from SharedPreferences
+    ThemeMode savedThemeMode = await ThemeHelper.getThemeMode();
+    print(savedThemeMode);
+    setState(() {
+      _themeMode = savedThemeMode;
+    });
   }
 
   final double coverHeight = 280;
@@ -228,15 +241,25 @@ class _EditProfileState extends State<EditProfile> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: _themeMode == ThemeMode.dark
+              ? Color.fromARGB(255, 32, 30, 30)
+              : Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
-          title: Text('Please choose media to select'),
+          title: Text('Please choose media to select',
+              style: TextStyle(
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black)),
           content: Container(
             height: MediaQuery.of(context).size.height / 6,
             child: Column(
               children: [
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Background,
+                  ),
                   onPressed: () {
                     Navigator.of(context).pop();
                     if (isAvatarImage) {
@@ -247,12 +270,16 @@ class _EditProfileState extends State<EditProfile> {
                   },
                   child: Row(
                     children: [
-                      Icon(Icons.image),
-                      Text('From Gallery'),
+                      Icon(Icons.image, color: ButtonBlack),
+                      Text('From Gallery',
+                          style: TextStyle(color: ButtonBlack)),
                     ],
                   ),
                 ),
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Background,
+                  ),
                   onPressed: () {
                     Navigator.of(context).pop();
                     if (isAvatarImage) {
@@ -263,8 +290,8 @@ class _EditProfileState extends State<EditProfile> {
                   },
                   child: Row(
                     children: [
-                      Icon(Icons.camera),
-                      Text('From Camera'),
+                      Icon(Icons.camera, color: ButtonBlack),
+                      Text('From Camera', style: TextStyle(color: ButtonBlack)),
                     ],
                   ),
                 ),
@@ -286,10 +313,17 @@ class _EditProfileState extends State<EditProfile> {
         // Create empty TextEditingController instances
 
         return AlertDialog(
+          backgroundColor: _themeMode == ThemeMode.dark
+              ? Color.fromARGB(255, 72, 70, 70)
+              : Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
-          title: Text('Change Password'),
+          title: Text('Change Password',
+              style: TextStyle(
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black)),
           content: Container(
             height: MediaQuery.of(context).size.height / 6,
             child: Column(
@@ -299,8 +333,17 @@ class _EditProfileState extends State<EditProfile> {
                   onChanged: (value) {
                     currentPassword = value;
                   },
+                  style: TextStyle(
+                    color: _themeMode == ThemeMode.dark
+                        ? Colors.white
+                        : Colors.black,
+                  ),
                   decoration: InputDecoration(
                     labelText: 'Current Password',
+                    labelStyle: TextStyle(
+                        color: _themeMode == ThemeMode.dark
+                            ? Colors.white
+                            : Colors.black),
                     errorText:
                         _validatepassword ? 'Enter a valid password' : null,
                   ),
@@ -311,8 +354,17 @@ class _EditProfileState extends State<EditProfile> {
                   onChanged: (value) {
                     newPassword = value;
                   },
+                  style: TextStyle(
+                    color: _themeMode == ThemeMode.dark
+                        ? Colors.white
+                        : Colors.black,
+                  ),
                   decoration: InputDecoration(
                     labelText: 'New Password',
+                    labelStyle: TextStyle(
+                        color: _themeMode == ThemeMode.dark
+                            ? Colors.white
+                            : Colors.black),
                     errorText:
                         _validatepassword ? 'Enter a valid password' : null,
                   ),
@@ -351,6 +403,8 @@ class _EditProfileState extends State<EditProfile> {
       currentPhoto = change;
     }
     return Scaffold(
+        backgroundColor:
+            _themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
         appBar: AppBar(
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
@@ -375,7 +429,9 @@ class _EditProfileState extends State<EditProfile> {
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black)),
+                        color: _themeMode == ThemeMode.dark
+                            ? Colors.white
+                            : Colors.black)),
                 Padding(
                   padding: EdgeInsets.only(bottom: 30),
                   child: TextField(
@@ -386,7 +442,9 @@ class _EditProfileState extends State<EditProfile> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.grey,
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white.withOpacity(0.7)
+                          : Colors.grey,
                     ),
                   ),
                 ),
@@ -394,7 +452,9 @@ class _EditProfileState extends State<EditProfile> {
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black)),
+                        color: _themeMode == ThemeMode.dark
+                            ? Colors.white
+                            : Colors.black)),
                 Padding(
                   padding: EdgeInsets.only(bottom: 30),
                   child: TextField(
@@ -405,7 +465,9 @@ class _EditProfileState extends State<EditProfile> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.grey,
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white.withOpacity(0.7)
+                          : Colors.grey,
                     ),
                   ),
                 ),
@@ -413,18 +475,47 @@ class _EditProfileState extends State<EditProfile> {
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black)),
+                        color: _themeMode == ThemeMode.dark
+                            ? Colors.white
+                            : Colors.black)),
                 Padding(
                   padding: EdgeInsets.only(bottom: 30),
                   child: TextField(
                     controller: userController.dateController,
                     onTap: () async {
                       final DateTime? pickedDate = await showDatePicker(
-                          context: context,
-                          initialDate: DateFormat("dd-MM-yyyy")
-                              .parseStrict(userController.dateController.text),
-                          firstDate: DateTime(1930),
-                          lastDate: DateTime.now());
+                        context: context,
+                        initialDate: DateFormat("dd-MM-yyyy")
+                            .parseStrict(userController.dateController.text),
+                        firstDate: DateTime(1930),
+                        lastDate: DateTime.now(),
+                        builder: (BuildContext context, Widget? child) {
+                          return Theme(
+                            data: ThemeData().copyWith(
+                              primaryColor: Colors
+                                  .green, // Set the color of the header and selected date
+                              colorScheme: _themeMode == ThemeMode.dark
+                                  ? ColorScheme.dark(
+                                      brightness: Brightness.dark,
+                                      primary: Background,
+                                      onPrimary: Colors.black)
+                                  : ColorScheme.light(
+                                      primary: Background,
+                                      onPrimary: Colors
+                                          .black), // Set the color of the selected date circle
+                              dialogBackgroundColor:
+                                  _themeMode == ThemeMode.dark
+                                      ? Colors.grey[900]
+                                      : Colors.white,
+                              buttonTheme: ButtonThemeData(
+                                textTheme: ButtonTextTheme.primary,
+                              ),
+                            ),
+                            child: child!,
+                          );
+                        },
+                      );
+
                       if (pickedDate != null) {
                         setState(() {
                           selectedDate = pickedDate;
@@ -440,7 +531,9 @@ class _EditProfileState extends State<EditProfile> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.grey,
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white.withOpacity(0.7)
+                          : Colors.grey,
                     ),
                   ),
                 ),
@@ -448,7 +541,9 @@ class _EditProfileState extends State<EditProfile> {
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black)),
+                        color: _themeMode == ThemeMode.dark
+                            ? Colors.white
+                            : Colors.black)),
                 Padding(
                   padding: EdgeInsets.only(bottom: 30),
                   child: TextField(
@@ -456,7 +551,9 @@ class _EditProfileState extends State<EditProfile> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.grey,
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white.withOpacity(0.7)
+                          : Colors.grey,
                     ),
                     readOnly: true,
                     enableInteractiveSelection: false,
@@ -466,7 +563,9 @@ class _EditProfileState extends State<EditProfile> {
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black)),
+                        color: _themeMode == ThemeMode.dark
+                            ? Colors.white
+                            : Colors.black)),
                 Padding(
                   padding: EdgeInsets.only(bottom: 30),
                   child: Row(
@@ -477,7 +576,9 @@ class _EditProfileState extends State<EditProfile> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.grey,
+                            color: _themeMode == ThemeMode.dark
+                                ? Colors.white.withOpacity(0.7)
+                                : Colors.grey,
                           ),
                           decoration: InputDecoration(
                             enabledBorder: UnderlineInputBorder(
@@ -509,7 +610,9 @@ class _EditProfileState extends State<EditProfile> {
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black)),
+                        color: _themeMode == ThemeMode.dark
+                            ? Colors.white
+                            : Colors.black)),
                 buildTextField(
                     userController.aboutController, widget.user.about, false),
                 Row(
@@ -527,6 +630,7 @@ class _EditProfileState extends State<EditProfile> {
                             color: Colors.black),
                       ),
                       style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.red,
                         padding: EdgeInsets.symmetric(horizontal: 50),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20)),
@@ -637,7 +741,9 @@ class _EditProfileState extends State<EditProfile> {
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
-          color: Colors.grey,
+          color: _themeMode == ThemeMode.dark
+              ? Colors.white.withOpacity(0.7)
+              : Colors.grey,
         ),
       ),
     );

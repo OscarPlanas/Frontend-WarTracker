@@ -15,6 +15,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:frontend/models/user.dart';
 import 'package:frontend/screens/profile.dart';
 import 'package:frontend/controllers/chat_controller.dart';
+import 'package:frontend/theme_provider.dart';
 
 class BlogScreen extends StatefulWidget {
   final Blog blog;
@@ -34,11 +35,23 @@ class _BlogScreenState extends State<BlogScreen> {
   bool hasLiked = false;
   bool _flagLiked = false;
 
+  ThemeMode _themeMode = ThemeMode.system; // Initialize with system mode
+
   @override
   void initState() {
     super.initState();
     checkIsOwner();
     checkHasLiked();
+    _loadThemeMode();
+  }
+
+  void _loadThemeMode() async {
+    // Retrieve the saved theme mode from SharedPreferences
+    ThemeMode savedThemeMode = await ThemeHelper.getThemeMode();
+    print(savedThemeMode);
+    setState(() {
+      _themeMode = savedThemeMode;
+    });
   }
 
   Future<void> checkIsOwner() async {
@@ -68,13 +81,16 @@ class _BlogScreenState extends State<BlogScreen> {
         iconTheme: IconThemeData(color: ButtonBlack),
         backgroundColor: Background,
       ),
-      backgroundColor: Background,
+      backgroundColor:
+          _themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
       body: SafeArea(
         child: ListView(
           children: <Widget>[
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: _themeMode == ThemeMode.dark
+                    ? Colors.grey[900]
+                    : Colors.white,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(30),
                   topRight: Radius.circular(30),
@@ -90,6 +106,9 @@ class _BlogScreenState extends State<BlogScreen> {
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
+                        color: _themeMode == ThemeMode.dark
+                            ? Colors.white
+                            : Colors.black,
                       ),
                     ),
                   ),
@@ -203,6 +222,9 @@ class _BlogScreenState extends State<BlogScreen> {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
+                              color: _themeMode == ThemeMode.dark
+                                  ? Colors.white
+                                  : Colors.black,
                             ),
                           ),
                         ),
@@ -219,6 +241,12 @@ class _BlogScreenState extends State<BlogScreen> {
                     padding: EdgeInsets.only(right: 50, left: 50),
                     child: Text(
                       widget.blog.body_text,
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: _themeMode == ThemeMode.dark
+                            ? Colors.white
+                            : Colors.black,
+                      ),
                     ),
                   ),
                   SizedBox(height: 20),
@@ -227,6 +255,9 @@ class _BlogScreenState extends State<BlogScreen> {
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black,
                     ),
                   ),
                   SizedBox(height: 20),
@@ -251,7 +282,10 @@ class _BlogScreenState extends State<BlogScreen> {
           if (isOwner)
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                  backgroundColor: ButtonBlack, foregroundColor: Background),
+                  backgroundColor: _themeMode == ThemeMode.dark
+                      ? Colors.grey[800]
+                      : Colors.black,
+                  foregroundColor: Background),
               onPressed: () async {
                 final updatedBlog = await Get.to(EditBlog(widget.blog));
                 if (updatedBlog != null) {

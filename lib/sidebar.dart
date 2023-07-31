@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/chats.dart';
+import 'package:frontend/screens/configuration.dart';
 import 'package:frontend/screens/welcome.dart';
 import 'package:get/get.dart';
 import 'package:frontend/constants.dart';
@@ -9,16 +10,41 @@ import 'package:frontend/screens/home.dart';
 import 'package:frontend/screens/tournaments.dart';
 import 'package:frontend/screens/profile.dart';
 import 'package:frontend/data/data.dart';
+import 'package:frontend/theme_provider.dart';
 
-class Sidebar extends StatelessWidget {
+class Sidebar extends StatefulWidget {
   Sidebar({Key? key}) : super(key: key);
+
+  @override
+  _SidebarState createState() => _SidebarState();
+}
+
+class _SidebarState extends State<Sidebar> {
+  ThemeMode _themeMode = ThemeMode.system; // Initialize with system mode
 
   final LocalStorage storage1 = LocalStorage('My App');
 
   @override
+  void initState() {
+    super.initState();
+    _loadThemeMode();
+  }
+
+  void _loadThemeMode() async {
+    // Retrieve the saved theme mode from SharedPreferences
+    ThemeMode savedThemeMode = await ThemeHelper.getThemeMode();
+    print(savedThemeMode);
+    setState(() {
+      _themeMode = savedThemeMode;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) => Drawer(
-          child: SingleChildScrollView(
-              child: Column(
+      backgroundColor:
+          _themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
+      child: SingleChildScrollView(
+          child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           buildHeader(context),
@@ -54,40 +80,92 @@ class Sidebar extends StatelessWidget {
         child: Wrap(
           children: [
             ListTile(
-              leading: const Icon(Icons.home_outlined),
-              title: const Text('Home'),
+              leading: Icon(Icons.home_outlined,
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black),
+              title: Text('Home',
+                  style: TextStyle(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black)),
               onTap: () => Get.offAll(HomeScreen()),
             ),
             ListTile(
-              title: const Text('Tournaments'),
-              leading: const Icon(Icons.sports_esports_outlined),
+              title: Text('Tournaments',
+                  style: TextStyle(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black)),
+              leading: Icon(Icons.sports_esports_outlined,
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black),
               onTap: () => Get.offAll(TournamentScreen()),
             ),
             ListTile(
-              title: const Text('Leaderboard'),
-              leading: const Icon(Icons.leaderboard_outlined),
+              title: Text('Leaderboard',
+                  style: TextStyle(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black)),
+              leading: Icon(Icons.leaderboard_outlined,
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black),
               onTap: () => Get.offAll(HomeScreen()),
             ),
-            const Divider(color: Colors.black54),
+            Divider(
+                color: _themeMode == ThemeMode.dark
+                    ? Colors.white
+                    : Colors.black54),
             ListTile(
-              leading: const Icon(Icons.person_outline),
-              title: const Text('Profile'),
+              leading: Icon(Icons.person_outline,
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black),
+              title: Text('Profile',
+                  style: TextStyle(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black)),
               onTap: () => Get.offAll(Profile(currentUser)),
             ),
             ListTile(
-                title: const Text('Chat'),
-                leading: const Icon(Icons.chat_outlined),
+                title: Text('Chat',
+                    style: TextStyle(
+                        color: _themeMode == ThemeMode.dark
+                            ? Colors.white
+                            : Colors.black)),
+                leading: Icon(Icons.chat_outlined,
+                    color: _themeMode == ThemeMode.dark
+                        ? Colors.white
+                        : Colors.black),
                 onTap: () {
                   Get.offAll(ChatsScreen());
                 }),
             ListTile(
-              leading: const Icon(Icons.settings_outlined),
-              title: const Text('Settings'),
-              onTap: () => Get.offAll(HomeScreen()),
+              leading: Icon(Icons.settings_outlined,
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black),
+              title: Text('Settings',
+                  style: TextStyle(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black)),
+              onTap: () => Get.offAll(ConfigurationScreen()),
             ),
             ListTile(
-              leading: const Icon(Icons.logout_outlined),
-              title: const Text('Logout'),
+              leading: Icon(Icons.logout_outlined,
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black),
+              title: Text('Logout',
+                  style: TextStyle(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black)),
               onTap: () async {
                 print("limpiamos localstorage");
                 await storage1.clear();
@@ -95,10 +173,20 @@ class Sidebar extends StatelessWidget {
                 Get.offAll(WelcomeScreen());
               },
             ),
-            const Divider(color: Colors.black54),
+            Divider(
+                color: _themeMode == ThemeMode.dark
+                    ? Colors.white
+                    : Colors.black54),
             ListTile(
-              leading: const Icon(Icons.info_outline),
-              title: const Text('About'),
+              leading: Icon(Icons.info_outline,
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black),
+              title: Text('About',
+                  style: TextStyle(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black)),
               onTap: () => Get.offAll(HomeScreen()),
             ),
           ],

@@ -1,6 +1,5 @@
 import 'package:frontend/models/Chat.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/models/Chat.dart';
 import 'package:frontend/data/data.dart';
 
 class ChatCard extends StatelessWidget {
@@ -8,10 +7,12 @@ class ChatCard extends StatelessWidget {
     Key? key,
     required this.chat,
     required this.press,
+    required this.themeMode,
   }) : super(key: key);
 
   final ChatModel chat;
   final VoidCallback press;
+  final ThemeMode themeMode;
 
   @override
   Widget build(BuildContext context) {
@@ -34,22 +35,6 @@ class ChatCard extends StatelessWidget {
                     radius: 24,
                     backgroundImage: NetworkImage(chat.client1.imageUrl),
                   ),
-                /*if (chat.isActive)
-                  Positioned(
-                    right: 0,
-                    bottom: 0,
-                    child: Container(
-                      height: 16,
-                      width: 16,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF66BB6A),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                            color: Theme.of(context).scaffoldBackgroundColor,
-                            width: 3),
-                      ),
-                    ),
-                  )*/
               ],
             ),
             Expanded(
@@ -61,33 +46,28 @@ class ChatCard extends StatelessWidget {
                     if (chat.client1.id == currentUser.id)
                       Text(
                         chat.client2.username,
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: themeMode == ThemeMode.dark
+                                ? Colors.white
+                                : Colors.black),
                       ),
-
                     if (chat.client2.id == currentUser.id)
                       Text(
                         chat.client1.username,
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: themeMode == ThemeMode.dark
+                                ? Colors.white
+                                : Colors.black),
                       ),
-                    const SizedBox(height: 8),
-                    // Opacity(
-                    //   opacity: 0.64,
-                    //   child: Text(
-                    //     chat.lastMessage,
-                    //     maxLines: 1,
-                    //     overflow: TextOverflow.ellipsis,
-                    //   ),
-                    // ),
+                    SizedBox(height: 8),
                   ],
                 ),
               ),
             ),
-            // Opacity(
-            //   opacity: 0.64,
-            //   child: Text(chat.time),
-            // ),
           ],
         ),
       ),

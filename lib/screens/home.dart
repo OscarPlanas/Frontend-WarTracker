@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:frontend/components/customListTile.dart';
 import 'package:frontend/constants.dart';
-import 'package:frontend/models/blog.dart';
-import 'package:frontend/screens/blog.dart';
 import 'package:frontend/controllers/blog_controller.dart';
-import 'package:frontend/sidebar.dart';
 import 'package:frontend/controllers/user_controller.dart';
+import 'package:frontend/models/blog.dart';
 import 'package:frontend/screens/create_blog.dart';
+import 'package:frontend/sidebar.dart';
+import 'package:get/get.dart';
+import 'package:frontend/theme_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -18,6 +19,24 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   Future<List<Blog>> blogsFuture = BlogController().getBlogs();
   Future user = UserController().getUser();
+
+  ThemeMode _themeMode = ThemeMode.system; // Initialize with system mode
+
+  @override
+  void initState() {
+    super.initState();
+    _loadThemeMode();
+  }
+
+  void _loadThemeMode() async {
+    // Retrieve the saved theme mode from SharedPreferences
+    ThemeMode savedThemeMode = await ThemeHelper.getThemeMode();
+    print(savedThemeMode);
+    setState(() {
+      _themeMode = savedThemeMode;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,34 +47,25 @@ class _HomeScreenState extends State<HomeScreen> {
             const Text(('Latest News'), style: TextStyle(color: ButtonBlack)),
         backgroundColor: Background,
       ),
-      //drawer: NavigationDrawer(),
-      body: Center(
-        child: FutureBuilder<List<Blog>>(
-          future: blogsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return ListView.builder(
-                  itemCount: snapshot.data!.length,
-                  itemBuilder: (context, index) {
-                    Blog blog = snapshot.data![index];
-                    return Card(
-                      child: ListTile(
-                        title: Text(blog.title),
-                        subtitle: Text(blog.description),
-                        leading: Image.network(blog.imageUrl),
-                        trailing: Icon(Icons.arrow_forward_ios),
-                        onTap: () {
-                          Get.to(BlogScreen(blog));
-                        },
-                      ),
-                    );
-                  });
-            } else if (snapshot.hasError) {
-              return Text('${snapshot.error}');
-            }
-            return const CircularProgressIndicator();
-          },
-        ),
+      backgroundColor:
+          _themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
+      body: FutureBuilder<List<Blog>>(
+        future: blogsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasData) {
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                Blog blog = snapshot.data![index];
+                return customListTile(blog, context, _themeMode);
+              },
+            );
+          } else {
+            return Center(child: Text('No blogs found.'));
+          }
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

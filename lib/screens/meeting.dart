@@ -16,6 +16,7 @@ import 'package:frontend/screens/tournaments.dart';
 import 'package:frontend/widgets/comment_meeting.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:frontend/theme_provider.dart';
 
 class MeetingScreen extends StatefulWidget {
   final Meeting meeting;
@@ -29,24 +30,33 @@ class _MeetingScreenState extends State<MeetingScreen> {
   MeetingController meetingController = Get.put(MeetingController());
   ChatController chatController = Get.put(ChatController());
 
-  //var meeting;
   var listParticipants = 0;
 
   bool _flag2 = false;
 
   bool isOwner = false;
 
+  ThemeMode _themeMode = ThemeMode.system;
+
   @override
   void initState() {
     super.initState();
 
-    //meetingController.getMeetings();
-    //meeting = widget.meeting;
     meetingController.userIsParticipant(widget.meeting.id);
 
     isParticipant();
     checkIsOwner();
     updateParticipantsList();
+    _loadThemeMode();
+  }
+
+  void _loadThemeMode() async {
+    // Retrieve the saved theme mode from SharedPreferences
+    ThemeMode savedThemeMode = await ThemeHelper.getThemeMode();
+    print(savedThemeMode);
+    setState(() {
+      _themeMode = savedThemeMode;
+    });
   }
 
   Widget build(BuildContext context) {
@@ -60,6 +70,8 @@ class _MeetingScreenState extends State<MeetingScreen> {
         iconTheme: IconThemeData(color: ButtonBlack),
         backgroundColor: Background,
       ),
+      backgroundColor:
+          _themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
       body: Stack(
         children: <Widget>[
           Container(
@@ -99,7 +111,9 @@ class _MeetingScreenState extends State<MeetingScreen> {
                 ),
                 Container(
                   padding: const EdgeInsets.all(32.0),
-                  color: Colors.white,
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.grey[900]
+                      : Colors.white,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
@@ -116,9 +130,17 @@ class _MeetingScreenState extends State<MeetingScreen> {
                                         child: Icon(
                                       Icons.location_on,
                                       size: 16.0,
-                                      color: Colors.grey,
+                                      color: _themeMode == ThemeMode.dark
+                                          ? Colors.white
+                                          : Colors.grey,
                                     )),
-                                    TextSpan(text: widget.meeting.location),
+                                    TextSpan(
+                                        text: widget.meeting.location,
+                                        style: TextStyle(
+                                          color: _themeMode == ThemeMode.dark
+                                              ? Colors.white
+                                              : Colors.grey,
+                                        )),
                                   ]),
                                   style: TextStyle(
                                       color: Colors.grey, fontSize: 12.0),
@@ -129,9 +151,16 @@ class _MeetingScreenState extends State<MeetingScreen> {
                                         child: Icon(
                                       Icons.date_range,
                                       size: 16.0,
-                                      color: Colors.grey,
+                                      color: _themeMode == ThemeMode.dark
+                                          ? Colors.white
+                                          : Colors.grey,
                                     )),
-                                    TextSpan(text: widget.meeting.date),
+                                    TextSpan(
+                                        text: widget.meeting.date,
+                                        style: TextStyle(
+                                            color: _themeMode == ThemeMode.dark
+                                                ? Colors.white
+                                                : Colors.grey)),
                                   ]),
                                   style: TextStyle(
                                       color: Colors.grey, fontSize: 12.0),
@@ -142,10 +171,17 @@ class _MeetingScreenState extends State<MeetingScreen> {
                                       child: Icon(
                                         Icons.person,
                                         size: 16.0,
-                                        color: Colors.grey,
+                                        color: _themeMode == ThemeMode.dark
+                                            ? Colors.white
+                                            : Colors.grey,
                                       ),
                                     ),
-                                    TextSpan(text: "Organized by "),
+                                    TextSpan(
+                                        text: "Organized by ",
+                                        style: TextStyle(
+                                            color: _themeMode == ThemeMode.dark
+                                                ? Colors.white
+                                                : Colors.grey)),
                                     WidgetSpan(
                                       child: GestureDetector(
                                         onTap: () {
@@ -178,8 +214,6 @@ class _MeetingScreenState extends State<MeetingScreen> {
                                                         title: Text(
                                                             'Send Message'),
                                                         onTap: () {
-                                                          // Handle the "Send Message" option
-                                                          // Show a dialog or navigate to the messaging screen
                                                           print(
                                                               "Sending message to user");
                                                           sendMessageToUser(
@@ -197,8 +231,6 @@ class _MeetingScreenState extends State<MeetingScreen> {
                                                         title:
                                                             Text('Report User'),
                                                         onTap: () {
-                                                          // Handle the "Report User" option
-                                                          // Show a dialog or perform the reporting logic
                                                           Navigator.pop(
                                                               context); // Close the bottom sheet
                                                         },
@@ -212,7 +244,9 @@ class _MeetingScreenState extends State<MeetingScreen> {
                                         child: Text(
                                           widget.meeting.organizer["username"],
                                           style: TextStyle(
-                                            color: ButtonBlack,
+                                            color: _themeMode == ThemeMode.dark
+                                                ? Colors.white
+                                                : ButtonBlack,
                                             decoration:
                                                 TextDecoration.underline,
                                           ),
@@ -232,14 +266,19 @@ class _MeetingScreenState extends State<MeetingScreen> {
                                 widget.meeting.registration_fee.toString() +
                                     " €",
                                 style: TextStyle(
-                                    color: ButtonBlack,
+                                    color: _themeMode == ThemeMode.dark
+                                        ? Colors.white
+                                        : ButtonBlack,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 20.0),
                               ),
                               Text(
                                 "/registration",
                                 style: TextStyle(
-                                    fontSize: 12.0, color: Colors.grey),
+                                    fontSize: 12.0,
+                                    color: _themeMode == ThemeMode.dark
+                                        ? Colors.white
+                                        : Colors.grey),
                               )
                             ],
                           )
@@ -265,7 +304,6 @@ class _MeetingScreenState extends State<MeetingScreen> {
                                     .addParticipant(widget.meeting.id),
                                 listParticipants += 1,
                               },
-                            //updateParticipantsList(),
                           },
                           child: Text(_flag2 ? 'Sign Up' : 'Sign Out'),
                           style: ElevatedButton.styleFrom(
@@ -285,19 +323,30 @@ class _MeetingScreenState extends State<MeetingScreen> {
                           "There are " +
                               listParticipants.toString() +
                               " participants",
-                          style: TextStyle(color: Colors.grey)),
+                          style: TextStyle(
+                              color: _themeMode == ThemeMode.dark
+                                  ? Colors.white
+                                  : Colors.grey)),
                       const SizedBox(height: 30.0),
                       Text(
                         "Description".toUpperCase(),
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 14.0),
+                        style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14.0,
+                            color: _themeMode == ThemeMode.dark
+                                ? Colors.white
+                                : Colors.black),
                       ),
                       const SizedBox(height: 10.0),
                       Text(
                         widget.meeting.description,
                         textAlign: TextAlign.justify,
                         style: TextStyle(
-                            fontWeight: FontWeight.w300, fontSize: 14.0),
+                            fontWeight: FontWeight.w300,
+                            fontSize: 14.0,
+                            color: _themeMode == ThemeMode.dark
+                                ? Colors.white
+                                : Colors.black),
                       ),
                       const SizedBox(height: 10.0),
                       Text(
@@ -305,6 +354,9 @@ class _MeetingScreenState extends State<MeetingScreen> {
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
+                          color: _themeMode == ThemeMode.dark
+                              ? Colors.white
+                              : Colors.black,
                         ),
                       ),
                       SizedBox(height: 20),
@@ -331,7 +383,10 @@ class _MeetingScreenState extends State<MeetingScreen> {
           if (isOwner)
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                  backgroundColor: ButtonBlack, foregroundColor: Background),
+                  backgroundColor: _themeMode == ThemeMode.dark
+                      ? Colors.grey[700]
+                      : ButtonBlack,
+                  foregroundColor: Background),
               onPressed: () async {
                 final updatedMeeting =
                     await Get.to(EditMeeting(widget.meeting));
@@ -377,12 +432,10 @@ class _MeetingScreenState extends State<MeetingScreen> {
     if (_isParticipant == true) {
       setState(() {
         _flag2 = false;
-        //listParticipants += 1;
       });
     } else {
       setState(() {
         _flag2 = true;
-        //listParticipants -= 1;
       });
     }
   }
@@ -465,6 +518,5 @@ class _MeetingScreenState extends State<MeetingScreen> {
     }
 
     Get.to(MessagesScreen(user));
-    // Perform the logic for sending a message to a user
   }
 }

@@ -3,7 +3,10 @@ import 'package:frontend/models/message.dart';
 
 class OwnMessageCard extends StatelessWidget {
   final MessageModel messageModel;
-  const OwnMessageCard({Key? key, required this.messageModel})
+  final ThemeMode themeMode;
+
+  const OwnMessageCard(
+      {Key? key, required this.messageModel, required this.themeMode})
       : super(key: key);
 
   @override
@@ -32,6 +35,7 @@ class OwnMessageCard extends StatelessWidget {
                     messageModel.message,
                     style: TextStyle(
                       fontSize: 16,
+                      color: Colors.black,
                     ),
                   ),
                 ),
@@ -46,10 +50,11 @@ class OwnMessageCard extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: 5),
-                    Icon(
-                      Icons.done_all,
-                      size: 20,
-                    ),
+                    Icon(Icons.done_all,
+                        size: 20,
+                        color: themeMode == ThemeMode.dark
+                            ? Colors.black
+                            : Colors.grey),
                     SizedBox(width: 5),
                   ],
                 ),

@@ -15,6 +15,7 @@ import 'package:frontend/screens/profile.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:frontend/theme_provider.dart';
 
 class CommentPost extends StatefulWidget {
   final Blog blog; // New parameter to hold the blog ID
@@ -36,6 +37,7 @@ class _CommentPostState extends State<CommentPost> {
 
   ChatController chatController = Get.put(ChatController());
 
+  ThemeMode _themeMode = ThemeMode.system; // Initialize with system mode
   @override
   void initState() {
     super.initState();
@@ -45,6 +47,16 @@ class _CommentPostState extends State<CommentPost> {
 
     // Call your function to fetch comments and update the state
     fetchComments();
+    _loadThemeMode();
+  }
+
+  void _loadThemeMode() async {
+    // Retrieve the saved theme mode from SharedPreferences
+    ThemeMode savedThemeMode = await ThemeHelper.getThemeMode();
+    print(savedThemeMode);
+    setState(() {
+      _themeMode = savedThemeMode;
+    });
   }
 
   Future<void> fetchComments() async {
@@ -63,7 +75,9 @@ class _CommentPostState extends State<CommentPost> {
         InkWell(
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: _themeMode == ThemeMode.dark
+                  ? Colors.grey[800]
+                  : Colors.white,
               border: Border.all(
                 color: Colors.grey,
                 width: 1.0,
@@ -76,9 +90,13 @@ class _CommentPostState extends State<CommentPost> {
               child: Text(
                 "Write a comment...",
                 style: GoogleFonts.roboto(
-                  backgroundColor: Colors.white,
+                  backgroundColor: _themeMode == ThemeMode.dark
+                      ? Colors.grey[800]
+                      : Colors.white,
                   fontSize: 16,
-                  color: ButtonBlack,
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black54,
                 ),
               ),
             ),
@@ -102,7 +120,8 @@ class _CommentPostState extends State<CommentPost> {
                 topRight: Radius.circular(12.0),
               ),
             ),
-            color: Theme.of(context).cardColor,
+            color:
+                _themeMode == ThemeMode.dark ? Colors.grey[800] : Colors.white,
             elevation: 0.8,
             child: Container(
               constraints: BoxConstraints(
@@ -152,11 +171,6 @@ class _CommentPostState extends State<CommentPost> {
                                                 leading: Icon(Icons.person),
                                                 title: Text('View Profile'),
                                                 onTap: () {
-                                                  // Handle the "View Profile" option
-                                                  // Navigate to the user's profile screen
-                                                  //Navigator.pop(
-                                                  //  context); // Close the bottom sheet
-
                                                   navigateToUserProfile(
                                                       comment.owner['_id']);
                                                 },
@@ -199,7 +213,9 @@ class _CommentPostState extends State<CommentPost> {
                                       text: comment.owner['username'],
                                       style: GoogleFonts.roboto(
                                         fontSize: 16,
-                                        color: ButtonBlack,
+                                        color: _themeMode == ThemeMode.dark
+                                            ? Colors.white
+                                            : Colors.black,
                                       ),
                                     ),
                                   ),
@@ -215,7 +231,9 @@ class _CommentPostState extends State<CommentPost> {
                     comment.content,
                     style: GoogleFonts.roboto(
                       fontSize: 14,
-                      color: Theme.of(context).disabledColor,
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.grey
+                          : Colors.black54,
                     ),
                     textAlign: TextAlign.left,
                   ),
@@ -228,11 +246,8 @@ class _CommentPostState extends State<CommentPost> {
                           onTap: () {
                             setState(() {
                               comment.repliesVisible = !comment.repliesVisible;
-                              // comment.repliesVisible = !comment.repliesVisible;
 
                               print('expand/collapse replies');
-                              // Handle the click to expand/collapse the replies
-                              // Set a boolean flag to control the expansion state
                             });
                           },
                           child: Text.rich(
@@ -415,7 +430,9 @@ class _CommentPostState extends State<CommentPost> {
                                 topRight: Radius.circular(12.0),
                               ),
                             ),
-                            color: Theme.of(context).cardColor,
+                            color: _themeMode == ThemeMode.dark
+                                ? Colors.grey[800]
+                                : Colors.white,
                             elevation: 0.8,
                             child: Container(
                               constraints: BoxConstraints(
@@ -527,7 +544,10 @@ class _CommentPostState extends State<CommentPost> {
                                                       text: replyOwner,
                                                       style: GoogleFonts.roboto(
                                                         fontSize: 16,
-                                                        color: ButtonBlack,
+                                                        color: _themeMode ==
+                                                                ThemeMode.dark
+                                                            ? Colors.white
+                                                            : Colors.black,
                                                       ),
                                                     ),
                                                   ),
@@ -543,7 +563,9 @@ class _CommentPostState extends State<CommentPost> {
                                     replyContent,
                                     style: GoogleFonts.roboto(
                                       fontSize: 14,
-                                      color: Theme.of(context).disabledColor,
+                                      color: _themeMode == ThemeMode.dark
+                                          ? Colors.grey
+                                          : Colors.black54,
                                     ),
                                     textAlign: TextAlign.left,
                                   ),
@@ -720,11 +742,24 @@ class _CommentPostState extends State<CommentPost> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Write a comment'),
+          backgroundColor:
+              _themeMode == ThemeMode.dark ? Colors.grey[800] : Colors.white,
+          title: Text('Write a comment',
+              style: TextStyle(
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black)),
           content: TextField(
             controller: blogController.commentController,
+            style: TextStyle(
+              color: _themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+            ),
             decoration: InputDecoration(
               hintText: 'Enter your comment...',
+              hintStyle: TextStyle(
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black),
               enabledBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: Background),
               ),
@@ -773,11 +808,24 @@ class _CommentPostState extends State<CommentPost> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Write a reply'),
+          title: Text('Write a reply',
+              style: TextStyle(
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black)),
+          backgroundColor:
+              _themeMode == ThemeMode.dark ? Colors.grey[800] : Colors.white,
           content: TextField(
             controller: blogController.replyController,
+            style: TextStyle(
+              color: _themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+            ),
             decoration: InputDecoration(
               hintText: 'Enter your reply...',
+              hintStyle: TextStyle(
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black),
               enabledBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: Background),
               ),

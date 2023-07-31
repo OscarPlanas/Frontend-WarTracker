@@ -16,6 +16,7 @@ import 'dart:convert';
 import 'package:frontend/models/Chat.dart';
 import 'package:frontend/screens/messages.dart';
 import 'package:frontend/controllers/chat_controller.dart';
+import 'package:frontend/theme_provider.dart';
 
 class CommentMeeting extends StatefulWidget {
   final Meeting meeting; // New parameter to hold the meeting ID
@@ -36,7 +37,7 @@ class _CommentMeetingState extends State<CommentMeeting> {
   final commentController = TextEditingController();
 
   ChatController chatController = Get.put(ChatController());
-
+  ThemeMode _themeMode = ThemeMode.system;
   @override
   void initState() {
     super.initState();
@@ -46,6 +47,16 @@ class _CommentMeetingState extends State<CommentMeeting> {
 
     // Call your function to fetch comments and update the state
     fetchComments();
+    _loadThemeMode();
+  }
+
+  void _loadThemeMode() async {
+    // Retrieve the saved theme mode from SharedPreferences
+    ThemeMode savedThemeMode = await ThemeHelper.getThemeMode();
+    print(savedThemeMode);
+    setState(() {
+      _themeMode = savedThemeMode;
+    });
   }
 
   Future<void> fetchComments() async {
@@ -64,7 +75,9 @@ class _CommentMeetingState extends State<CommentMeeting> {
         InkWell(
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: _themeMode == ThemeMode.dark
+                  ? Colors.grey[800]
+                  : Colors.white,
               border: Border.all(
                 color: Colors.grey,
                 width: 1.0,
@@ -77,9 +90,13 @@ class _CommentMeetingState extends State<CommentMeeting> {
               child: Text(
                 "Write a comment...",
                 style: GoogleFonts.roboto(
-                  backgroundColor: Colors.white,
+                  backgroundColor: _themeMode == ThemeMode.dark
+                      ? Colors.grey[800]
+                      : Colors.white,
                   fontSize: 16,
-                  color: ButtonBlack,
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black54,
                 ),
               ),
             ),
@@ -103,7 +120,8 @@ class _CommentMeetingState extends State<CommentMeeting> {
                 topRight: Radius.circular(12.0),
               ),
             ),
-            color: Theme.of(context).cardColor,
+            color:
+                _themeMode == ThemeMode.dark ? Colors.grey[800] : Colors.white,
             elevation: 0.8,
             child: Container(
               constraints: BoxConstraints(
@@ -153,11 +171,6 @@ class _CommentMeetingState extends State<CommentMeeting> {
                                                 leading: Icon(Icons.person),
                                                 title: Text('View Profile'),
                                                 onTap: () {
-                                                  // Handle the "View Profile" option
-                                                  // Navigate to the user's profile screen
-                                                  //Navigator.pop(
-                                                  //  context); // Close the bottom sheet
-
                                                   navigateToUserProfile(
                                                       comment.owner['_id']);
                                                 },
@@ -168,8 +181,6 @@ class _CommentMeetingState extends State<CommentMeeting> {
                                                   leading: Icon(Icons.message),
                                                   title: Text('Send Message'),
                                                   onTap: () {
-                                                    // Handle the "Send Message" option
-                                                    // Show a dialog or navigate to the messaging screen
                                                     print(
                                                         "Sending message to user");
 
@@ -200,7 +211,9 @@ class _CommentMeetingState extends State<CommentMeeting> {
                                       text: comment.owner['username'],
                                       style: GoogleFonts.roboto(
                                         fontSize: 16,
-                                        color: ButtonBlack,
+                                        color: _themeMode == ThemeMode.dark
+                                            ? Colors.white
+                                            : Colors.black,
                                       ),
                                     ),
                                   ),
@@ -216,7 +229,9 @@ class _CommentMeetingState extends State<CommentMeeting> {
                     comment.content,
                     style: GoogleFonts.roboto(
                       fontSize: 14,
-                      color: Theme.of(context).disabledColor,
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.grey
+                          : Colors.black54,
                     ),
                     textAlign: TextAlign.left,
                   ),
@@ -412,7 +427,9 @@ class _CommentMeetingState extends State<CommentMeeting> {
                                 topRight: Radius.circular(12.0),
                               ),
                             ),
-                            color: Theme.of(context).cardColor,
+                            color: _themeMode == ThemeMode.dark
+                                ? Colors.grey[800]
+                                : Colors.white,
                             elevation: 0.8,
                             child: Container(
                               constraints: BoxConstraints(
@@ -524,7 +541,10 @@ class _CommentMeetingState extends State<CommentMeeting> {
                                                       text: replyOwner,
                                                       style: GoogleFonts.roboto(
                                                         fontSize: 16,
-                                                        color: ButtonBlack,
+                                                        color: _themeMode ==
+                                                                ThemeMode.dark
+                                                            ? Colors.white
+                                                            : Colors.black,
                                                       ),
                                                     ),
                                                   ),
@@ -540,7 +560,9 @@ class _CommentMeetingState extends State<CommentMeeting> {
                                     replyContent,
                                     style: GoogleFonts.roboto(
                                       fontSize: 14,
-                                      color: Theme.of(context).disabledColor,
+                                      color: _themeMode == ThemeMode.dark
+                                          ? Colors.grey
+                                          : Colors.black54,
                                     ),
                                     textAlign: TextAlign.left,
                                   ),
@@ -718,11 +740,24 @@ class _CommentMeetingState extends State<CommentMeeting> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Write a comment'),
+          backgroundColor:
+              _themeMode == ThemeMode.dark ? Colors.grey[800] : Colors.white,
+          title: Text('Write a comment',
+              style: TextStyle(
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black)),
           content: TextField(
             controller: meetingController.commentController,
+            style: TextStyle(
+              color: _themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+            ),
             decoration: InputDecoration(
               hintText: 'Enter your comment...',
+              hintStyle: TextStyle(
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black),
               enabledBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: Background),
               ),
@@ -768,11 +803,24 @@ class _CommentMeetingState extends State<CommentMeeting> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Write a reply'),
+          title: Text('Write a reply',
+              style: TextStyle(
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black)),
+          backgroundColor:
+              _themeMode == ThemeMode.dark ? Colors.grey[800] : Colors.white,
           content: TextField(
             controller: meetingController.replyController,
+            style: TextStyle(
+              color: _themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+            ),
             decoration: InputDecoration(
               hintText: 'Enter your reply...',
+              hintStyle: TextStyle(
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black),
               enabledBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: Background),
               ),

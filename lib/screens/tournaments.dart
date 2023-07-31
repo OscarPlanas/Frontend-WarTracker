@@ -7,6 +7,7 @@ import 'package:frontend/screens/meeting.dart';
 import 'package:get/get.dart';
 import 'package:frontend/sidebar.dart';
 import 'package:frontend/constants.dart';
+import 'package:frontend/theme_provider.dart';
 
 class TournamentScreen extends StatefulWidget {
   const TournamentScreen({Key? key}) : super(key: key);
@@ -17,6 +18,23 @@ class TournamentScreen extends StatefulWidget {
 
 class _TournamentScreenState extends State<TournamentScreen> {
   Future<List<Meeting>> meetingsFuture = MeetingController().getMeetings();
+  ThemeMode _themeMode = ThemeMode.system;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadThemeMode();
+  }
+
+  void _loadThemeMode() async {
+    // Retrieve the saved theme mode from SharedPreferences
+    ThemeMode savedThemeMode = await ThemeHelper.getThemeMode();
+    print(savedThemeMode);
+    setState(() {
+      _themeMode = savedThemeMode;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
@@ -30,6 +48,8 @@ class _TournamentScreenState extends State<TournamentScreen> {
             const Text(('Tournaments'), style: TextStyle(color: ButtonBlack)),
         backgroundColor: Background,
       ),
+      backgroundColor:
+          _themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
       body: Stack(
         children: [
           FutureBuilder<List<Meeting>>(
@@ -46,12 +66,16 @@ class _TournamentScreenState extends State<TournamentScreen> {
                         },
                         child: Container(
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: _themeMode == ThemeMode.dark
+                                  ? Colors.grey[800]
+                                  : Colors.white,
                               borderRadius: BorderRadius.circular(10.0),
                               boxShadow: [
                                 BoxShadow(
                                     blurRadius: 1,
-                                    color: Colors.grey,
+                                    color: _themeMode == ThemeMode.dark
+                                        ? Colors.white
+                                        : Colors.grey[300]!,
                                     offset: Offset(0, 2),
                                     spreadRadius: 1),
                               ],
@@ -95,6 +119,9 @@ class _TournamentScreenState extends State<TournamentScreen> {
                                           style: TextStyle(
                                             fontSize: 15,
                                             fontWeight: FontWeight.bold,
+                                            color: _themeMode == ThemeMode.dark
+                                                ? Colors.white
+                                                : Colors.black,
                                           ),
                                         ),
                                       ],
@@ -110,7 +137,9 @@ class _TournamentScreenState extends State<TournamentScreen> {
                                           overflow: TextOverflow.clip,
                                           style: TextStyle(
                                             fontSize: 10,
-                                            color: Colors.grey,
+                                            color: _themeMode == ThemeMode.dark
+                                                ? Colors.white
+                                                : Colors.grey,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
@@ -119,7 +148,9 @@ class _TournamentScreenState extends State<TournamentScreen> {
                                           overflow: TextOverflow.clip,
                                           style: TextStyle(
                                             fontSize: 10,
-                                            color: Colors.grey,
+                                            color: _themeMode == ThemeMode.dark
+                                                ? Colors.white
+                                                : Colors.grey,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),

@@ -12,10 +12,9 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Auth',
-      theme: ThemeData(
-        primaryColor: Colors.green,
-        scaffoldBackgroundColor: Colors.white,
-      ),
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      themeMode: ThemeMode.system,
       home: WelcomeScreen(),
     );
   }

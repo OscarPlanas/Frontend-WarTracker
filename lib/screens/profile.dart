@@ -13,6 +13,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:frontend/models/meeting.dart';
 import 'package:frontend/models/blog.dart';
+import 'package:frontend/theme_provider.dart';
 
 class Profile extends StatefulWidget {
   final User user;
@@ -42,6 +43,8 @@ class _ProfileState extends State<Profile> {
 
   List<Blog> blogs = [];
 
+  ThemeMode _themeMode = ThemeMode.system;
+
   @override
   void initState() {
     super.initState();
@@ -50,6 +53,16 @@ class _ProfileState extends State<Profile> {
     fetchBlogsFollowed();
     isFollowed();
     fetchFollowersCount(); // Fetch the initial count of followers
+    _loadThemeMode();
+  }
+
+  void _loadThemeMode() async {
+    // Retrieve the saved theme mode from SharedPreferences
+    ThemeMode savedThemeMode = await ThemeHelper.getThemeMode();
+    print(savedThemeMode);
+    setState(() {
+      _themeMode = savedThemeMode;
+    });
   }
 
   Future<void> checkIsUser() async {
@@ -124,6 +137,8 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor:
+          _themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
       appBar: AppBar(
         title: Text("Profile", style: TextStyle(color: ButtonBlack)),
         iconTheme: IconThemeData(color: ButtonBlack),
@@ -172,16 +187,17 @@ class _ProfileState extends State<Profile> {
         Text(
           widget.user.username,
           style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color:
+                  _themeMode == ThemeMode.dark ? Colors.white : Colors.black),
         ),
         const SizedBox(height: 2),
         Text(
           widget.user.name,
           style: TextStyle(
             fontSize: 22,
-            color: Colors.black,
+            color: _themeMode == ThemeMode.dark ? Colors.white : Colors.black,
           ),
         ),
         const SizedBox(height: 2),
@@ -189,7 +205,9 @@ class _ProfileState extends State<Profile> {
           widget.user.date,
           style: TextStyle(
             fontSize: 20,
-            color: Colors.black.withOpacity(0.3),
+            color: _themeMode == ThemeMode.dark
+                ? Colors.white.withOpacity(0.8)
+                : Colors.black.withOpacity(0.3),
           ),
         ),
         const SizedBox(height: 2),
@@ -197,14 +215,22 @@ class _ProfileState extends State<Profile> {
           widget.user.email,
           style: TextStyle(
             fontSize: 20,
-            color: Colors.black.withOpacity(0.3),
+            color: _themeMode == ThemeMode.dark
+                ? Colors.white.withOpacity(0.8)
+                : Colors.black.withOpacity(0.3),
           ),
         ),
         const SizedBox(height: 16),
-        Divider(),
+        Divider(
+            color: _themeMode == ThemeMode.dark
+                ? Colors.white.withOpacity(0.8)
+                : Colors.black.withOpacity(0.3)),
         const SizedBox(height: 16),
-        NumbersWidget(widget.user, followersCount),
-        Divider(),
+        NumbersWidget(widget.user, followersCount, _themeMode),
+        Divider(
+            color: _themeMode == ThemeMode.dark
+                ? Colors.white.withOpacity(0.8)
+                : Colors.black.withOpacity(0.3)),
         const SizedBox(height: 16),
         buildAbout(),
         const SizedBox(height: 32),
@@ -229,6 +255,8 @@ class _ProfileState extends State<Profile> {
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
+                color:
+                    _themeMode == ThemeMode.dark ? Colors.white : Colors.black,
               ),
             ),
           ),
@@ -240,6 +268,9 @@ class _ProfileState extends State<Profile> {
               style: TextStyle(
                 fontSize: 18,
                 height: 1.4,
+                color: _themeMode == ThemeMode.dark
+                    ? Colors.white.withOpacity(0.9)
+                    : Colors.black.withOpacity(0.9),
               ),
             ),
           ),
@@ -305,7 +336,11 @@ class _ProfileState extends State<Profile> {
             child: Row(
               children: [
                 Icon(
-                    showMeetings ? Icons.arrow_drop_up : Icons.arrow_drop_down),
+                  showMeetings ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black,
+                ),
                 SizedBox(width: 8),
                 Text(
                   showMeetings
@@ -314,6 +349,9 @@ class _ProfileState extends State<Profile> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
+                    color: _themeMode == ThemeMode.dark
+                        ? Colors.white
+                        : Colors.black,
                   ),
                 ),
               ],
@@ -388,11 +426,15 @@ class _ProfileState extends State<Profile> {
           navigateToMeetingScreen(meeting);
         },
         child: Card(
+          color: _themeMode == ThemeMode.dark ? Colors.grey[800] : Colors.white,
           child: ListTile(
             leading: CircleAvatar(
               backgroundImage: NetworkImage(meeting.imageUrl),
             ),
-            title: Text(meeting.title),
+            title: Text(meeting.title,
+                style: _themeMode == ThemeMode.dark
+                    ? TextStyle(color: Colors.white)
+                    : TextStyle(color: Colors.black)),
           ),
         ),
       ),
@@ -423,14 +465,19 @@ class _ProfileState extends State<Profile> {
             },
             child: Row(
               children: [
-                Icon(showBlogs ? Icons.arrow_drop_up : Icons.arrow_drop_down),
+                Icon(showBlogs ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                    color: _themeMode == ThemeMode.dark
+                        ? Colors.white
+                        : Colors.black),
                 SizedBox(width: 8),
                 Text(
                   showBlogs ? 'Hide Blogs' : 'Liked Blogs',
                   style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black),
                 ),
               ],
             ),
@@ -478,11 +525,15 @@ class _ProfileState extends State<Profile> {
           navigateToBlogScreen(blog);
         },
         child: Card(
+          color: _themeMode == ThemeMode.dark ? Colors.grey[800] : Colors.white,
           child: ListTile(
             leading: CircleAvatar(
               backgroundImage: NetworkImage(blog.imageUrl),
             ),
-            title: Text(blog.title),
+            title: Text(blog.title,
+                style: _themeMode == ThemeMode.dark
+                    ? TextStyle(color: Colors.white)
+                    : TextStyle(color: Colors.black)),
           ),
         ),
       ),

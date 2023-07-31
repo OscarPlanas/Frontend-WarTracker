@@ -8,6 +8,7 @@ import 'package:frontend/controllers/blog_controller.dart';
 import 'package:frontend/data/data.dart';
 import 'package:frontend/screens/home.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:frontend/theme_provider.dart';
 
 class CreateBlog extends StatefulWidget {
   @override
@@ -29,6 +30,8 @@ class _CreateBlogState extends State<CreateBlog> {
   XFile? image;
 
   final ImagePicker picker = ImagePicker();
+
+  ThemeMode _themeMode = ThemeMode.system; // Initialize with system mode
 
   Future uploadImage() async {
     const url =
@@ -109,20 +112,45 @@ class _CreateBlogState extends State<CreateBlog> {
     }
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _loadThemeMode();
+  }
+
+  void _loadThemeMode() async {
+    // Retrieve the saved theme mode from SharedPreferences
+    ThemeMode savedThemeMode = await ThemeHelper.getThemeMode();
+    print(savedThemeMode);
+    setState(() {
+      _themeMode = savedThemeMode;
+    });
+  }
+
   //show popup dialog
   void myAlert() {
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            backgroundColor: _themeMode == ThemeMode.dark
+                ? Color.fromARGB(255, 32, 30, 30)
+                : Colors.white,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            title: Text('Please choose media to select'),
+            title: Text('Please choose media to select',
+                style: TextStyle(
+                    color: _themeMode == ThemeMode.dark
+                        ? Colors.white
+                        : Colors.black)),
             content: Container(
               height: MediaQuery.of(context).size.height / 6,
               child: Column(
                 children: [
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Background,
+                    ),
                     //if user click this button, user can upload image from gallery
                     onPressed: () {
                       Navigator.of(context).pop();
@@ -130,12 +158,16 @@ class _CreateBlogState extends State<CreateBlog> {
                     },
                     child: Row(
                       children: [
-                        Icon(Icons.image),
-                        Text('From Gallery'),
+                        Icon(Icons.image, color: ButtonBlack),
+                        Text('From Gallery',
+                            style: TextStyle(color: ButtonBlack)),
                       ],
                     ),
                   ),
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Background,
+                    ),
                     //if user click this button. user can upload image from camera
                     onPressed: () {
                       Navigator.of(context).pop();
@@ -143,8 +175,9 @@ class _CreateBlogState extends State<CreateBlog> {
                     },
                     child: Row(
                       children: [
-                        Icon(Icons.camera),
-                        Text('From Camera'),
+                        Icon(Icons.camera, color: ButtonBlack),
+                        Text('From Camera',
+                            style: TextStyle(color: ButtonBlack)),
                       ],
                     ),
                   ),
@@ -161,6 +194,8 @@ class _CreateBlogState extends State<CreateBlog> {
       currentPhoto = change;
     }
     return Scaffold(
+        backgroundColor:
+            _themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
         appBar: AppBar(
           leading: IconButton(
               icon: Icon(Icons.arrow_back),
@@ -185,7 +220,9 @@ class _CreateBlogState extends State<CreateBlog> {
               margin: EdgeInsets.symmetric(horizontal: 16),
               height: 150,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: _themeMode == ThemeMode.dark
+                    ? Colors.grey[800]
+                    : Colors.grey[300],
                 borderRadius: BorderRadius.circular(6),
                 image: selectedImage != null
                     ? DecorationImage(
@@ -196,7 +233,10 @@ class _CreateBlogState extends State<CreateBlog> {
               ),
               width: MediaQuery.of(context).size.width,
               child: selectedImage == null
-                  ? Icon(Icons.add_a_photo, color: Colors.black)
+                  ? Icon(Icons.add_a_photo,
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black)
                   : null,
             ),
           ),
@@ -214,11 +254,22 @@ class _CreateBlogState extends State<CreateBlog> {
                       borderSide: BorderSide(color: Background),
                     ),
                     hintText: "Write the title of your blog",
+                    hintStyle: TextStyle(
+                        color: _themeMode == ThemeMode.dark
+                            ? Colors.white
+                            : Colors.grey[800]),
                     errorText: _validatetitle ? 'Can\'t Be Empty' : null,
-                    counterStyle: const TextStyle(
-                        color: Colors.black,
+                    counterStyle: TextStyle(
+                        color: _themeMode == ThemeMode.dark
+                            ? Colors.white
+                            : Colors.black,
                         fontSize: 12.0,
                         fontWeight: FontWeight.bold)),
+                style: TextStyle(
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black,
+                ),
                 maxLength: 30,
               ),
               TextField(
@@ -231,11 +282,22 @@ class _CreateBlogState extends State<CreateBlog> {
                       borderSide: BorderSide(color: Background),
                     ),
                     hintText: "Write a description of your blog",
+                    hintStyle: TextStyle(
+                        color: _themeMode == ThemeMode.dark
+                            ? Colors.white
+                            : Colors.grey[800]),
                     errorText: _validatedesc ? 'Can\'t Be Empty' : null,
-                    counterStyle: const TextStyle(
-                        color: Colors.black,
+                    counterStyle: TextStyle(
+                        color: _themeMode == ThemeMode.dark
+                            ? Colors.white
+                            : Colors.black,
                         fontSize: 12.0,
                         fontWeight: FontWeight.bold)),
+                style: TextStyle(
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black,
+                ),
                 maxLength: 50,
               ),
               TextField(
@@ -248,11 +310,22 @@ class _CreateBlogState extends State<CreateBlog> {
                       borderSide: BorderSide(color: Background),
                     ),
                     hintText: "Write your blog",
+                    hintStyle: TextStyle(
+                        color: _themeMode == ThemeMode.dark
+                            ? Colors.white
+                            : Colors.grey[800]),
                     errorText: _validatebody ? 'Can\'t Be Empty' : null,
-                    counterStyle: const TextStyle(
-                        color: Colors.black,
+                    counterStyle: TextStyle(
+                        color: _themeMode == ThemeMode.dark
+                            ? Colors.white
+                            : Colors.black,
                         fontSize: 12.0,
                         fontWeight: FontWeight.bold)),
+                style: TextStyle(
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black,
+                ),
                 maxLength: 1000,
                 maxLines: 10,
               ),
@@ -293,8 +366,19 @@ class _CreateBlogState extends State<CreateBlog> {
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
-                            title: Text('Error'),
-                            content: Text('Please select an image.'),
+                            backgroundColor: _themeMode == ThemeMode.dark
+                                ? Color.fromARGB(255, 32, 30, 30)
+                                : Colors.white,
+                            title: Text('Error',
+                                style: TextStyle(
+                                    color: _themeMode == ThemeMode.dark
+                                        ? Colors.white
+                                        : Colors.black)),
+                            content: Text('Please select an image.',
+                                style: TextStyle(
+                                    color: _themeMode == ThemeMode.dark
+                                        ? Colors.white
+                                        : Colors.black)),
                             actions: [
                               TextButton(
                                 child: Text('OK'),

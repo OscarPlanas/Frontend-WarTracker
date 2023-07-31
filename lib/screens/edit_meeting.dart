@@ -1,13 +1,15 @@
+import 'dart:io';
+
+import 'package:cloudinary_public/cloudinary_public.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/controllers/meeting_controller.dart';
 import 'package:frontend/data/data.dart';
 import 'package:frontend/models/meeting.dart';
-import 'package:intl/intl.dart';
-import 'package:dio/dio.dart';
-import 'package:cloudinary_public/cloudinary_public.dart';
-import 'dart:io';
+import 'package:frontend/theme_provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 class EditMeeting extends StatefulWidget {
   final Meeting meeting;
@@ -37,6 +39,7 @@ class _EditMeetingState extends State<EditMeeting> {
   XFile? image;
   final ImagePicker picker = ImagePicker();
   ImageProvider? selectedImage; // Store the selected image
+  ThemeMode _themeMode = ThemeMode.system;
 
   Future uploadImage() async {
     const url =
@@ -123,14 +126,24 @@ class _EditMeetingState extends State<EditMeeting> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            backgroundColor: _themeMode == ThemeMode.dark
+                ? Color.fromARGB(255, 32, 30, 30)
+                : Colors.white,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            title: Text('Please choose media to select'),
+            title: Text('Please choose media to select',
+                style: TextStyle(
+                    color: _themeMode == ThemeMode.dark
+                        ? Colors.white
+                        : Colors.black)),
             content: Container(
               height: MediaQuery.of(context).size.height / 6,
               child: Column(
                 children: [
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Background,
+                    ),
                     //if user click this button, user can upload image from gallery
                     onPressed: () {
                       Navigator.of(context).pop();
@@ -138,12 +151,16 @@ class _EditMeetingState extends State<EditMeeting> {
                     },
                     child: Row(
                       children: [
-                        Icon(Icons.image),
-                        Text('From Gallery'),
+                        Icon(Icons.image, color: ButtonBlack),
+                        Text('From Gallery',
+                            style: TextStyle(color: ButtonBlack)),
                       ],
                     ),
                   ),
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Background,
+                    ),
                     //if user click this button. user can upload image from camera
                     onPressed: () {
                       Navigator.of(context).pop();
@@ -151,8 +168,9 @@ class _EditMeetingState extends State<EditMeeting> {
                     },
                     child: Row(
                       children: [
-                        Icon(Icons.camera),
-                        Text('From Camera'),
+                        Icon(Icons.camera, color: ButtonBlack),
+                        Text('From Camera',
+                            style: TextStyle(color: ButtonBlack)),
                       ],
                     ),
                   ),
@@ -173,6 +191,16 @@ class _EditMeetingState extends State<EditMeeting> {
         widget.meeting.registration_fee.toString();
     meetingController.locationController.text = widget.meeting.location;
     meetingController.dateController.text = widget.meeting.date;
+    _loadThemeMode();
+  }
+
+  void _loadThemeMode() async {
+    // Retrieve the saved theme mode from SharedPreferences
+    ThemeMode savedThemeMode = await ThemeHelper.getThemeMode();
+    print(savedThemeMode);
+    setState(() {
+      _themeMode = savedThemeMode;
+    });
   }
 
   @override
@@ -181,6 +209,8 @@ class _EditMeetingState extends State<EditMeeting> {
       currentPhoto = change;
     }
     return Scaffold(
+        backgroundColor:
+            _themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
         appBar: AppBar(
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
@@ -204,6 +234,9 @@ class _EditMeetingState extends State<EditMeeting> {
                     margin: EdgeInsets.symmetric(horizontal: 16),
                     height: 150,
                     decoration: BoxDecoration(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.grey[800]
+                          : Colors.grey[300],
                       borderRadius: BorderRadius.circular(6),
                       image: selectedImage != null
                           ? DecorationImage(
@@ -222,22 +255,6 @@ class _EditMeetingState extends State<EditMeeting> {
                         ? Icon(Icons.add_a_photo, color: Colors.black)
                         : null,
                   ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: IconButton(
-                        icon: Icon(Icons.add_a_photo, color: Colors.black),
-                        onPressed: () {
-                          myAlert();
-                        },
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -255,10 +272,17 @@ class _EditMeetingState extends State<EditMeeting> {
                       focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Background),
                       ),
-                      counterStyle: const TextStyle(
-                          color: Colors.black,
+                      counterStyle: TextStyle(
+                          color: _themeMode == ThemeMode.dark
+                              ? Colors.white
+                              : Colors.black,
                           fontSize: 12.0,
                           fontWeight: FontWeight.bold)),
+                  style: TextStyle(
+                    color: _themeMode == ThemeMode.dark
+                        ? Colors.white
+                        : Colors.black,
+                  ),
                   maxLength: 30,
                 ),
                 Row(
@@ -274,10 +298,17 @@ class _EditMeetingState extends State<EditMeeting> {
                             focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(color: Background),
                             ),
-                            counterStyle: const TextStyle(
-                                color: Colors.black,
+                            counterStyle: TextStyle(
+                                color: _themeMode == ThemeMode.dark
+                                    ? Colors.white
+                                    : Colors.black,
                                 fontSize: 12.0,
                                 fontWeight: FontWeight.bold)),
+                        style: TextStyle(
+                          color: _themeMode == ThemeMode.dark
+                              ? Colors.white
+                              : Colors.black,
+                        ),
                         maxLength: 3,
                       ),
                     ),
@@ -294,10 +325,17 @@ class _EditMeetingState extends State<EditMeeting> {
                             focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(color: Background),
                             ),
-                            counterStyle: const TextStyle(
-                                color: Colors.black,
+                            counterStyle: TextStyle(
+                                color: _themeMode == ThemeMode.dark
+                                    ? Colors.white
+                                    : Colors.black,
                                 fontSize: 12.0,
                                 fontWeight: FontWeight.bold)),
+                        style: TextStyle(
+                          color: _themeMode == ThemeMode.dark
+                              ? Colors.white
+                              : Colors.black,
+                        ),
                         maxLength: 40,
                       ),
                     )
@@ -312,7 +350,32 @@ class _EditMeetingState extends State<EditMeeting> {
                         initialDate: DateFormat("yyyy-MM-dd")
                             .parseStrict(meetingController.dateController.text),
                         firstDate: DateTime.now(),
-                        lastDate: DateTime(2028));
+                        lastDate: DateTime(2028),
+                        builder: (BuildContext context, Widget? child) {
+                          return Theme(
+                            data: ThemeData().copyWith(
+                              primaryColor: Colors
+                                  .green, // Set the color of the header and selected date
+                              colorScheme: _themeMode == ThemeMode.dark
+                                  ? ColorScheme.dark(
+                                      brightness: Brightness.dark,
+                                      primary: Background,
+                                      onPrimary: Colors.black)
+                                  : ColorScheme.light(
+                                      primary: Background,
+                                      onPrimary: Colors
+                                          .black), // Set the color of the selected date circle
+                              dialogBackgroundColor:
+                                  _themeMode == ThemeMode.dark
+                                      ? Colors.grey[900]
+                                      : Colors.white,
+                              buttonTheme: ButtonThemeData(
+                                textTheme: ButtonTextTheme.primary,
+                              ),
+                            ),
+                            child: child!,
+                          );
+                        });
                     if (pickedDate != null) {
                       setState(() {
                         selectedDate = pickedDate;
@@ -330,10 +393,17 @@ class _EditMeetingState extends State<EditMeeting> {
                       focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Background),
                       ),
-                      counterStyle: const TextStyle(
-                          color: Colors.black,
+                      counterStyle: TextStyle(
+                          color: _themeMode == ThemeMode.dark
+                              ? Colors.white
+                              : Colors.black,
                           fontSize: 12.0,
                           fontWeight: FontWeight.bold)),
+                  style: TextStyle(
+                    color: _themeMode == ThemeMode.dark
+                        ? Colors.white
+                        : Colors.black,
+                  ),
                 ),
                 TextField(
                   controller: meetingController.descriptionController,
@@ -345,10 +415,16 @@ class _EditMeetingState extends State<EditMeeting> {
                       focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Background),
                       ),
-                      counterStyle: const TextStyle(
-                          color: Colors.black,
+                      counterStyle: TextStyle(
+                          color: _themeMode == ThemeMode.dark
+                              ? Colors.white
+                              : Colors.black,
                           fontSize: 12.0,
                           fontWeight: FontWeight.bold)),
+                  style: TextStyle(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black),
                   maxLength: 1000,
                   maxLines: 10,
                 ),
