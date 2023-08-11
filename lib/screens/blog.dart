@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/models/Chat.dart';
 import 'package:frontend/models/blog.dart';
@@ -15,7 +16,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:frontend/models/user.dart';
 import 'package:frontend/screens/profile.dart';
 import 'package:frontend/controllers/chat_controller.dart';
+import 'package:frontend/controllers/report_controller.dart';
 import 'package:frontend/theme_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BlogScreen extends StatefulWidget {
   final Blog blog;
@@ -30,6 +33,7 @@ class _BlogScreenState extends State<BlogScreen> {
   BlogController blogController = Get.put(BlogController());
 
   ChatController chatController = Get.put(ChatController());
+  ReportController reportController = ReportController();
 
   bool isOwner = false;
   bool hasLiked = false;
@@ -80,6 +84,15 @@ class _BlogScreenState extends State<BlogScreen> {
         ),
         iconTheme: IconThemeData(color: ButtonBlack),
         backgroundColor: Background,
+        actions: [
+          // Add a report button to the app bar
+          IconButton(
+            icon: Icon(Icons.report),
+            onPressed: () {
+              sendReportBlog();
+            },
+          ),
+        ],
       ),
       backgroundColor:
           _themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
@@ -179,7 +192,9 @@ class _BlogScreenState extends State<BlogScreen> {
                                     children: [
                                       ListTile(
                                         leading: Icon(Icons.person),
-                                        title: Text('View Profile'),
+                                        title: Text(
+                                            AppLocalizations.of(context)!
+                                                .viewProfile),
                                         onTap: () {
                                           navigateToUserProfile(
                                               widget.blog.author["_id"]);
@@ -189,7 +204,9 @@ class _BlogScreenState extends State<BlogScreen> {
                                           widget.blog.author["_id"])
                                         ListTile(
                                           leading: Icon(Icons.message),
-                                          title: Text('Send Message'),
+                                          title: Text(
+                                              AppLocalizations.of(context)!
+                                                  .sendMessage),
                                           onTap: () {
                                             // Handle the "Send Message" option
                                             // Show a dialog or navigate to the messaging screen
@@ -203,12 +220,12 @@ class _BlogScreenState extends State<BlogScreen> {
                                           widget.blog.author["_id"])
                                         ListTile(
                                           leading: Icon(Icons.report),
-                                          title: Text('Report User'),
+                                          title: Text(
+                                              AppLocalizations.of(context)!
+                                                  .reportUser),
                                           onTap: () {
-                                            // Handle the "Report User" option
-                                            // Show a dialog or perform the reporting logic
-                                            Navigator.pop(
-                                                context); // Close the bottom sheet
+                                            sendReportUser();
+                                            // Close the bottom sheet
                                           },
                                         ),
                                     ],
@@ -218,7 +235,8 @@ class _BlogScreenState extends State<BlogScreen> {
                             );
                           },
                           child: Text(
-                            "By ${widget.blog.author["username"]}",
+                            AppLocalizations.of(context)!
+                                .by(widget.blog.author["username"]),
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -251,7 +269,7 @@ class _BlogScreenState extends State<BlogScreen> {
                   ),
                   SizedBox(height: 20),
                   Text(
-                    "Comments",
+                    AppLocalizations.of(context)!.comments,
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -376,5 +394,187 @@ class _BlogScreenState extends State<BlogScreen> {
 
     Get.to(MessagesScreen(user));
     // Perform the logic for sending a message to a user
+  }
+
+  void sendReportUser() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: _themeMode == ThemeMode.dark
+              ? Color.fromARGB(255, 72, 70, 70)
+              : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          title: Text(AppLocalizations.of(context)!.report,
+              style: TextStyle(
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black)),
+          content: Container(
+            height: MediaQuery.of(context).size.height / 4,
+            child: Column(
+              children: [
+                TextField(
+                  controller: reportController.reasonController,
+                  style: TextStyle(
+                    color: _themeMode == ThemeMode.dark
+                        ? Colors.white
+                        : Colors.black,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: AppLocalizations.of(context)!.reasonReport,
+                    hintStyle: TextStyle(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                if (reportController.reasonController.text.isEmpty) {
+                  Fluttertoast.showToast(
+                      msg: AppLocalizations.of(context)!.plsReason,
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.CENTER,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: ButtonBlack,
+                      textColor: Background,
+                      fontSize: 16.0);
+                } else {
+                  await reportController
+                      .createReport("User", widget.blog.author["_id"])
+                      .then((value) {
+                    if (value == "Report saved") {
+                      Fluttertoast.showToast(
+                          msg: AppLocalizations.of(context)!.reportSent,
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: ButtonBlack,
+                          textColor: Background,
+                          fontSize: 16.0);
+                      Get.back();
+                    } else {
+                      print(value);
+                      Fluttertoast.showToast(
+                          msg: value,
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: ButtonBlack,
+                          textColor: Background,
+                          fontSize: 16.0);
+                    }
+                  });
+                }
+              },
+              child: Text(AppLocalizations.of(context)!.confirm,
+                  style: TextStyle(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void sendReportBlog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: _themeMode == ThemeMode.dark
+              ? Color.fromARGB(255, 72, 70, 70)
+              : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          title: Text(AppLocalizations.of(context)!.report,
+              style: TextStyle(
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black)),
+          content: Container(
+            height: MediaQuery.of(context).size.height / 4,
+            child: Column(
+              children: [
+                TextField(
+                  controller: reportController.reasonController,
+                  style: TextStyle(
+                    color: _themeMode == ThemeMode.dark
+                        ? Colors.white
+                        : Colors.black,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: AppLocalizations.of(context)!.reasonReport,
+                    hintStyle: TextStyle(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                if (reportController.reasonController.text.isEmpty) {
+                  Fluttertoast.showToast(
+                      msg: AppLocalizations.of(context)!.plsReason,
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.CENTER,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: ButtonBlack,
+                      textColor: Background,
+                      fontSize: 16.0);
+                } else {
+                  await reportController
+                      .createReport("Blog", widget.blog.id)
+                      .then((value) {
+                    if (value == "Report saved") {
+                      Fluttertoast.showToast(
+                          msg: AppLocalizations.of(context)!.reportSent,
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: ButtonBlack,
+                          textColor: Background,
+                          fontSize: 16.0);
+                      Get.back();
+                    } else {
+                      print(value);
+                      Fluttertoast.showToast(
+                          msg: value,
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: ButtonBlack,
+                          textColor: Background,
+                          fontSize: 16.0);
+                    }
+                  });
+                }
+              },
+              child: Text(AppLocalizations.of(context)!.confirm,
+                  style: TextStyle(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black)),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

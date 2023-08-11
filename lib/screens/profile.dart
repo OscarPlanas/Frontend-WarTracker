@@ -14,6 +14,7 @@ import 'dart:convert';
 import 'package:frontend/models/meeting.dart';
 import 'package:frontend/models/blog.dart';
 import 'package:frontend/theme_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Profile extends StatefulWidget {
   final User user;
@@ -99,6 +100,8 @@ class _ProfileState extends State<Profile> {
         location: meetingData['location'],
         participants: meetingData['participants'],
         registration_fee: meetingData['registration_fee'],
+        lat: meetingData['lat'],
+        lng: meetingData['lng'],
       );
     });
 
@@ -140,7 +143,8 @@ class _ProfileState extends State<Profile> {
       backgroundColor:
           _themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
       appBar: AppBar(
-        title: Text("Profile", style: TextStyle(color: ButtonBlack)),
+        title: Text(AppLocalizations.of(context)!.profile,
+            style: TextStyle(color: ButtonBlack)),
         iconTheme: IconThemeData(color: ButtonBlack),
         backgroundColor: Background,
       ),
@@ -251,7 +255,7 @@ class _ProfileState extends State<Profile> {
           Align(
             alignment: Alignment.topLeft,
             child: Text(
-              'About',
+              AppLocalizations.of(context)!.about,
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
@@ -344,8 +348,8 @@ class _ProfileState extends State<Profile> {
                 SizedBox(width: 8),
                 Text(
                   showMeetings
-                      ? 'Hide Meetings'
-                      : 'Meetings which has signed up for',
+                      ? AppLocalizations.of(context)!.hideMeetings
+                      : AppLocalizations.of(context)!.meetingsProfileMeeting,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -385,7 +389,9 @@ class _ProfileState extends State<Profile> {
             userController.followUser(widget.user.id),
           }
       },
-      child: Text(_flag2 ? 'Follow' : 'Unfollow'),
+      child: Text(_flag2
+          ? AppLocalizations.of(context)!.follow
+          : AppLocalizations.of(context)!.unfollow),
     );
   }
 
@@ -460,7 +466,7 @@ class _ProfileState extends State<Profile> {
           GestureDetector(
             onTap: () {
               setState(() {
-                showBlogs = !showBlogs; // Update the variable within setState
+                showBlogs = !showBlogs;
               });
             },
             child: Row(
@@ -471,7 +477,9 @@ class _ProfileState extends State<Profile> {
                         : Colors.black),
                 SizedBox(width: 8),
                 Text(
-                  showBlogs ? 'Hide Blogs' : 'Liked Blogs',
+                  showBlogs
+                      ? AppLocalizations.of(context)!.hideBlogs
+                      : AppLocalizations.of(context)!.meetingsProfile,
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -599,23 +607,4 @@ class _ProfileState extends State<Profile> {
       followersCount = count;
     });
   }
-
-  /*Future<void> isParticipant() async {
-    MeetingController meetingController = await Get.put(MeetingController());
-
-    bool _isParticipant =
-        await meetingController.userIsParticipant(widget.meeting.id);
-
-    if (_isParticipant == true) {
-      setState(() {
-        _flag2 = false;
-        //listParticipants += 1;
-      });
-    } else {
-      setState(() {
-        _flag2 = true;
-        //listParticipants -= 1;
-      });
-    }
-  }*/
 }

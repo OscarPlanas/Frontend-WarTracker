@@ -9,6 +9,7 @@ import 'package:frontend/data/data.dart';
 import 'package:frontend/models/blog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:frontend/theme_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class EditBlog extends StatefulWidget {
   final Blog blog;
@@ -126,7 +127,7 @@ class _EditBlogState extends State<EditBlog> {
                 : Colors.white,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            title: Text('Please choose media to select',
+            title: Text(AppLocalizations.of(context)!.plsSelectImage,
                 style: TextStyle(
                     color: _themeMode == ThemeMode.dark
                         ? Colors.white
@@ -147,7 +148,7 @@ class _EditBlogState extends State<EditBlog> {
                     child: Row(
                       children: [
                         Icon(Icons.image, color: ButtonBlack),
-                        Text('From Gallery',
+                        Text(AppLocalizations.of(context)!.fromGallery,
                             style: TextStyle(color: ButtonBlack)),
                       ],
                     ),
@@ -164,7 +165,7 @@ class _EditBlogState extends State<EditBlog> {
                     child: Row(
                       children: [
                         Icon(Icons.camera, color: ButtonBlack),
-                        Text('From Camera',
+                        Text(AppLocalizations.of(context)!.fromCamera,
                             style: TextStyle(color: ButtonBlack)),
                       ],
                     ),
@@ -209,7 +210,8 @@ class _EditBlogState extends State<EditBlog> {
             icon: Icon(Icons.arrow_back),
             onPressed: () => Navigator.pop(context),
           ),
-          title: Text("Edit your blog", style: TextStyle(color: ButtonBlack)),
+          title: Text(AppLocalizations.of(context)!.editBlog,
+              style: TextStyle(color: ButtonBlack)),
           iconTheme: IconThemeData(color: ButtonBlack),
           backgroundColor: Background,
         ),
@@ -263,7 +265,9 @@ class _EditBlogState extends State<EditBlog> {
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Background),
                       ),
-                      errorText: _validatetitle ? 'Can\'t Be Empty' : null,
+                      errorText: _validatetitle
+                          ? AppLocalizations.of(context)!.notEmpty
+                          : null,
                       focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Background),
                       ),
@@ -286,7 +290,9 @@ class _EditBlogState extends State<EditBlog> {
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Background),
                       ),
-                      errorText: _validatedesc ? 'Can\'t Be Empty' : null,
+                      errorText: _validatedesc
+                          ? AppLocalizations.of(context)!.notEmpty
+                          : null,
                       focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Background),
                       ),
@@ -309,7 +315,9 @@ class _EditBlogState extends State<EditBlog> {
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Background),
                       ),
-                      errorText: _validatebody ? 'Can\'t Be Empty' : null,
+                      errorText: _validatebody
+                          ? AppLocalizations.of(context)!.notEmpty
+                          : null,
                       focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Background),
                       ),
@@ -369,7 +377,7 @@ class _EditBlogState extends State<EditBlog> {
                     }
                   },
                   child: Text(
-                    'Submit',
+                    AppLocalizations.of(context)!.buttonSubmit,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                 ),

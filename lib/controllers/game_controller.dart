@@ -69,19 +69,6 @@ class GameController extends GetxController {
     return jsonData;
   }
 
-  /*
-  Future<List<Map<String, dynamic>>> fetchGames() async {
-  final url = Uri.parse('http://your-api-url-here');
-  final response = await http.get(url);
-
-  if (response.statusCode == 200) {
-    final List<dynamic> data = jsonDecode(response.body);
-    final List<Map<String, dynamic>> games = List<Map<String, dynamic>>.from(data);
-    return games;
-  } else {
-    throw Exception('Failed to fetch games');
-  }
-}*/
   Future<List<Map<String, dynamic>>> fetchGames(meetingid) async {
     print("fetch games1");
     var url =
@@ -114,7 +101,9 @@ class GameController extends GetxController {
           location: u["location"],
           registration_fee: u["registration_fee"],
           participants: u["participants"],
-          imageUrl: u["imageUrl"]);
+          imageUrl: u["imageUrl"],
+          lat: u["lat"],
+          lng: u["lng"]);
       meetings.add(meeting);
     }
     return meetings;

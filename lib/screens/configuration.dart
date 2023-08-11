@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:frontend/sidebar.dart';
 import 'package:frontend/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:get/get.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ConfigurationScreen extends StatefulWidget {
   const ConfigurationScreen({Key? key}) : super(key: key);
@@ -12,6 +15,7 @@ class ConfigurationScreen extends StatefulWidget {
 
 class _ConfigurationScreenState extends State<ConfigurationScreen> {
   ThemeMode _themeMode = ThemeMode.system;
+  Locale _selectedLocale = Locale('en'); // Add this line
 
   final String themeModeKey = 'theme_mode';
 
@@ -19,6 +23,7 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
   void initState() {
     super.initState();
     _loadThemeMode();
+    _loadLanguage();
   }
 
   void _loadThemeMode() async {
@@ -43,6 +48,32 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
     });
   }
 
+  void _loadLanguage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? savedLanguageCode = prefs.getString('language_code');
+    if (savedLanguageCode != null) {
+      setState(() {
+        _selectedLocale = Locale(savedLanguageCode);
+      });
+    }
+    print("load: " + savedLanguageCode.toString());
+  }
+
+  void _saveLanguage(Locale locale) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('language_code', locale.languageCode);
+  }
+
+  void _updateLocale(Locale locale) {
+    setState(() {
+      _selectedLocale = locale;
+    });
+    _saveLanguage(locale);
+    Get.updateLocale(locale); // Update the locale using GetX
+
+    // Show a snackbar to notify the user to restart the app
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,7 +81,8 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
           _themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
       appBar: AppBar(
         iconTheme: IconThemeData(color: ButtonBlack),
-        title: const Text(('Settings'), style: TextStyle(color: ButtonBlack)),
+        title: Text((AppLocalizations.of(context)!.sidebarSettings),
+            style: TextStyle(color: ButtonBlack)),
         backgroundColor: Background,
       ),
       drawer: Sidebar(),
@@ -65,13 +97,15 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
                   color: _themeMode == ThemeMode.dark
                       ? Colors.white
                       : Colors.black),
-              title: Text('Theme Mode',
+              title: Text(AppLocalizations.of(context)!.theme,
                   style: TextStyle(
                       color: _themeMode == ThemeMode.dark
                           ? Colors.white
                           : Colors.black)),
               subtitle: Text(
-                  _themeMode == ThemeMode.light ? 'Light Mode' : 'Dark Mode',
+                  _themeMode == ThemeMode.light
+                      ? AppLocalizations.of(context)!.lightTheme
+                      : AppLocalizations.of(context)!.darkTheme,
                   style: TextStyle(
                       color: _themeMode == ThemeMode.dark
                           ? Colors.white
@@ -84,7 +118,7 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
                       backgroundColor: _themeMode == ThemeMode.dark
                           ? Colors.grey[900]
                           : Colors.white,
-                      title: Text('Choose Theme Mode',
+                      title: Text(AppLocalizations.of(context)!.choseMode,
                           style: TextStyle(
                               color: _themeMode == ThemeMode.dark
                                   ? Colors.white
@@ -94,7 +128,8 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
                         children: [
                           RadioListTile<ThemeMode>(
                             activeColor: Background,
-                            title: Text('Light Mode',
+                            title: Text(
+                                AppLocalizations.of(context)!.lightTheme,
                                 style: TextStyle(
                                     color: _themeMode == ThemeMode.dark
                                         ? Colors.white
@@ -108,7 +143,7 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
                           ),
                           RadioListTile<ThemeMode>(
                             activeColor: Background,
-                            title: Text('Dark Mode',
+                            title: Text(AppLocalizations.of(context)!.darkTheme,
                                 style: TextStyle(
                                     color: _themeMode == ThemeMode.dark
                                         ? Colors.white
@@ -128,22 +163,86 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
               },
             ),
           ),
-          // Add more settings options as needed using Card and ListTile
-          // For example:
-          // Card(
-          //   child: ListTile(
-          //     leading: Icon(Icons.notifications),
-          //     title: Text('Notifications'),
-          //     trailing: Switch(
-          //       value: _enableNotifications,
-          //       onChanged: (value) {
-          //         setState(() {
-          //           _enableNotifications = value;
-          //         });
-          //       },
-          //     ),
-          //   ),
-          // ),
+          Card(
+            color:
+                _themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
+            child: ListTile(
+              leading: Icon(Icons.language,
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black),
+              title: Text(AppLocalizations.of(context)!.languageTitle,
+                  style: TextStyle(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black)),
+              subtitle: Text(AppLocalizations.of(context)!.language,
+                  style: TextStyle(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black)),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      backgroundColor: _themeMode == ThemeMode.dark
+                          ? Colors.grey[900]
+                          : Colors.white,
+                      title: Text(AppLocalizations.of(context)!.chooseLanguage,
+                          style: TextStyle(
+                              color: _themeMode == ThemeMode.dark
+                                  ? Colors.white
+                                  : Colors.black)),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          RadioListTile<Locale>(
+                            activeColor: Background,
+                            title: Text(AppLocalizations.of(context)!.english,
+                                style: TextStyle(
+                                    color: _themeMode == ThemeMode.dark
+                                        ? Colors.white
+                                        : Colors.black)),
+                            value: const Locale('en'),
+                            groupValue: _selectedLocale,
+                            onChanged: (value) {
+                              _saveLanguage(value!);
+                              _updateLocale(value);
+                              Fluttertoast.showToast(
+                                msg: AppLocalizations.of(context)!.appRestarted,
+                                toastLength: Toast.LENGTH_LONG,
+                              );
+                              Navigator.pop(context);
+                            },
+                          ),
+                          RadioListTile<Locale>(
+                            activeColor: Background,
+                            title: Text(AppLocalizations.of(context)!.spanish,
+                                style: TextStyle(
+                                    color: _themeMode == ThemeMode.dark
+                                        ? Colors.white
+                                        : Colors.black)),
+                            value: const Locale('es'),
+                            groupValue: _selectedLocale,
+                            onChanged: (value) {
+                              _saveLanguage(value!);
+                              _updateLocale(value);
+                              Fluttertoast.showToast(
+                                msg: AppLocalizations.of(context)!.appRestarted,
+                                toastLength: Toast.LENGTH_LONG,
+                              );
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
         ],
       ),
     );

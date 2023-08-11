@@ -8,6 +8,8 @@ class Meeting {
   int registration_fee;
   final List<dynamic> participants;
   String imageUrl;
+  double lat;
+  double lng;
 
   Meeting(
       {required this.id,
@@ -18,7 +20,9 @@ class Meeting {
       required this.organizer,
       required this.location,
       required this.registration_fee,
-      required this.participants});
+      required this.participants,
+      required this.lat,
+      required this.lng});
 
   factory Meeting.fromJson(Map<String, dynamic> json) {
     return Meeting(
@@ -30,6 +34,8 @@ class Meeting {
         organizer: json['organizer'],
         location: json['location'],
         registration_fee: json['registration_fee'],
-        participants: json['participants']);
+        participants: json['participants'],
+        lat: json['lat'],
+        lng: json['lng']);
   }
 }

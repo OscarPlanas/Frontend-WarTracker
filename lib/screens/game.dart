@@ -6,6 +6,7 @@ import 'package:frontend/controllers/game_controller.dart';
 import 'package:frontend/data/data.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class GameScreen extends StatefulWidget {
   final String meetingId;
@@ -264,7 +265,8 @@ class _GameScreenState extends State<GameScreen> {
           icon: Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('Game Screen', style: TextStyle(color: ButtonBlack)),
+        title: Text(AppLocalizations.of(context)!.gameTable,
+            style: TextStyle(color: ButtonBlack)),
         iconTheme: IconThemeData(color: ButtonBlack),
         backgroundColor: Background,
       ),
@@ -275,13 +277,12 @@ class _GameScreenState extends State<GameScreen> {
             sortColumnIndex: _sortColumnIndex,
             sortAscending: _sortAscending,
             columns: [
-              //DataColumn(label: Text('tournament')),
               DataColumn(
                 label: Container(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   constraints: BoxConstraints(minHeight: 48),
                   child: SizedBox(
-                    width: 100, // Set the desired width
+                    width: 100,
                     child: InkWell(
                       onTap: () {
                         _sortColumn(0, !_sortAscending);
@@ -290,7 +291,7 @@ class _GameScreenState extends State<GameScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Player',
+                            AppLocalizations.of(context)!.player,
                             overflow: TextOverflow.ellipsis,
                           ),
                           if (_sortColumnIndex == 0)
@@ -311,7 +312,7 @@ class _GameScreenState extends State<GameScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   constraints: BoxConstraints(minHeight: 48),
                   child: SizedBox(
-                    width: 100, // Set the desired width
+                    width: 100,
                     child: InkWell(
                       onTap: () {
                         _sortColumn(1, !_sortAscending);
@@ -320,7 +321,7 @@ class _GameScreenState extends State<GameScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Alliance',
+                            AppLocalizations.of(context)!.alliance,
                             overflow: TextOverflow.ellipsis,
                           ),
                           if (_sortColumnIndex == 1)
@@ -336,13 +337,12 @@ class _GameScreenState extends State<GameScreen> {
                   ),
                 ),
               ),
-
               DataColumn(
                 label: Container(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   constraints: BoxConstraints(minHeight: 48),
                   child: SizedBox(
-                    width: 200, // Set the desired width
+                    width: 200,
                     child: InkWell(
                       onTap: () {
                         _sortColumn(2, !_sortAscending);
@@ -351,7 +351,7 @@ class _GameScreenState extends State<GameScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Victory points in favour',
+                            AppLocalizations.of(context)!.pointsFavour,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -368,13 +368,12 @@ class _GameScreenState extends State<GameScreen> {
                   ),
                 ),
               ),
-
               DataColumn(
                 label: Container(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   constraints: BoxConstraints(minHeight: 48),
                   child: SizedBox(
-                    width: 200, // Set the desired width
+                    width: 200,
                     child: InkWell(
                       onTap: () {
                         _sortColumn(3, !_sortAscending);
@@ -383,7 +382,7 @@ class _GameScreenState extends State<GameScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Victory points against',
+                            AppLocalizations.of(context)!.pointsAgainst,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -405,7 +404,7 @@ class _GameScreenState extends State<GameScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   constraints: BoxConstraints(minHeight: 48),
                   child: SizedBox(
-                    width: 200, // Set the desired width
+                    width: 200,
                     child: InkWell(
                       onTap: () {
                         _sortColumn(4, !_sortAscending);
@@ -414,7 +413,7 @@ class _GameScreenState extends State<GameScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Points difference',
+                            AppLocalizations.of(context)!.pointsDifference,
                             overflow: TextOverflow.ellipsis,
                           ),
                           if (_sortColumnIndex == 4)
@@ -435,7 +434,7 @@ class _GameScreenState extends State<GameScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   constraints: BoxConstraints(minHeight: 48),
                   child: SizedBox(
-                    width: 150, // Set the desired width
+                    width: 150,
                     child: InkWell(
                       onTap: () {
                         _sortColumn(5, !_sortAscending);
@@ -444,7 +443,7 @@ class _GameScreenState extends State<GameScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Games played',
+                            AppLocalizations.of(context)!.gamesPlayed,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -466,7 +465,7 @@ class _GameScreenState extends State<GameScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   constraints: BoxConstraints(minHeight: 48),
                   child: SizedBox(
-                    width: 150, // Set the desired width
+                    width: 150,
                     child: InkWell(
                       onTap: () {
                         _sortColumn(6, !_sortAscending);
@@ -475,7 +474,7 @@ class _GameScreenState extends State<GameScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Leaders eliminated',
+                            AppLocalizations.of(context)!.leadersEliminated,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -493,7 +492,7 @@ class _GameScreenState extends State<GameScreen> {
                 ),
               ),
               DataColumn(
-                label: Text('Delete'),
+                label: Text(AppLocalizations.of(context)!.delete),
               ),
             ],
             rows: dataRows,
@@ -548,7 +547,7 @@ class _GameScreenState extends State<GameScreen> {
       controllers.add(controller);
       cells.add(DataCell(TextField(controller: controller)));
     }
-    // Add a delete button cell
+
     cells.add(DataCell(IconButton(
       icon: Icon(Icons.delete),
       onPressed: () {},
@@ -569,7 +568,6 @@ class _GameScreenState extends State<GameScreen> {
       List<TextEditingController> rowControllers = [];
 
       for (int j = 0; j < row.cells.length - 1; j++) {
-        // Exclude the last cell (delete button)
         DataCell cell = row.cells[j];
         TextEditingController controller = TextEditingController();
         String cellValue = '';
@@ -623,7 +621,9 @@ class _GameScreenState extends State<GameScreen> {
 
       // Print the non-participant usernames
       for (var username in nonParticipantUsers) {
-        openDialog("The user " + username + " is not a participant");
+        openDialog(AppLocalizations.of(context)!.theUser +
+            username +
+            AppLocalizations.of(context)!.notParticipant);
       }
     }
   }

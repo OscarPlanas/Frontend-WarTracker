@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/data/data.dart';
 
@@ -17,6 +18,8 @@ import 'package:frontend/models/Chat.dart';
 import 'package:frontend/screens/messages.dart';
 import 'package:frontend/controllers/chat_controller.dart';
 import 'package:frontend/theme_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/controllers/report_controller.dart';
 
 class CommentMeeting extends StatefulWidget {
   final Meeting meeting; // New parameter to hold the meeting ID
@@ -38,6 +41,7 @@ class _CommentMeetingState extends State<CommentMeeting> {
 
   ChatController chatController = Get.put(ChatController());
   ThemeMode _themeMode = ThemeMode.system;
+  ReportController reportController = ReportController();
   @override
   void initState() {
     super.initState();
@@ -88,7 +92,7 @@ class _CommentMeetingState extends State<CommentMeeting> {
               padding:
                   EdgeInsets.only(left: 10.0, right: 120, top: 10, bottom: 10),
               child: Text(
-                "Write a comment...",
+                AppLocalizations.of(context)!.writeComment,
                 style: GoogleFonts.roboto(
                   backgroundColor: _themeMode == ThemeMode.dark
                       ? Colors.grey[800]
@@ -169,7 +173,9 @@ class _CommentMeetingState extends State<CommentMeeting> {
                                             children: [
                                               ListTile(
                                                 leading: Icon(Icons.person),
-                                                title: Text('View Profile'),
+                                                title: Text(AppLocalizations.of(
+                                                        context)!
+                                                    .viewProfile),
                                                 onTap: () {
                                                   navigateToUserProfile(
                                                       comment.owner['_id']);
@@ -179,7 +185,10 @@ class _CommentMeetingState extends State<CommentMeeting> {
                                                   currentUser.id)
                                                 ListTile(
                                                   leading: Icon(Icons.message),
-                                                  title: Text('Send Message'),
+                                                  title: Text(
+                                                      AppLocalizations.of(
+                                                              context)!
+                                                          .sendMessage),
                                                   onTap: () {
                                                     print(
                                                         "Sending message to user");
@@ -192,12 +201,13 @@ class _CommentMeetingState extends State<CommentMeeting> {
                                                   currentUser.id)
                                                 ListTile(
                                                   leading: Icon(Icons.report),
-                                                  title: Text('Report User'),
+                                                  title: Text(
+                                                      AppLocalizations.of(
+                                                              context)!
+                                                          .reportUser),
                                                   onTap: () {
-                                                    // Handle the "Report User" option
-                                                    // Show a dialog or perform the reporting logic
-                                                    Navigator.pop(
-                                                        context); // Close the bottom sheet
+                                                    sendReportUser(
+                                                        comment.owner['_id']);
                                                   },
                                                 ),
                                             ],
@@ -251,15 +261,17 @@ class _CommentMeetingState extends State<CommentMeeting> {
                           child: Text.rich(
                             TextSpan(
                                 text: comment.repliesVisible
-                                    ? "Hide replies"
-                                    : 'Show ${comment.replies.length} replies',
+                                    ? AppLocalizations.of(context)!.hideReplies
+                                    : AppLocalizations.of(context)!
+                                        .showRepliesBlog(
+                                            comment.replies.length),
                                 style: GoogleFonts.roboto(
                                   fontSize: 14,
                                   color: Colors.blue,
                                 )),
                           ),
                         ),
-                        SizedBox(width: 20),
+                        SizedBox(width: 5),
                         InkWell(
                           onTap: () async {
                             if (comment.liked) {
@@ -312,7 +324,7 @@ class _CommentMeetingState extends State<CommentMeeting> {
                           ),
                         ),
                         SizedBox(
-                            width: 20), // Adjust the spacing between the icons
+                            width: 5), // Adjust the spacing between the icons
                         InkWell(
                           onTap: () async {
                             if (comment.disliked) {
@@ -365,7 +377,7 @@ class _CommentMeetingState extends State<CommentMeeting> {
                             ],
                           ),
                         ),
-                        SizedBox(width: 35),
+                        //SizedBox(width: 5),
                         InkWell(
                           onTap: () {
                             _showReplyInputScreen(comment.id);
@@ -385,7 +397,7 @@ class _CommentMeetingState extends State<CommentMeeting> {
                                   ),
                                 ),
                                 TextSpan(
-                                  text: "Reply",
+                                  text: AppLocalizations.of(context)!.reply,
                                   style: GoogleFonts.roboto(
                                     fontSize: 14,
                                     color: Colors.blue,
@@ -488,8 +500,9 @@ class _CommentMeetingState extends State<CommentMeeting> {
                                                                 leading: Icon(
                                                                     Icons
                                                                         .person),
-                                                                title: Text(
-                                                                    'View Profile'),
+                                                                title: Text(AppLocalizations.of(
+                                                                        context)!
+                                                                    .viewProfile),
                                                                 onTap: () {
                                                                   navigateToUserProfile(
                                                                       replyId);
@@ -502,8 +515,9 @@ class _CommentMeetingState extends State<CommentMeeting> {
                                                                   leading: Icon(
                                                                       Icons
                                                                           .message),
-                                                                  title: Text(
-                                                                      'Send Message'),
+                                                                  title: Text(AppLocalizations.of(
+                                                                          context)!
+                                                                      .sendMessage),
                                                                   onTap: () {
                                                                     // Handle the "Send Message" option
                                                                     // Show a dialog or navigate to the messaging screen
@@ -521,13 +535,12 @@ class _CommentMeetingState extends State<CommentMeeting> {
                                                                   leading: Icon(
                                                                       Icons
                                                                           .report),
-                                                                  title: Text(
-                                                                      'Report User'),
+                                                                  title: Text(AppLocalizations.of(
+                                                                          context)!
+                                                                      .reportUser),
                                                                   onTap: () {
-                                                                    // Handle the "Report User" option
-                                                                    // Show a dialog or perform the reporting logic
-                                                                    Navigator.pop(
-                                                                        context); // Close the bottom sheet
+                                                                    sendReportUser(
+                                                                        replyId);
                                                                   },
                                                                 ),
                                                             ],
@@ -913,5 +926,96 @@ class _CommentMeetingState extends State<CommentMeeting> {
 
     Get.to(MessagesScreen(user));
     // Perform the logic for sending a message to a user
+  }
+
+  void sendReportUser(reported) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: _themeMode == ThemeMode.dark
+              ? Color.fromARGB(255, 72, 70, 70)
+              : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          title: Text(AppLocalizations.of(context)!.report,
+              style: TextStyle(
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black)),
+          content: Container(
+            height: MediaQuery.of(context).size.height / 4,
+            child: Column(
+              children: [
+                TextField(
+                  controller: reportController.reasonController,
+                  style: TextStyle(
+                    color: _themeMode == ThemeMode.dark
+                        ? Colors.white
+                        : Colors.black,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: AppLocalizations.of(context)!.reasonReport,
+                    hintStyle: TextStyle(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                if (reportController.reasonController.text.isEmpty) {
+                  Fluttertoast.showToast(
+                      msg: AppLocalizations.of(context)!.plsReason,
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.CENTER,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: ButtonBlack,
+                      textColor: Background,
+                      fontSize: 16.0);
+                } else {
+                  await reportController
+                      .createReport("User", reported)
+                      .then((value) {
+                    if (value == "Report saved") {
+                      Fluttertoast.showToast(
+                          msg: AppLocalizations.of(context)!.reportSent,
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: ButtonBlack,
+                          textColor: Background,
+                          fontSize: 16.0);
+                      Get.back();
+                    } else {
+                      print(value);
+                      Fluttertoast.showToast(
+                          msg: value,
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: ButtonBlack,
+                          textColor: Background,
+                          fontSize: 16.0);
+                    }
+                  });
+                }
+              },
+              child: Text(AppLocalizations.of(context)!.confirm,
+                  style: TextStyle(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black)),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

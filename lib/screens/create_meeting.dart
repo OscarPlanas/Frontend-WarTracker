@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/controllers/meeting_controller.dart';
+import 'package:frontend/main_state.dart';
 import 'package:frontend/screens/tournaments.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -9,6 +12,9 @@ import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:frontend/data/data.dart';
 import 'package:dio/dio.dart';
 import 'package:frontend/theme_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_map/flutter_map.dart' as map;
+import 'package:latlong2/latlong.dart';
 
 class CreateMeeting extends StatefulWidget {
   @override
@@ -34,6 +40,19 @@ class _CreateMeetingState extends State<CreateMeeting> {
   final ImagePicker picker = ImagePicker();
 
   ThemeMode _themeMode = ThemeMode.system;
+
+  MainStateController controller = MainStateController();
+
+  TextEditingController textController = TextEditingController();
+
+  //LatLng? selectedLatLng;
+  LatLng? selectedMapLatLng;
+  //LatLng initialMapCenter = LatLng(0, 0); // Initial center of the map
+
+  //MapController mapController = MapController();
+
+  final StreamController<LatLng> _mapCenterStreamController =
+      StreamController<LatLng>.broadcast();
 
   Future uploadImage() async {
     const url =
@@ -115,6 +134,12 @@ class _CreateMeetingState extends State<CreateMeeting> {
   }
 
   @override
+  void dispose() {
+    _mapCenterStreamController.close();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     _loadThemeMode();
@@ -140,7 +165,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
                 : Colors.white,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            title: Text('Please choose media to select',
+            title: Text(AppLocalizations.of(context)!.plsSelectImage,
                 style: TextStyle(
                     color: _themeMode == ThemeMode.dark
                         ? Colors.white
@@ -161,7 +186,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
                     child: Row(
                       children: [
                         Icon(Icons.image, color: ButtonBlack),
-                        Text('From Gallery',
+                        Text(AppLocalizations.of(context)!.fromGallery,
                             style: TextStyle(color: ButtonBlack)),
                       ],
                     ),
@@ -178,7 +203,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
                     child: Row(
                       children: [
                         Icon(Icons.camera, color: ButtonBlack),
-                        Text('From Camera',
+                        Text(AppLocalizations.of(context)!.fromCamera,
                             style: TextStyle(color: ButtonBlack)),
                       ],
                     ),
@@ -195,6 +220,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
     if (change != "") {
       currentPhoto = change;
     }
+
     return Scaffold(
         backgroundColor:
             _themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
@@ -205,324 +231,490 @@ class _CreateMeetingState extends State<CreateMeeting> {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return TournamentScreen();
                   }))),
-          title: Text("Create a meeting", style: TextStyle(color: ButtonBlack)),
+          title: Text(AppLocalizations.of(context)!.createMeeting,
+              style: TextStyle(color: ButtonBlack)),
           iconTheme: IconThemeData(color: ButtonBlack),
           backgroundColor: Background,
         ),
         body: Container(
-            child: ListView(children: <Widget>[
-          SizedBox(height: 10),
-          GestureDetector(
-            onTap: () {
-              myAlert();
-            },
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 16),
-              height: 150,
-              decoration: BoxDecoration(
-                color: _themeMode == ThemeMode.dark
-                    ? Colors.grey[800]
-                    : Colors.grey[300],
-                borderRadius: BorderRadius.circular(6),
-                image: selectedImage != null
-                    ? DecorationImage(
-                        image: selectedImage!,
-                        fit: BoxFit.cover,
-                      )
+          child: ListView(children: <Widget>[
+            SizedBox(height: 10),
+            GestureDetector(
+              onTap: () {
+                myAlert();
+              },
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 16),
+                height: 150,
+                decoration: BoxDecoration(
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.grey[800]
+                      : Colors.grey[300],
+                  borderRadius: BorderRadius.circular(6),
+                  image: selectedImage != null
+                      ? DecorationImage(
+                          image: selectedImage!,
+                          fit: BoxFit.cover,
+                        )
+                      : null,
+                ),
+                width: MediaQuery.of(context).size.width,
+                child: selectedImage == null
+                    ? Icon(Icons.add_a_photo,
+                        color: _themeMode == ThemeMode.dark
+                            ? Colors.white
+                            : Colors.black)
                     : null,
               ),
-              width: MediaQuery.of(context).size.width,
-              child: selectedImage == null
-                  ? Icon(Icons.add_a_photo,
-                      color: _themeMode == ThemeMode.dark
-                          ? Colors.white
-                          : Colors.black)
-                  : null,
             ),
-          ),
-          SizedBox(height: 12),
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 16),
-            child: Column(children: <Widget>[
-              TextField(
-                controller: meetingController.titleController,
-                decoration: InputDecoration(
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Background),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Background),
-                    ),
-                    hintText: "Write the title of your meeting",
-                    hintStyle: TextStyle(
-                        color: _themeMode == ThemeMode.dark
-                            ? Colors.white
-                            : Colors.grey[800]),
-                    errorText: _validatetitle ? 'Can\'t Be Empty' : null,
-                    counterStyle: TextStyle(
-                        color: _themeMode == ThemeMode.dark
-                            ? Colors.white
-                            : Colors.black,
-                        fontSize: 12.0,
-                        fontWeight: FontWeight.bold)),
-                style: TextStyle(
-                  color: _themeMode == ThemeMode.dark
-                      ? Colors.white
-                      : Colors.black,
-                ),
-                maxLength: 30,
-              ),
-              SizedBox(height: 20),
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: TextField(
-                      controller: meetingController.feeController,
-                      decoration: InputDecoration(
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Background),
-                        ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Background),
-                        ),
-                        hintText: "Inscription fee in €",
-                        hintStyle: TextStyle(
-                            color: _themeMode == ThemeMode.dark
-                                ? Colors.white
-                                : Colors.grey[800]),
-                        errorText: _validatefee ? 'Can\'t Be Empty' : null,
-                        counterStyle: TextStyle(
+            SizedBox(height: 12),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 16),
+              child: Column(children: <Widget>[
+                TextField(
+                  controller: meetingController.titleController,
+                  decoration: InputDecoration(
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Background),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Background),
+                      ),
+                      hintText:
+                          AppLocalizations.of(context)!.createTitleMeeting,
+                      hintStyle: TextStyle(
                           color: _themeMode == ThemeMode.dark
                               ? Colors.white
-                              : Colors.black,
-                          fontSize: 12.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      style: TextStyle(
-                        color: _themeMode == ThemeMode.dark
-                            ? Colors.white
-                            : Colors.black,
-                      ),
-                      maxLength: 3,
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: TextField(
-                      controller: meetingController.locationController,
-                      decoration: InputDecoration(
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Background),
-                        ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Background),
-                        ),
-                        hintText: "Location of the meeting",
-                        hintStyle: TextStyle(
-                            color: _themeMode == ThemeMode.dark
-                                ? Colors.white
-                                : Colors.grey[800]),
-                        errorText: _validatelocation ? 'Can\'t Be Empty' : null,
-                        counterStyle: TextStyle(
+                              : Colors.grey[800]),
+                      errorText: _validatetitle
+                          ? AppLocalizations.of(context)!.notEmpty
+                          : null,
+                      counterStyle: TextStyle(
                           color: _themeMode == ThemeMode.dark
-                              ? Colors.white
+                              ? Color.fromRGBO(255, 255, 255, 1)
                               : Colors.black,
                           fontSize: 12.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      style: TextStyle(
-                        color: _themeMode == ThemeMode.dark
-                            ? Colors.white
-                            : Colors.black,
-                      ),
-                      maxLength: 40,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 8),
-              TextField(
-                controller: meetingController.dateController,
-                onTap: () async {
-                  // Show date picker dialog
-                  final DateTime? pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime(2022),
-                    lastDate: DateTime(2024),
-                    builder: (BuildContext context, Widget? child) {
-                      return Theme(
-                        data: ThemeData().copyWith(
-                          primaryColor: Colors
-                              .green, // Set the color of the header and selected date
-                          colorScheme: _themeMode == ThemeMode.dark
-                              ? ColorScheme.dark(
-                                  brightness: Brightness.dark,
-                                  primary: Background,
-                                  onPrimary: Colors.black)
-                              : ColorScheme.light(
-                                  primary: Background,
-                                  onPrimary: Colors
-                                      .black), // Set the color of the selected date circle
-                          dialogBackgroundColor: _themeMode == ThemeMode.dark
-                              ? Colors.grey[900]
-                              : Colors.white,
-                          buttonTheme: ButtonThemeData(
-                            textTheme: ButtonTextTheme.primary,
-                          ),
-                        ),
-                        child: child!,
-                      );
-                    },
-                  );
-
-                  if (pickedDate != null) {
-                    setState(() {
-                      // Store the selected date
-                      selectedDate = pickedDate;
-                      // Update the text field with the selected date
-                      meetingController.dateController.text =
-                          DateFormat('yyyy-MM-dd').format(selectedDate);
-                    });
-                  }
-                },
-                decoration: InputDecoration(
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Background),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Background),
-                  ),
-                  hintText: "Date of the meeting",
-                  hintStyle: TextStyle(
-                      color: _themeMode == ThemeMode.dark
-                          ? Colors.white
-                          : Colors.grey[800]),
-                  errorText: _validatedate ? 'Can\'t Be Empty' : null,
-                  counterStyle: TextStyle(
+                          fontWeight: FontWeight.bold)),
+                  style: TextStyle(
                     color: _themeMode == ThemeMode.dark
                         ? Colors.white
                         : Colors.black,
-                    fontSize: 12.0,
-                    fontWeight: FontWeight.bold,
                   ),
+                  maxLength: 30,
                 ),
-                style: TextStyle(
-                  color: _themeMode == ThemeMode.dark
-                      ? Colors.white
-                      : Colors.black,
-                ),
-              ),
-              SizedBox(height: 8),
-              TextField(
-                controller: meetingController.descriptionController,
-                decoration: InputDecoration(
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Background),
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Expanded(
+                      child: Container(
+                        height: 56,
+                        padding: EdgeInsets.zero,
+                        child: TextField(
+                          controller: meetingController.feeController,
+                          decoration: InputDecoration(
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Background),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Background),
+                            ),
+                            hintText: AppLocalizations.of(context)!.createFee,
+                            hintStyle: TextStyle(
+                                color: _themeMode == ThemeMode.dark
+                                    ? Colors.white
+                                    : Colors.grey[800]),
+                            errorText: _validatefee
+                                ? AppLocalizations.of(context)!.notEmpty
+                                : null,
+                            counterStyle: TextStyle(
+                              color: _themeMode == ThemeMode.dark
+                                  ? Colors.white
+                                  : Colors.black,
+                              fontSize: 12.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          style: TextStyle(
+                            color: _themeMode == ThemeMode.dark
+                                ? Colors.white
+                                : Colors.black,
+                          ),
+                          maxLength: 3,
+                        ),
+                      ),
                     ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Background),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Container(
+                        height: 17.5,
+                        padding: EdgeInsets.zero,
+                        child: TextField(
+                          controller: meetingController.dateController,
+                          onTap: () async {
+                            // Show date picker dialog
+                            final DateTime? pickedDate = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime(2022),
+                              lastDate: DateTime(2024),
+                              builder: (BuildContext context, Widget? child) {
+                                return Theme(
+                                  data: ThemeData().copyWith(
+                                    primaryColor: Colors
+                                        .green, // Set the color of the header and selected date
+                                    colorScheme: _themeMode == ThemeMode.dark
+                                        ? ColorScheme.dark(
+                                            brightness: Brightness.dark,
+                                            primary: Background,
+                                            onPrimary: Colors.black)
+                                        : ColorScheme.light(
+                                            primary: Background,
+                                            onPrimary: Colors
+                                                .black), // Set the color of the selected date circle
+                                    dialogBackgroundColor:
+                                        _themeMode == ThemeMode.dark
+                                            ? Colors.grey[900]
+                                            : Colors.white,
+                                    buttonTheme: ButtonThemeData(
+                                      textTheme: ButtonTextTheme.primary,
+                                    ),
+                                  ),
+                                  child: child!,
+                                );
+                              },
+                            );
+
+                            if (pickedDate != null) {
+                              setState(() {
+                                // Store the selected date
+                                selectedDate = pickedDate;
+                                // Update the text field with the selected date
+                                meetingController.dateController.text =
+                                    DateFormat('yyyy-MM-dd')
+                                        .format(selectedDate);
+                              });
+                            }
+                          },
+                          decoration: InputDecoration(
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Background),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Background),
+                            ),
+                            hintText: AppLocalizations.of(context)!.createDate,
+                            hintStyle: TextStyle(
+                                color: _themeMode == ThemeMode.dark
+                                    ? Colors.white
+                                    : Colors.grey[800]),
+                            errorText: _validatedate
+                                ? AppLocalizations.of(context)!.notEmpty
+                                : null,
+                            counterStyle: TextStyle(
+                              color: _themeMode == ThemeMode.dark
+                                  ? Colors.white
+                                  : Colors.black,
+                              fontSize: 12.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          style: TextStyle(
+                            color: _themeMode == ThemeMode.dark
+                                ? Colors.white
+                                : Colors.black,
+                          ),
+                        ),
+                      ),
                     ),
-                    hintText: "Write the description",
-                    hintStyle: TextStyle(
-                        color: _themeMode == ThemeMode.dark
-                            ? Colors.white
-                            : Colors.grey[800]),
-                    errorText: _validatedesc ? 'Can\'t Be Empty' : null,
-                    counterStyle: TextStyle(
-                        color: _themeMode == ThemeMode.dark
-                            ? Colors.white
-                            : Colors.black,
-                        fontSize: 12.0,
-                        fontWeight: FontWeight.bold)),
-                style: TextStyle(
-                  color: _themeMode == ThemeMode.dark
-                      ? Colors.white
-                      : Colors.black,
+                  ],
                 ),
-                maxLength: 1000,
-                maxLines: 10,
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Background,
+                SizedBox(height: 8),
+                TextField(
+                  controller: meetingController.locationController,
+                  decoration: InputDecoration(
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Background),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Background),
+                      ),
+                      hintText: AppLocalizations.of(context)!.cityLocation,
+                      hintStyle: TextStyle(
+                          color: _themeMode == ThemeMode.dark
+                              ? Colors.white
+                              : Colors.grey[800]),
+                      errorText: _validatelocation
+                          ? AppLocalizations.of(context)!.notEmpty
+                          : null,
+                      counterStyle: TextStyle(
+                          color: _themeMode == ThemeMode.dark
+                              ? Colors.white
+                              : Colors.black,
+                          fontSize: 12.0,
+                          fontWeight: FontWeight.bold)),
+                  style: TextStyle(
+                    color: _themeMode == ThemeMode.dark
+                        ? Colors.white
+                        : Colors.black,
+                  ),
+                  maxLength: 30,
                 ),
-                onPressed: () async => {
-                  setState(() {
-                    meetingController.titleController.text.isEmpty
-                        ? _validatetitle = true
-                        : _validatetitle = false;
-                    meetingController.descriptionController.text.isEmpty
-                        ? _validatedesc = true
-                        : _validatedesc = false;
-                    meetingController.locationController.text.isEmpty
-                        ? _validatelocation = true
-                        : _validatelocation = false;
-                    meetingController.dateController.text.isEmpty
-                        ? _validatedate = true
-                        : _validatedate = false;
-                    meetingController.feeController.text.isEmpty
-                        ? _validatefee = true
-                        : _validatefee = false;
-                  }),
-                  if (meetingController.titleController.text.isNotEmpty &&
-                      meetingController.descriptionController.text.isNotEmpty &&
-                      meetingController.feeController.text.isNotEmpty &&
-                      meetingController.locationController.text.isNotEmpty &&
-                      meetingController.dateController.text.isNotEmpty &&
-                      meetingController.locationController.text.isNotEmpty &&
-                      meetingController.dateController.text.isNotEmpty &&
-                      selectedImage != null)
-                    {
-                      await meetingController.createMeeting(currentPhoto),
-                      change = "",
-                      currentPhoto = "",
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return TournamentScreen();
-                      })),
-                    }
-                  else if (selectedImage == null)
-                    {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            backgroundColor: _themeMode == ThemeMode.dark
-                                ? Color.fromARGB(255, 32, 30, 30)
-                                : Colors.white,
-                            title: Text('Error',
-                                style: TextStyle(
-                                    color: _themeMode == ThemeMode.dark
-                                        ? Colors.white
-                                        : Colors.black)),
-                            content: Text('Please select an image.',
-                                style: TextStyle(
-                                    color: _themeMode == ThemeMode.dark
-                                        ? Colors.white
-                                        : Colors.black)),
-                            actions: [
-                              TextButton(
-                                child: Text('OK'),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
+                SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        child: Text(
+                          AppLocalizations.of(context)!.selectLocation,
+                          style: TextStyle(
+                            color: _themeMode == ThemeMode.dark
+                                ? Colors.white
+                                : Colors.black,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Background,
+                        ),
+                        onPressed: () async {
+                          var geoPoint = await showSimplePickerLocation(
+                            context: context,
+                            isDismissible: true,
+                            title: AppLocalizations.of(context)!.selectLocation,
+                            textConfirmPicker:
+                                AppLocalizations.of(context)!.save,
+                            initCurrentUserPosition: true,
+                            initZoom: 12,
+                          );
+
+                          if (geoPoint != null) {
+                            setState(() {
+                              selectedMapLatLng =
+                                  LatLng(geoPoint.latitude, geoPoint.longitude);
+                              meetingController.latController.text =
+                                  geoPoint.latitude.toString();
+                              meetingController.lngController.text =
+                                  geoPoint.longitude.toString();
+                            });
+                          }
+
+                          Fluttertoast.showToast(
+                            msg: "Selected location: $selectedMapLatLng",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.SNACKBAR,
                           );
                         },
                       ),
-                    }
-                },
-                child: Text(
-                  'Submit',
-                  style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    if (selectedMapLatLng != null)
+                      Container(
+                        width: 200, // Adjust the width as needed
+                        height: 200, // Adjust the height as needed
+                        child: map.FlutterMap(
+                          options: map.MapOptions(
+                            center: selectedMapLatLng!,
+                            zoom: 13.0,
+                          ),
+                          children: [
+                            map.TileLayer(
+                              urlTemplate:
+                                  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                              subdomains: ['a', 'b', 'c'],
+                            ),
+                            map.MarkerLayer(
+                              markers: [
+                                if (selectedMapLatLng != null)
+                                  map.Marker(
+                                    width: 40.0,
+                                    height: 40.0,
+                                    point: selectedMapLatLng!,
+                                    builder: (ctx) => Container(
+                                      child: Icon(Icons.location_on,
+                                          color: Colors.red),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
                 ),
-              ),
-            ]),
-          )
-        ])));
+                SizedBox(height: 8),
+                TextField(
+                  controller: meetingController.descriptionController,
+                  decoration: InputDecoration(
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Background),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Background),
+                      ),
+                      hintText: AppLocalizations.of(context)!
+                          .createMeetingDescription,
+                      hintStyle: TextStyle(
+                          color: _themeMode == ThemeMode.dark
+                              ? Colors.white
+                              : Colors.grey[800]),
+                      errorText: _validatedesc
+                          ? AppLocalizations.of(context)!.notEmpty
+                          : null,
+                      counterStyle: TextStyle(
+                          color: _themeMode == ThemeMode.dark
+                              ? Colors.white
+                              : Colors.black,
+                          fontSize: 12.0,
+                          fontWeight: FontWeight.bold)),
+                  style: TextStyle(
+                    color: _themeMode == ThemeMode.dark
+                        ? Colors.white
+                        : Colors.black,
+                  ),
+                  maxLength: 1000,
+                  maxLines: 10,
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Background,
+                  ),
+                  onPressed: () async => {
+                    if (meetingController.titleController.text.isEmpty ||
+                        meetingController.descriptionController.text.isEmpty ||
+                        meetingController.feeController.text.isEmpty ||
+                        meetingController.locationController.text.isEmpty ||
+                        meetingController.dateController.text.isEmpty ||
+                        selectedImage == null &&
+                            meetingController.latController.text.isEmpty &&
+                            meetingController.lngController.text.isEmpty)
+                      {
+                        Fluttertoast.showToast(
+                          msg: AppLocalizations.of(context)!.plsFill,
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.SNACKBAR,
+                        ),
+                      }
+                    else if (meetingController.latController.text.isEmpty &&
+                        meetingController.lngController.text.isEmpty)
+                      {
+                        Fluttertoast.showToast(
+                          msg: AppLocalizations.of(context)!.plsLocation,
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.SNACKBAR,
+                        ),
+                      }
+                    else
+                      {
+                        // All fields are filled, proceed with the submit action
+                        await meetingController.createMeeting(currentPhoto),
+                        change = "",
+                        currentPhoto = "",
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return TournamentScreen();
+                        })),
+                        Fluttertoast.showToast(
+                            msg: AppLocalizations.of(context)!.meetingCreated,
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Background,
+                            textColor: ButtonBlack,
+                            fontSize: 16.0)
+                      },
+                    /*setState(() {
+                      meetingController.titleController.text.isEmpty
+                          ? _validatetitle = true
+                          : _validatetitle = false;
+                      meetingController.descriptionController.text.isEmpty
+                          ? _validatedesc = true
+                          : _validatedesc = false;
+                      meetingController.locationController.text.isEmpty
+                          ? _validatelocation = true
+                          : _validatelocation = false;
+                      meetingController.dateController.text.isEmpty
+                          ? _validatedate = true
+                          : _validatedate = false;
+                      meetingController.feeController.text.isEmpty
+                          ? _validatefee = true
+                          : _validatefee = false;
+                      meetingController.latController.text.isEmpty
+                          ? _validatelocation = true
+                          : _validatelocation = false;
+                      meetingController.lngController.text.isEmpty
+                          ? _validatelocation = true
+                          : _validatelocation = false;
+                    }),
+                    if (meetingController.titleController.text.isNotEmpty &&
+                        meetingController
+                            .descriptionController.text.isNotEmpty &&
+                        meetingController.feeController.text.isNotEmpty &&
+                        meetingController.locationController.text.isNotEmpty &&
+                        meetingController.dateController.text.isNotEmpty &&
+                        meetingController.locationController.text.isNotEmpty &&
+                        meetingController.dateController.text.isNotEmpty &&
+                        selectedImage != null &&
+                        meetingController.latController.text.isNotEmpty &&
+                        meetingController.lngController.text.isNotEmpty)
+                      {
+                        await meetingController.createMeeting(currentPhoto),
+                        change = "",
+                        currentPhoto = "",
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return TournamentScreen();
+                        })),
+                      }
+                    else if (selectedImage == null)
+                      {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              backgroundColor: _themeMode == ThemeMode.dark
+                                  ? Color.fromARGB(255, 32, 30, 30)
+                                  : Colors.white,
+                              title: Text('Error',
+                                  style: TextStyle(
+                                      color: _themeMode == ThemeMode.dark
+                                          ? Colors.white
+                                          : Colors.black)),
+                              content: Text(
+                                  AppLocalizations.of(context)!.plsSelectImage,
+                                  style: TextStyle(
+                                      color: _themeMode == ThemeMode.dark
+                                          ? Colors.white
+                                          : Colors.black)),
+                              actions: [
+                                TextButton(
+                                  child: Text('OK'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      }
+                    else if (meetingController.latController.text.isEmpty &&
+                        meetingController.lngController.text.isEmpty)
+                      {
+                        Fluttertoast.showToast(
+                          msg: "Please select location",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.SNACKBAR,
+                        ),
+                      }*/
+                  },
+                  child: Text(
+                    AppLocalizations.of(context)!.buttonSubmit,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
+              ]),
+            )
+          ]),
+        ));
   }
 }

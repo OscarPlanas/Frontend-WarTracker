@@ -24,9 +24,8 @@ class Body extends StatefulWidget {
 class _BodyState extends State<Body> {
   RegistrationController registrationController =
       Get.put(RegistrationController());
-  bool _validatedate = false;
   final _formKey = GlobalKey<FormState>();
-
+  String success = "";
   DateTime selectedDate = DateTime.now();
 
   @override
@@ -138,7 +137,15 @@ class _BodyState extends State<Body> {
                   }
                 else if (_formKey.currentState!.validate())
                   {
-                    await registrationController.registerWithEmail(),
+                    success = await registrationController.registerWithEmail(),
+                    if (success == "1")
+                      {
+                        openDialog("This username is already taken"),
+                      }
+                    else if (success == "2")
+                      {
+                        openDialog("This email has been already registered"),
+                      }
                   }
               },
               title: 'SignUp',

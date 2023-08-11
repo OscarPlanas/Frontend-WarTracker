@@ -63,6 +63,13 @@ class RegistrationController extends GetxController {
           var message = jsonDecode(response.body)['message'];
           return message;
         }
+      } else if (response.statusCode == 402) {
+        print("username ya existe");
+        return "1";
+      } else if (response.statusCode == 403) {
+        print("email ya existe");
+
+        return "2";
       } else {
         var message2 = jsonDecode(response.body)['message'];
         return message2;

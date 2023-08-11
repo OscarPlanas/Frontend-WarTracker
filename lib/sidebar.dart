@@ -11,6 +11,9 @@ import 'package:frontend/screens/tournaments.dart';
 import 'package:frontend/screens/profile.dart';
 import 'package:frontend/data/data.dart';
 import 'package:frontend/theme_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/screens/about.dart';
+import 'package:frontend/screens/calendar.dart';
 
 class Sidebar extends StatefulWidget {
   Sidebar({Key? key}) : super(key: key);
@@ -21,7 +24,6 @@ class Sidebar extends StatefulWidget {
 
 class _SidebarState extends State<Sidebar> {
   ThemeMode _themeMode = ThemeMode.system; // Initialize with system mode
-
   final LocalStorage storage1 = LocalStorage('My App');
 
   @override
@@ -33,7 +35,6 @@ class _SidebarState extends State<Sidebar> {
   void _loadThemeMode() async {
     // Retrieve the saved theme mode from SharedPreferences
     ThemeMode savedThemeMode = await ThemeHelper.getThemeMode();
-    print(savedThemeMode);
     setState(() {
       _themeMode = savedThemeMode;
     });
@@ -84,7 +85,7 @@ class _SidebarState extends State<Sidebar> {
                   color: _themeMode == ThemeMode.dark
                       ? Colors.white
                       : Colors.black),
-              title: Text('Home',
+              title: Text(AppLocalizations.of(context)!.sidebarHome,
                   style: TextStyle(
                       color: _themeMode == ThemeMode.dark
                           ? Colors.white
@@ -92,7 +93,7 @@ class _SidebarState extends State<Sidebar> {
               onTap: () => Get.offAll(HomeScreen()),
             ),
             ListTile(
-              title: Text('Tournaments',
+              title: Text(AppLocalizations.of(context)!.sidebarTournaments,
                   style: TextStyle(
                       color: _themeMode == ThemeMode.dark
                           ? Colors.white
@@ -104,16 +105,16 @@ class _SidebarState extends State<Sidebar> {
               onTap: () => Get.offAll(TournamentScreen()),
             ),
             ListTile(
-              title: Text('Leaderboard',
+              title: Text(AppLocalizations.of(context)!.sidebarCalendar,
                   style: TextStyle(
                       color: _themeMode == ThemeMode.dark
                           ? Colors.white
                           : Colors.black)),
-              leading: Icon(Icons.leaderboard_outlined,
+              leading: Icon(Icons.calendar_month_outlined,
                   color: _themeMode == ThemeMode.dark
                       ? Colors.white
                       : Colors.black),
-              onTap: () => Get.offAll(HomeScreen()),
+              onTap: () => Get.offAll(Calendar()),
             ),
             Divider(
                 color: _themeMode == ThemeMode.dark
@@ -124,7 +125,7 @@ class _SidebarState extends State<Sidebar> {
                   color: _themeMode == ThemeMode.dark
                       ? Colors.white
                       : Colors.black),
-              title: Text('Profile',
+              title: Text(AppLocalizations.of(context)!.profile,
                   style: TextStyle(
                       color: _themeMode == ThemeMode.dark
                           ? Colors.white
@@ -149,19 +150,19 @@ class _SidebarState extends State<Sidebar> {
                   color: _themeMode == ThemeMode.dark
                       ? Colors.white
                       : Colors.black),
-              title: Text('Settings',
+              title: Text(AppLocalizations.of(context)!.sidebarSettings,
                   style: TextStyle(
                       color: _themeMode == ThemeMode.dark
                           ? Colors.white
                           : Colors.black)),
-              onTap: () => Get.offAll(ConfigurationScreen()),
+              onTap: () => Get.to(ConfigurationScreen()),
             ),
             ListTile(
               leading: Icon(Icons.logout_outlined,
                   color: _themeMode == ThemeMode.dark
                       ? Colors.white
                       : Colors.black),
-              title: Text('Logout',
+              title: Text(AppLocalizations.of(context)!.sidebarLogout,
                   style: TextStyle(
                       color: _themeMode == ThemeMode.dark
                           ? Colors.white
@@ -182,12 +183,12 @@ class _SidebarState extends State<Sidebar> {
                   color: _themeMode == ThemeMode.dark
                       ? Colors.white
                       : Colors.black),
-              title: Text('About',
+              title: Text(AppLocalizations.of(context)!.about,
                   style: TextStyle(
                       color: _themeMode == ThemeMode.dark
                           ? Colors.white
                           : Colors.black)),
-              onTap: () => Get.offAll(HomeScreen()),
+              onTap: () => Get.to(AboutScreen()),
             ),
           ],
         ),

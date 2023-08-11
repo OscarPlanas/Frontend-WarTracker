@@ -10,6 +10,11 @@ import 'package:frontend/models/meeting.dart';
 import 'package:frontend/theme_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class EditMeeting extends StatefulWidget {
   final Meeting meeting;
@@ -40,7 +45,7 @@ class _EditMeetingState extends State<EditMeeting> {
   final ImagePicker picker = ImagePicker();
   ImageProvider? selectedImage; // Store the selected image
   ThemeMode _themeMode = ThemeMode.system;
-
+  LatLng? selectedMapLatLng;
   Future uploadImage() async {
     const url =
         "https://api.cloudinary.com/v1_1/dagbarc6g/auto/upload/w_200,h_200,c_fill,r_max";
@@ -131,7 +136,7 @@ class _EditMeetingState extends State<EditMeeting> {
                 : Colors.white,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            title: Text('Please choose media to select',
+            title: Text(AppLocalizations.of(context)!.plsSelectImage,
                 style: TextStyle(
                     color: _themeMode == ThemeMode.dark
                         ? Colors.white
@@ -152,7 +157,7 @@ class _EditMeetingState extends State<EditMeeting> {
                     child: Row(
                       children: [
                         Icon(Icons.image, color: ButtonBlack),
-                        Text('From Gallery',
+                        Text(AppLocalizations.of(context)!.fromGallery,
                             style: TextStyle(color: ButtonBlack)),
                       ],
                     ),
@@ -169,7 +174,7 @@ class _EditMeetingState extends State<EditMeeting> {
                     child: Row(
                       children: [
                         Icon(Icons.camera, color: ButtonBlack),
-                        Text('From Camera',
+                        Text(AppLocalizations.of(context)!.fromCamera,
                             style: TextStyle(color: ButtonBlack)),
                       ],
                     ),
@@ -216,8 +221,8 @@ class _EditMeetingState extends State<EditMeeting> {
             icon: Icon(Icons.arrow_back),
             onPressed: () => Navigator.pop(context),
           ),
-          title:
-              Text("Edit your meeting", style: TextStyle(color: ButtonBlack)),
+          title: Text(AppLocalizations.of(context)!.editMeeting,
+              style: TextStyle(color: ButtonBlack)),
           iconTheme: IconThemeData(color: ButtonBlack),
           backgroundColor: Background,
         ),
@@ -268,7 +273,9 @@ class _EditMeetingState extends State<EditMeeting> {
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Background),
                       ),
-                      errorText: _validatetitle ? 'Can\'t Be Empty' : null,
+                      errorText: _validatetitle
+                          ? AppLocalizations.of(context)!.notEmpty
+                          : null,
                       focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Background),
                       ),
@@ -294,7 +301,9 @@ class _EditMeetingState extends State<EditMeeting> {
                             enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(color: Background),
                             ),
-                            errorText: _validatefee ? 'Can\'t Be Empty' : null,
+                            errorText: _validatefee
+                                ? AppLocalizations.of(context)!.notEmpty
+                                : null,
                             focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(color: Background),
                             ),
@@ -320,8 +329,9 @@ class _EditMeetingState extends State<EditMeeting> {
                             enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(color: Background),
                             ),
-                            errorText:
-                                _validatelocation ? 'Can\'t Be Empty' : null,
+                            errorText: _validatelocation
+                                ? AppLocalizations.of(context)!.notEmpty
+                                : null,
                             focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(color: Background),
                             ),
@@ -339,6 +349,124 @@ class _EditMeetingState extends State<EditMeeting> {
                         maxLength: 40,
                       ),
                     )
+                  ],
+                ),
+                SizedBox(height: 8),
+                Text("Current location",
+                    style: TextStyle(
+                        color: _themeMode == ThemeMode.dark
+                            ? Colors.white
+                            : Colors.black,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold)),
+                SizedBox(height: 2),
+                Container(
+                  width: 350, // Adjust the width as needed
+                  height: 200, // Adjust the height as needed
+                  child: FlutterMap(
+                    options: MapOptions(
+                      center: LatLng(widget.meeting.lat, widget.meeting.lng),
+                      zoom: 13.0,
+                    ),
+                    children: [
+                      TileLayer(
+                        urlTemplate:
+                            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        subdomains: ['a', 'b', 'c'],
+                      ),
+                      MarkerLayer(
+                        markers: [
+                          Marker(
+                            width: 40.0,
+                            height: 40.0,
+                            point:
+                                LatLng(widget.meeting.lat, widget.meeting.lng),
+                            builder: (ctx) => Container(
+                              child: Icon(Icons.location_on, color: Colors.red),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        child: Text(
+                          "Change the location",
+                          style: TextStyle(
+                            color: _themeMode == ThemeMode.dark
+                                ? Colors.white
+                                : Colors.black,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Background,
+                        ),
+                        onPressed: () async {
+                          var geoPoint = await showSimplePickerLocation(
+                            context: context,
+                            isDismissible: true,
+                            title: "Select location",
+                            textConfirmPicker: "Pick",
+                            initCurrentUserPosition: true,
+                            initZoom: 12,
+                          );
+
+                          if (geoPoint != null) {
+                            setState(() {
+                              selectedMapLatLng =
+                                  LatLng(geoPoint.latitude, geoPoint.longitude);
+                              meetingController.latController.text =
+                                  geoPoint.latitude.toString();
+                              meetingController.lngController.text =
+                                  geoPoint.longitude.toString();
+                            });
+                          }
+
+                          Fluttertoast.showToast(
+                            msg: "Selected location: $selectedMapLatLng",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.SNACKBAR,
+                          );
+                        },
+                      ),
+                    ),
+                    if (selectedMapLatLng != null)
+                      Container(
+                        width: 200, // Adjust the width as needed
+                        height: 200, // Adjust the height as needed
+                        child: FlutterMap(
+                          options: MapOptions(
+                            center: selectedMapLatLng!,
+                            zoom: 13.0,
+                          ),
+                          children: [
+                            TileLayer(
+                              urlTemplate:
+                                  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                              subdomains: ['a', 'b', 'c'],
+                            ),
+                            MarkerLayer(
+                              markers: [
+                                if (selectedMapLatLng != null)
+                                  Marker(
+                                    width: 40.0,
+                                    height: 40.0,
+                                    point: selectedMapLatLng!,
+                                    builder: (ctx) => Container(
+                                      child: Icon(Icons.location_on,
+                                          color: Colors.red),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                   ],
                 ),
                 SizedBox(height: 8),
@@ -389,7 +517,9 @@ class _EditMeetingState extends State<EditMeeting> {
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Background),
                       ),
-                      errorText: _validatedate ? 'Can\'t Be Empty' : null,
+                      errorText: _validatedate
+                          ? AppLocalizations.of(context)!.notEmpty
+                          : null,
                       focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Background),
                       ),
@@ -411,7 +541,9 @@ class _EditMeetingState extends State<EditMeeting> {
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Background),
                       ),
-                      errorText: _validatedesc ? 'Can\'t Be Empty' : null,
+                      errorText: _validatedesc
+                          ? AppLocalizations.of(context)!.notEmpty
+                          : null,
                       focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Background),
                       ),
@@ -459,6 +591,13 @@ class _EditMeetingState extends State<EditMeeting> {
                         meetingController.feeController.text.isNotEmpty &&
                         meetingController.locationController.text.isNotEmpty &&
                         meetingController.dateController.text.isNotEmpty) {
+                      if (meetingController.latController.text.isEmpty &&
+                          meetingController.lngController.text.isEmpty) {
+                        meetingController.latController.text =
+                            widget.meeting.lat.toString();
+                        meetingController.lngController.text =
+                            widget.meeting.lng.toString();
+                      }
                       meetingController.editMeeting(
                           widget.meeting.id, currentPhoto);
                       // Create the updated blog object
@@ -474,15 +613,28 @@ class _EditMeetingState extends State<EditMeeting> {
                         date: meetingController.dateController.text,
                         participants: widget.meeting.participants,
                         imageUrl: currentPhoto,
+                        lat: parseDouble(meetingController.latController.text),
+                        lng: parseDouble(meetingController.lngController.text),
                       );
                       change = "";
                       currentPhoto = "";
+                      if (meetingController.latController.text !=
+                              widget.meeting.lat.toString() &&
+                          meetingController.lngController.text !=
+                              widget.meeting.lng.toString()) {
+                        Fluttertoast.showToast(
+                          msg:
+                              "Location will be correctly displayed after the page is refreshed",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.SNACKBAR,
+                        );
+                      }
                       // Pass the updated blog as a separate parameter
                       Navigator.pop(context, updatedMeeting);
                     }
                   },
                   child: Text(
-                    'Submit',
+                    AppLocalizations.of(context)!.buttonSubmit,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                 ),
@@ -490,5 +642,9 @@ class _EditMeetingState extends State<EditMeeting> {
             ),
           ]),
         ));
+  }
+
+  double parseDouble(String value) {
+    return double.tryParse(value) ?? 0.0; // Returns 0.0 if parsing fails
   }
 }

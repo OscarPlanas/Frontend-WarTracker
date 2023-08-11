@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:frontend/components/Messages/OwnMessageCard.dart';
 import 'package:frontend/components/Messages/ReplyCard.dart';
@@ -11,7 +13,10 @@ import 'package:frontend/screens/chats.dart';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:frontend/theme_provider.dart';
-import 'package:frontend/constants.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:flutter/foundation.dart' as foundation;
+import 'package:http/http.dart' as http;
 
 class MessagesScreen extends StatefulWidget {
   final User user;
@@ -38,16 +43,26 @@ class _MessagesScreenState extends State<MessagesScreen> {
   final ScrollController _scrollController = ScrollController();
 
   ThemeMode _themeMode = ThemeMode.system;
+  var isEmojiVisible = false.obs;
+  FocusNode focusNode = FocusNode();
+
+  bool isUserOnline = false;
   @override
   void dispose() {
     // Dispose the ScrollController when the widget is disposed
     _scrollController.dispose();
+    socket!.emit('userOffline', currentUser.id);
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
+    focusNode.addListener(() {
+      if (focusNode.hasFocus) {
+        isEmojiVisible.value = false;
+      }
+    });
     connect();
     if (!_isChatFetched) {
       fetchChat();
@@ -98,6 +113,21 @@ class _MessagesScreenState extends State<MessagesScreen> {
       print('Connection Timeout: $timeout');
     });
     print(socket!.connected);
+    socket!.on('userOnline', (userId) {
+      if (userId == widget.user.id) {
+        setState(() {
+          isUserOnline = true;
+        });
+      }
+    });
+
+    socket!.on('userOffline', (userId) {
+      if (userId == widget.user.id) {
+        setState(() {
+          isUserOnline = false;
+        });
+      }
+    });
   }
 
   void sendMessage(String message, String sourceId, String targetId) {
@@ -187,116 +217,173 @@ class _MessagesScreenState extends State<MessagesScreen> {
       backgroundColor:
           _themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
       appBar: buildAppBar(),
-      body: Column(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: ListView.builder(
-                controller:
-                    _scrollController, // Assign the ScrollController to the ListView
-                itemCount: messages.length,
-                itemBuilder: (context, index) {
-                  if (messages[index].user == currentUser.id) {
-                    return OwnMessageCard(
-                      messageModel: messages[index],
-                      themeMode: _themeMode,
-                    );
-                  } else {
-                    return ReplyCard(messageModel: messages[index]);
-                  }
-                },
+      body: WillPopScope(
+        child: Column(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: ListView.builder(
+                  controller:
+                      _scrollController, // Assign the ScrollController to the ListView
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                    if (messages[index].user == currentUser.id) {
+                      return OwnMessageCard(
+                        messageModel: messages[index],
+                        themeMode: _themeMode,
+                      );
+                    } else {
+                      return ReplyCard(messageModel: messages[index]);
+                    }
+                  },
+                ),
               ),
             ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 10 / 2,
-            ),
-            decoration: BoxDecoration(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              boxShadow: [
-                BoxShadow(
-                  offset: const Offset(0, 4),
-                  blurRadius: 32,
-                  color: Background.withOpacity(0.08),
-                ),
-              ],
-            ),
-            child: SafeArea(
-              child: Row(
-                children: [
-                  const Icon(Icons.mic, color: Background),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10 * 0.75,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.05),
-                        borderRadius: BorderRadius.circular(40),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.sentiment_satisfied_alt_outlined,
-                            color: Theme.of(context)
-                                .textTheme
-                                .bodyLarge!
-                                .color!
-                                .withOpacity(0.64),
-                          ),
-                          const SizedBox(width: 10 / 4),
-                          Expanded(
-                            child: TextField(
-                              controller: _messageController,
-                              decoration: InputDecoration(
-                                hintText: "Type message",
-                                border: InputBorder.none,
-                              ),
-                            ),
-                          ),
-                          Icon(
-                            Icons.attach_file,
-                            color: Theme.of(context)
-                                .textTheme
-                                .bodyLarge!
-                                .color!
-                                .withOpacity(0.64),
-                          ),
-                          const SizedBox(width: 10 / 4),
-                          IconButton(
-                            icon: Icon(
-                              Icons.send,
-                              color: Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge!
-                                  .color!
-                                  .withOpacity(0.64),
-                            ),
-                            onPressed: () {
-                              final message = _messageController.text;
-                              sendMessage(
-                                  message, currentUser.id, widget.user.id);
-
-                              print("chatId: " + chat!.id);
-                              chatController.saveMessage(
-                                  chat!.id, currentUser.id, message);
-
-                              _messageController.clear();
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 10 / 2,
+              ),
+              decoration: BoxDecoration(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                boxShadow: [
+                  BoxShadow(
+                    offset: const Offset(0, 4),
+                    blurRadius: 32,
+                    color: Background.withOpacity(0.08),
                   ),
                 ],
               ),
+              child: SafeArea(
+                child: Row(
+                  children: [
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10 * 0.75,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(40),
+                        ),
+                        child: Row(
+                          children: [
+                            IconButton(
+                                onPressed: () {
+                                  isEmojiVisible.value = !isEmojiVisible.value;
+                                  focusNode.unfocus();
+                                  focusNode.canRequestFocus = true;
+                                },
+                                icon: Icon(
+                                  Icons.sentiment_satisfied_alt_outlined,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge!
+                                      .color!
+                                      .withOpacity(0.64),
+                                )),
+                            const SizedBox(width: 10 / 4),
+                            Expanded(
+                              child: TextField(
+                                focusNode: focusNode,
+                                controller: _messageController,
+                                decoration: InputDecoration(
+                                  hintText:
+                                      AppLocalizations.of(context)!.typeChat,
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10 / 4),
+                            IconButton(
+                              icon: Icon(
+                                Icons.send,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge!
+                                    .color!
+                                    .withOpacity(0.64),
+                              ),
+                              onPressed: () {
+                                final message = _messageController.text;
+                                sendMessage(
+                                    message, currentUser.id, widget.user.id);
+
+                                print("chatId: " + chat!.id);
+                                chatController.saveMessage(
+                                    chat!.id, currentUser.id, message);
+
+                                _messageController.clear();
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ],
+            Obx(
+              () => Offstage(
+                offstage: !isEmojiVisible.value,
+                child: SizedBox(
+                  height: 250,
+                  child: EmojiPicker(
+                    onEmojiSelected: (category, emoji) {
+                      _messageController.text =
+                          _messageController.text + emoji.emoji;
+                    },
+                    onBackspacePressed: () {},
+                    config: Config(
+                      columns: 7,
+                      emojiSizeMax: 32 *
+                          (foundation.defaultTargetPlatform ==
+                                  TargetPlatform.iOS
+                              ? 1.30
+                              : 1.0),
+                      verticalSpacing: 0,
+                      horizontalSpacing: 0,
+                      gridPadding: EdgeInsets.zero,
+                      initCategory: Category.RECENT,
+                      bgColor: const Color(0xFFF2F2F2),
+                      indicatorColor: Colors.blue,
+                      iconColor: Colors.grey,
+                      iconColorSelected: Colors.blue,
+                      backspaceColor: Colors.blue,
+                      skinToneDialogBgColor: Colors.white,
+                      skinToneIndicatorColor: Colors.grey,
+                      enableSkinTones: true,
+                      recentTabBehavior: RecentTabBehavior.RECENT,
+                      recentsLimit: 28,
+                      replaceEmojiOnLimitExceed: false,
+                      noRecents: const Text(
+                        'No Recents',
+                        style: TextStyle(fontSize: 20, color: Colors.black26),
+                        textAlign: TextAlign.center,
+                      ),
+                      loadingIndicator: const SizedBox.shrink(),
+                      tabIndicatorAnimDuration: kTabScrollDuration,
+                      categoryIcons: const CategoryIcons(),
+                      buttonMode: ButtonMode.MATERIAL,
+                      checkPlatformCompatibility: true,
+                    ),
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
+        onWillPop: () {
+          if (isEmojiVisible.value) {
+            isEmojiVisible.value = false;
+          } else {
+            Navigator.pop(context);
+          }
+          return Future.value(false);
+        },
       ),
     );
   }
@@ -309,10 +396,21 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
     // Call the fetchMessages() function to get the messages for this chat
     await fetchMessages();
-
+    //isUserOnline = await chatController.isUserOnline(widget.user.id);
     setState(() {
       _isChatFetched = true; // Set the flag to true after fetching the chat
     });
+    socket!.emit('userOnline', currentUser.id);
+    try {
+      final response = await http
+          .get(Uri.parse('http://10.0.2.2:5432/api/users/' + widget.user.id));
+      final responseData = json.decode(response.body);
+      setState(() {
+        isUserOnline = responseData['online'];
+      });
+    } catch (error) {
+      print('Error fetching user online status: $error');
+    }
 
     return chat!;
   }
@@ -362,6 +460,25 @@ class _MessagesScreenState extends State<MessagesScreen> {
           CircleAvatar(
             backgroundImage: NetworkImage(
                 widget.user.imageUrl), // Replace AssetImage with NetworkImage
+            backgroundColor: isUserOnline == true
+                ? Colors.green
+                : Colors.grey, // Set background color based on online status
+            radius: 20,
+            child: isUserOnline == true
+                ? Align(
+                    alignment: Alignment.bottomRight,
+                    child: CircleAvatar(
+                      backgroundColor: Colors.green,
+                      radius: 5,
+                    ),
+                  )
+                : Align(
+                    alignment: Alignment.bottomRight,
+                    child: CircleAvatar(
+                      backgroundColor: Colors.grey,
+                      radius: 5,
+                    ),
+                  ),
           ),
           const SizedBox(width: 10 * 0.75),
           Column(
@@ -372,24 +489,15 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 style: TextStyle(fontSize: 16, color: ButtonBlack),
               ),
               Text(
-                "Active 3m ago",
-                style: TextStyle(fontSize: 12),
+                isUserOnline == true ? "Online" : "Offline",
+                style: TextStyle(
+                    fontSize: 12,
+                    color: isUserOnline == true ? Colors.green : Colors.grey),
               ),
             ],
           ),
         ],
       ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.local_phone, color: ButtonBlack),
-          onPressed: () {},
-        ),
-        IconButton(
-          icon: const Icon(Icons.videocam, color: ButtonBlack),
-          onPressed: () {},
-        ),
-        const SizedBox(width: 10 / 2),
-      ],
     );
   }
 }

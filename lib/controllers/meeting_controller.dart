@@ -16,6 +16,8 @@ class MeetingController extends GetxController {
   TextEditingController locationController = TextEditingController();
   TextEditingController feeController = TextEditingController();
   TextEditingController dateController = TextEditingController();
+  TextEditingController latController = TextEditingController();
+  TextEditingController lngController = TextEditingController();
 
   TextEditingController commentController = TextEditingController();
   TextEditingController replyController = TextEditingController();
@@ -38,6 +40,8 @@ class MeetingController extends GetxController {
         'registration_fee': feeController.text,
         'date': dateController.text,
         'imageUrl': currentPhoto,
+        'lat': latController.text,
+        'lng': lngController.text,
       };
 
       print(body['author']);
@@ -92,6 +96,8 @@ class MeetingController extends GetxController {
         'date': dateController.text.trim(),
         'description': descriptionController.text,
         'imageUrl': currentPhoto,
+        'lat': latController.text,
+        'lng': lngController.text,
       };
 
       print('datos de editar meeting');
@@ -133,7 +139,9 @@ class MeetingController extends GetxController {
           imageUrl: u["imageUrl"],
           location: u["location"],
           registration_fee: u["registration_fee"],
-          participants: u["participants"]);
+          participants: u["participants"],
+          lat: u["lat"],
+          lng: u["lng"]);
 
       meetings.add(meeting);
     }
@@ -156,7 +164,9 @@ class MeetingController extends GetxController {
         imageUrl: jsonData["imageUrl"],
         location: jsonData["location"],
         registration_fee: jsonData["registration_fee"],
-        participants: jsonData["participants"]);
+        participants: jsonData["participants"],
+        lat: jsonData["lat"],
+        lng: jsonData["lng"]);
 
     return meeting;
   }

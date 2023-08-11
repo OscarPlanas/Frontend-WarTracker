@@ -3,12 +3,14 @@ import 'dart:async';
 import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/controllers/blog_controller.dart';
 import 'package:frontend/data/data.dart';
 import 'package:frontend/screens/home.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:frontend/theme_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CreateBlog extends StatefulWidget {
   @override
@@ -138,7 +140,7 @@ class _CreateBlogState extends State<CreateBlog> {
                 : Colors.white,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            title: Text('Please choose media to select',
+            title: Text(AppLocalizations.of(context)!.chooseMedia,
                 style: TextStyle(
                     color: _themeMode == ThemeMode.dark
                         ? Colors.white
@@ -159,7 +161,7 @@ class _CreateBlogState extends State<CreateBlog> {
                     child: Row(
                       children: [
                         Icon(Icons.image, color: ButtonBlack),
-                        Text('From Gallery',
+                        Text(AppLocalizations.of(context)!.fromGallery,
                             style: TextStyle(color: ButtonBlack)),
                       ],
                     ),
@@ -176,7 +178,7 @@ class _CreateBlogState extends State<CreateBlog> {
                     child: Row(
                       children: [
                         Icon(Icons.camera, color: ButtonBlack),
-                        Text('From Camera',
+                        Text(AppLocalizations.of(context)!.fromCamera,
                             style: TextStyle(color: ButtonBlack)),
                       ],
                     ),
@@ -205,7 +207,8 @@ class _CreateBlogState extends State<CreateBlog> {
                       return HomeScreen();
                     }),
                   )),
-          title: Text("Create a blog", style: TextStyle(color: ButtonBlack)),
+          title: Text(AppLocalizations.of(context)!.buttonCreateBlog,
+              style: TextStyle(color: ButtonBlack)),
           iconTheme: IconThemeData(color: ButtonBlack),
           backgroundColor: Background,
         ),
@@ -253,12 +256,14 @@ class _CreateBlogState extends State<CreateBlog> {
                     focusedBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Background),
                     ),
-                    hintText: "Write the title of your blog",
+                    hintText: AppLocalizations.of(context)!.createTitle,
                     hintStyle: TextStyle(
                         color: _themeMode == ThemeMode.dark
                             ? Colors.white
                             : Colors.grey[800]),
-                    errorText: _validatetitle ? 'Can\'t Be Empty' : null,
+                    errorText: _validatetitle
+                        ? AppLocalizations.of(context)!.notEmpty
+                        : null,
                     counterStyle: TextStyle(
                         color: _themeMode == ThemeMode.dark
                             ? Colors.white
@@ -281,12 +286,14 @@ class _CreateBlogState extends State<CreateBlog> {
                     focusedBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Background),
                     ),
-                    hintText: "Write a description of your blog",
+                    hintText: AppLocalizations.of(context)!.createDescription,
                     hintStyle: TextStyle(
                         color: _themeMode == ThemeMode.dark
                             ? Colors.white
                             : Colors.grey[800]),
-                    errorText: _validatedesc ? 'Can\'t Be Empty' : null,
+                    errorText: _validatedesc
+                        ? AppLocalizations.of(context)!.notEmpty
+                        : null,
                     counterStyle: TextStyle(
                         color: _themeMode == ThemeMode.dark
                             ? Colors.white
@@ -309,12 +316,14 @@ class _CreateBlogState extends State<CreateBlog> {
                     focusedBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Background),
                     ),
-                    hintText: "Write your blog",
+                    hintText: AppLocalizations.of(context)!.createContent,
                     hintStyle: TextStyle(
                         color: _themeMode == ThemeMode.dark
                             ? Colors.white
                             : Colors.grey[800]),
-                    errorText: _validatebody ? 'Can\'t Be Empty' : null,
+                    errorText: _validatebody
+                        ? AppLocalizations.of(context)!.notEmpty
+                        : null,
                     counterStyle: TextStyle(
                         color: _themeMode == ThemeMode.dark
                             ? Colors.white
@@ -358,7 +367,15 @@ class _CreateBlogState extends State<CreateBlog> {
                         MaterialPageRoute(builder: (context) {
                           return HomeScreen();
                         }),
-                      )
+                      ),
+                      Fluttertoast.showToast(
+                          msg: AppLocalizations.of(context)!.blogCreated,
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Background,
+                          textColor: ButtonBlack,
+                          fontSize: 16.0)
                     }
                   else if (selectedImage == null)
                     {
@@ -374,7 +391,8 @@ class _CreateBlogState extends State<CreateBlog> {
                                     color: _themeMode == ThemeMode.dark
                                         ? Colors.white
                                         : Colors.black)),
-                            content: Text('Please select an image.',
+                            content: Text(
+                                AppLocalizations.of(context)!.plsSelectImage,
                                 style: TextStyle(
                                     color: _themeMode == ThemeMode.dark
                                         ? Colors.white
@@ -393,7 +411,7 @@ class _CreateBlogState extends State<CreateBlog> {
                     }
                 },
                 child: Text(
-                  'Submit',
+                  AppLocalizations.of(context)!.buttonSubmit,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),

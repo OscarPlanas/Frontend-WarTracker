@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/controllers/blog_controller.dart';
 import 'package:frontend/controllers/chat_controller.dart';
@@ -16,6 +17,8 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:frontend/theme_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/controllers/report_controller.dart';
 
 class CommentPost extends StatefulWidget {
   final Blog blog; // New parameter to hold the blog ID
@@ -38,6 +41,8 @@ class _CommentPostState extends State<CommentPost> {
   ChatController chatController = Get.put(ChatController());
 
   ThemeMode _themeMode = ThemeMode.system; // Initialize with system mode
+
+  ReportController reportController = Get.put(ReportController());
   @override
   void initState() {
     super.initState();
@@ -88,7 +93,7 @@ class _CommentPostState extends State<CommentPost> {
               padding:
                   EdgeInsets.only(left: 10.0, right: 184, top: 10, bottom: 10),
               child: Text(
-                "Write a comment...",
+                AppLocalizations.of(context)!.writeComment,
                 style: GoogleFonts.roboto(
                   backgroundColor: _themeMode == ThemeMode.dark
                       ? Colors.grey[800]
@@ -169,7 +174,9 @@ class _CommentPostState extends State<CommentPost> {
                                             children: [
                                               ListTile(
                                                 leading: Icon(Icons.person),
-                                                title: Text('View Profile'),
+                                                title: Text(AppLocalizations.of(
+                                                        context)!
+                                                    .viewProfile),
                                                 onTap: () {
                                                   navigateToUserProfile(
                                                       comment.owner['_id']);
@@ -179,7 +186,10 @@ class _CommentPostState extends State<CommentPost> {
                                                   currentUser.id)
                                                 ListTile(
                                                   leading: Icon(Icons.message),
-                                                  title: Text('Send Message'),
+                                                  title: Text(
+                                                      AppLocalizations.of(
+                                                              context)!
+                                                          .sendMessage),
                                                   onTap: () {
                                                     // Handle the "Send Message" option
                                                     // Show a dialog or navigate to the messaging screen
@@ -194,12 +204,13 @@ class _CommentPostState extends State<CommentPost> {
                                                   currentUser.id)
                                                 ListTile(
                                                   leading: Icon(Icons.report),
-                                                  title: Text('Report User'),
+                                                  title: Text(
+                                                      AppLocalizations.of(
+                                                              context)!
+                                                          .reportUser),
                                                   onTap: () {
-                                                    // Handle the "Report User" option
-                                                    // Show a dialog or perform the reporting logic
-                                                    Navigator.pop(
-                                                        context); // Close the bottom sheet
+                                                    sendReportUser(
+                                                        comment.owner['_id']);
                                                   },
                                                 ),
                                             ],
@@ -253,15 +264,17 @@ class _CommentPostState extends State<CommentPost> {
                           child: Text.rich(
                             TextSpan(
                                 text: comment.repliesVisible
-                                    ? "Hide replies"
-                                    : 'Show ${comment.replies.length} replies',
+                                    ? AppLocalizations.of(context)!.hideReplies
+                                    : AppLocalizations.of(context)!
+                                        .showRepliesBlog(
+                                            comment.replies.length),
                                 style: GoogleFonts.roboto(
                                   fontSize: 14,
                                   color: Colors.blue,
                                 )),
                           ),
                         ),
-                        SizedBox(width: 30),
+                        SizedBox(width: 10),
                         InkWell(
                           onTap: () async {
                             if (comment.liked) {
@@ -314,7 +327,7 @@ class _CommentPostState extends State<CommentPost> {
                           ),
                         ),
                         SizedBox(
-                            width: 30), // Adjust the spacing between the icons
+                            width: 10), // Adjust the spacing between the icons
                         InkWell(
                           onTap: () async {
                             if (comment.disliked) {
@@ -365,12 +378,10 @@ class _CommentPostState extends State<CommentPost> {
                             ],
                           ),
                         ),
-                        SizedBox(width: 40),
+                        SizedBox(width: 10),
                         InkWell(
                           onTap: () {
                             _showReplyInputScreen(comment.id);
-                            // Handle the click event here
-                            // You can navigate to another screen or perform any desired action
                           },
                           child: RichText(
                             text: TextSpan(
@@ -387,7 +398,7 @@ class _CommentPostState extends State<CommentPost> {
                                   ),
                                 ),
                                 TextSpan(
-                                  text: "Reply",
+                                  text: AppLocalizations.of(context)!.reply,
                                   style: GoogleFonts.roboto(
                                     fontSize: 14,
                                     color: Colors.blue,
@@ -491,8 +502,9 @@ class _CommentPostState extends State<CommentPost> {
                                                                 leading: Icon(
                                                                     Icons
                                                                         .person),
-                                                                title: Text(
-                                                                    'View Profile'),
+                                                                title: Text(AppLocalizations.of(
+                                                                        context)!
+                                                                    .viewProfile),
                                                                 onTap: () {
                                                                   navigateToUserProfile(
                                                                       replyId);
@@ -505,8 +517,9 @@ class _CommentPostState extends State<CommentPost> {
                                                                   leading: Icon(
                                                                       Icons
                                                                           .message),
-                                                                  title: Text(
-                                                                      'Send Message'),
+                                                                  title: Text(AppLocalizations.of(
+                                                                          context)!
+                                                                      .sendMessage),
                                                                   onTap: () {
                                                                     // Handle the "Send Message" option
                                                                     // Show a dialog or navigate to the messaging screen
@@ -524,13 +537,12 @@ class _CommentPostState extends State<CommentPost> {
                                                                   leading: Icon(
                                                                       Icons
                                                                           .report),
-                                                                  title: Text(
-                                                                      'Report User'),
+                                                                  title: Text(AppLocalizations.of(
+                                                                          context)!
+                                                                      .reportUser),
                                                                   onTap: () {
-                                                                    // Handle the "Report User" option
-                                                                    // Show a dialog or perform the reporting logic
-                                                                    Navigator.pop(
-                                                                        context); // Close the bottom sheet
+                                                                    sendReportUser(
+                                                                        replyId);
                                                                   },
                                                                 ),
                                                             ],
@@ -744,7 +756,7 @@ class _CommentPostState extends State<CommentPost> {
         return AlertDialog(
           backgroundColor:
               _themeMode == ThemeMode.dark ? Colors.grey[800] : Colors.white,
-          title: Text('Write a comment',
+          title: Text(AppLocalizations.of(context)!.writeComment,
               style: TextStyle(
                   color: _themeMode == ThemeMode.dark
                       ? Colors.white
@@ -755,7 +767,7 @@ class _CommentPostState extends State<CommentPost> {
               color: _themeMode == ThemeMode.dark ? Colors.white : Colors.black,
             ),
             decoration: InputDecoration(
-              hintText: 'Enter your comment...',
+              hintText: AppLocalizations.of(context)!.enterComment,
               hintStyle: TextStyle(
                   color: _themeMode == ThemeMode.dark
                       ? Colors.white
@@ -767,7 +779,7 @@ class _CommentPostState extends State<CommentPost> {
           ),
           actions: [
             ElevatedButton(
-              child: Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancelComment),
               style: ElevatedButton.styleFrom(
                   backgroundColor: Background, foregroundColor: ButtonBlack),
               onPressed: () {
@@ -775,7 +787,7 @@ class _CommentPostState extends State<CommentPost> {
               },
             ),
             ElevatedButton(
-              child: Text('Post'),
+              child: Text(AppLocalizations.of(context)!.postComment),
               style: ElevatedButton.styleFrom(
                   backgroundColor: Background, foregroundColor: ButtonBlack),
               onPressed: () {
@@ -791,7 +803,8 @@ class _CommentPostState extends State<CommentPost> {
                   // For example, you can display a snackbar:
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Please enter a comment before posting.'),
+                      content: Text(
+                          AppLocalizations.of(context)!.commentBeforePosting),
                     ),
                   );
                 }
@@ -808,7 +821,7 @@ class _CommentPostState extends State<CommentPost> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Write a reply',
+          title: Text(AppLocalizations.of(context)!.writeReply,
               style: TextStyle(
                   color: _themeMode == ThemeMode.dark
                       ? Colors.white
@@ -821,7 +834,7 @@ class _CommentPostState extends State<CommentPost> {
               color: _themeMode == ThemeMode.dark ? Colors.white : Colors.black,
             ),
             decoration: InputDecoration(
-              hintText: 'Enter your reply...',
+              hintText: AppLocalizations.of(context)!.enterReply,
               hintStyle: TextStyle(
                   color: _themeMode == ThemeMode.dark
                       ? Colors.white
@@ -833,7 +846,7 @@ class _CommentPostState extends State<CommentPost> {
           ),
           actions: [
             ElevatedButton(
-              child: Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancelComment),
               style: ElevatedButton.styleFrom(
                   backgroundColor: Background, foregroundColor: ButtonBlack),
               onPressed: () {
@@ -841,7 +854,7 @@ class _CommentPostState extends State<CommentPost> {
               },
             ),
             ElevatedButton(
-              child: Text('Post'),
+              child: Text(AppLocalizations.of(context)!.postComment),
               style: ElevatedButton.styleFrom(
                   backgroundColor: Background, foregroundColor: ButtonBlack),
               onPressed: () {
@@ -857,7 +870,8 @@ class _CommentPostState extends State<CommentPost> {
                   // For example, you can display a snackbar:
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Please enter a comment before posting.'),
+                      content: Text(
+                          AppLocalizations.of(context)!.commentBeforePosting),
                     ),
                   );
                 }
@@ -922,5 +936,96 @@ class _CommentPostState extends State<CommentPost> {
 
     Get.to(MessagesScreen(user));
     // Perform the logic for sending a message to a user
+  }
+
+  void sendReportUser(reported) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: _themeMode == ThemeMode.dark
+              ? Color.fromARGB(255, 72, 70, 70)
+              : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          title: Text(AppLocalizations.of(context)!.report,
+              style: TextStyle(
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black)),
+          content: Container(
+            height: MediaQuery.of(context).size.height / 4,
+            child: Column(
+              children: [
+                TextField(
+                  controller: reportController.reasonController,
+                  style: TextStyle(
+                    color: _themeMode == ThemeMode.dark
+                        ? Colors.white
+                        : Colors.black,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: AppLocalizations.of(context)!.reasonReport,
+                    hintStyle: TextStyle(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                if (reportController.reasonController.text.isEmpty) {
+                  Fluttertoast.showToast(
+                      msg: AppLocalizations.of(context)!.plsReason,
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.CENTER,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: ButtonBlack,
+                      textColor: Background,
+                      fontSize: 16.0);
+                } else {
+                  await reportController
+                      .createReport("User", reported)
+                      .then((value) {
+                    if (value == "Report saved") {
+                      Fluttertoast.showToast(
+                          msg: AppLocalizations.of(context)!.reportSent,
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: ButtonBlack,
+                          textColor: Background,
+                          fontSize: 16.0);
+                      Get.back();
+                    } else {
+                      print(value);
+                      Fluttertoast.showToast(
+                          msg: value,
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: ButtonBlack,
+                          textColor: Background,
+                          fontSize: 16.0);
+                    }
+                  });
+                }
+              },
+              child: Text(AppLocalizations.of(context)!.confirm,
+                  style: TextStyle(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black)),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

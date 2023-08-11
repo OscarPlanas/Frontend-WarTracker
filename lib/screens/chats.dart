@@ -82,6 +82,8 @@ class _ChatsScreenState extends State<ChatsScreen> {
   getChats() async {
     print("getChats en screen");
     final fetchedChats = await chatController.getChats(currentUser.id);
+    // Sort the chats based on the timestamp of the latest message
+
     setState(() {
       chats = fetchedChats;
     });

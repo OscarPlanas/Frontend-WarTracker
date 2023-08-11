@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/controllers/meeting_controller.dart';
 import 'package:frontend/controllers/chat_controller.dart';
@@ -17,6 +18,11 @@ import 'package:frontend/widgets/comment_meeting.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:frontend/theme_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:frontend/controllers/report_controller.dart';
+import 'package:intl/intl.dart';
 
 class MeetingScreen extends StatefulWidget {
   final Meeting meeting;
@@ -37,6 +43,7 @@ class _MeetingScreenState extends State<MeetingScreen> {
   bool isOwner = false;
 
   ThemeMode _themeMode = ThemeMode.system;
+  ReportController reportController = ReportController();
 
   @override
   void initState() {
@@ -69,6 +76,15 @@ class _MeetingScreenState extends State<MeetingScreen> {
         title: Text(widget.meeting.title, style: TextStyle(color: ButtonBlack)),
         iconTheme: IconThemeData(color: ButtonBlack),
         backgroundColor: Background,
+        actions: [
+          // Add a report button to the app bar
+          IconButton(
+            icon: Icon(Icons.report),
+            onPressed: () {
+              sendReportMeeting();
+            },
+          ),
+        ],
       ),
       backgroundColor:
           _themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
@@ -177,7 +193,8 @@ class _MeetingScreenState extends State<MeetingScreen> {
                                       ),
                                     ),
                                     TextSpan(
-                                        text: "Organized by ",
+                                        text: AppLocalizations.of(context)!
+                                            .organizedBy,
                                         style: TextStyle(
                                             color: _themeMode == ThemeMode.dark
                                                 ? Colors.white
@@ -196,8 +213,10 @@ class _MeetingScreenState extends State<MeetingScreen> {
                                                     ListTile(
                                                       leading:
                                                           Icon(Icons.person),
-                                                      title:
-                                                          Text('View Profile'),
+                                                      title: Text(
+                                                          AppLocalizations.of(
+                                                                  context)!
+                                                              .viewProfile),
                                                       onTap: () {
                                                         navigateToUserProfile(
                                                             widget.meeting
@@ -212,7 +231,9 @@ class _MeetingScreenState extends State<MeetingScreen> {
                                                         leading:
                                                             Icon(Icons.message),
                                                         title: Text(
-                                                            'Send Message'),
+                                                            AppLocalizations.of(
+                                                                    context)!
+                                                                .sendMessage),
                                                         onTap: () {
                                                           print(
                                                               "Sending message to user");
@@ -228,11 +249,12 @@ class _MeetingScreenState extends State<MeetingScreen> {
                                                       ListTile(
                                                         leading:
                                                             Icon(Icons.report),
-                                                        title:
-                                                            Text('Report User'),
+                                                        title: Text(
+                                                            AppLocalizations.of(
+                                                                    context)!
+                                                                .reportUser),
                                                         onTap: () {
-                                                          Navigator.pop(
-                                                              context); // Close the bottom sheet
+                                                          sendReportUser();
                                                         },
                                                       ),
                                                   ],
@@ -273,7 +295,7 @@ class _MeetingScreenState extends State<MeetingScreen> {
                                     fontSize: 20.0),
                               ),
                               Text(
-                                "/registration",
+                                AppLocalizations.of(context)!.registrationFee,
                                 style: TextStyle(
                                     fontSize: 12.0,
                                     color: _themeMode == ThemeMode.dark
@@ -297,15 +319,19 @@ class _MeetingScreenState extends State<MeetingScreen> {
                                 meetingController
                                     .deleteParticipant(widget.meeting.id),
                                 listParticipants -= 1,
+                                deleteEventMeeting(widget.meeting.id),
                               }
                             else
                               {
                                 meetingController
                                     .addParticipant(widget.meeting.id),
                                 listParticipants += 1,
+                                createEvent(widget.meeting.title),
                               },
                           },
-                          child: Text(_flag2 ? 'Sign Up' : 'Sign Out'),
+                          child: Text(_flag2
+                              ? AppLocalizations.of(context)!.signUp
+                              : AppLocalizations.of(context)!.signOut),
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30.0)),
@@ -318,18 +344,60 @@ class _MeetingScreenState extends State<MeetingScreen> {
                           ),
                         ),
                       ),
+
                       const SizedBox(height: 8.0),
                       Text(
-                          "There are " +
-                              listParticipants.toString() +
-                              " participants",
+                          AppLocalizations.of(context)!
+                              .participantsTotals(listParticipants.toString()),
                           style: TextStyle(
                               color: _themeMode == ThemeMode.dark
                                   ? Colors.white
                                   : Colors.grey)),
                       const SizedBox(height: 30.0),
                       Text(
-                        "Description".toUpperCase(),
+                        AppLocalizations.of(context)!.meetingPlace,
+                        style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14.0,
+                            color: _themeMode == ThemeMode.dark
+                                ? Colors.white
+                                : Colors.black),
+                      ),
+                      Container(
+                        width: 350, // Adjust the width as needed
+                        height: 200, // Adjust the height as needed
+                        child: FlutterMap(
+                          options: MapOptions(
+                            center:
+                                LatLng(widget.meeting.lat, widget.meeting.lng),
+                            zoom: 13.0,
+                          ),
+                          children: [
+                            TileLayer(
+                              urlTemplate:
+                                  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                              subdomains: ['a', 'b', 'c'],
+                            ),
+                            MarkerLayer(
+                              markers: [
+                                Marker(
+                                  width: 40.0,
+                                  height: 40.0,
+                                  point: LatLng(
+                                      widget.meeting.lat, widget.meeting.lng),
+                                  builder: (ctx) => Container(
+                                    child: Icon(Icons.location_on,
+                                        color: Colors.red),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 30.0),
+                      Text(
+                        AppLocalizations.of(context)!.descriptionMeetingBefore,
                         style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 14.0,
@@ -350,7 +418,7 @@ class _MeetingScreenState extends State<MeetingScreen> {
                       ),
                       const SizedBox(height: 10.0),
                       Text(
-                        "Comments",
+                        AppLocalizations.of(context)!.comments,
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
@@ -401,6 +469,8 @@ class _MeetingScreenState extends State<MeetingScreen> {
 
                     widget.meeting.description = updatedMeeting.description;
                     widget.meeting.imageUrl = updatedMeeting.imageUrl;
+                    widget.meeting.lat = updatedMeeting.lat;
+                    widget.meeting.lng = updatedMeeting.lng;
                   });
                 }
               },
@@ -412,7 +482,7 @@ class _MeetingScreenState extends State<MeetingScreen> {
               Get.to(GameScreen(widget.meeting.id));
             },
             child: Text(
-              "Game table",
+              AppLocalizations.of(context)!.gameTable,
               style: TextStyle(color: ButtonBlack, fontSize: 14),
               textAlign: TextAlign.center,
             ),
@@ -518,5 +588,226 @@ class _MeetingScreenState extends State<MeetingScreen> {
     }
 
     Get.to(MessagesScreen(user));
+  }
+
+  void sendReportMeeting() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: _themeMode == ThemeMode.dark
+              ? Color.fromARGB(255, 72, 70, 70)
+              : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          title: Text(AppLocalizations.of(context)!.report,
+              style: TextStyle(
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black)),
+          content: Container(
+            height: MediaQuery.of(context).size.height / 4,
+            child: Column(
+              children: [
+                TextField(
+                  controller: reportController.reasonController,
+                  style: TextStyle(
+                    color: _themeMode == ThemeMode.dark
+                        ? Colors.white
+                        : Colors.black,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: AppLocalizations.of(context)!.reasonReport,
+                    hintStyle: TextStyle(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                if (reportController.reasonController.text.isEmpty) {
+                  Fluttertoast.showToast(
+                      msg: AppLocalizations.of(context)!.plsReason,
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.CENTER,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: ButtonBlack,
+                      textColor: Background,
+                      fontSize: 16.0);
+                } else {
+                  await reportController
+                      .createReport("Meeting", widget.meeting.id)
+                      .then((value) {
+                    if (value == "Report saved") {
+                      Fluttertoast.showToast(
+                          msg: AppLocalizations.of(context)!.reportSent,
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: ButtonBlack,
+                          textColor: Background,
+                          fontSize: 16.0);
+                      Get.back();
+                    } else {
+                      print(value);
+                      Fluttertoast.showToast(
+                          msg: value,
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: ButtonBlack,
+                          textColor: Background,
+                          fontSize: 16.0);
+                    }
+                  });
+                }
+              },
+              child: Text(AppLocalizations.of(context)!.confirm,
+                  style: TextStyle(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void sendReportUser() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: _themeMode == ThemeMode.dark
+              ? Color.fromARGB(255, 72, 70, 70)
+              : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          title: Text(AppLocalizations.of(context)!.report,
+              style: TextStyle(
+                  color: _themeMode == ThemeMode.dark
+                      ? Colors.white
+                      : Colors.black)),
+          content: Container(
+            height: MediaQuery.of(context).size.height / 4,
+            child: Column(
+              children: [
+                TextField(
+                  controller: reportController.reasonController,
+                  style: TextStyle(
+                    color: _themeMode == ThemeMode.dark
+                        ? Colors.white
+                        : Colors.black,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: AppLocalizations.of(context)!.reasonReport,
+                    hintStyle: TextStyle(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                if (reportController.reasonController.text.isEmpty) {
+                  Fluttertoast.showToast(
+                      msg: AppLocalizations.of(context)!.plsReason,
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.CENTER,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: ButtonBlack,
+                      textColor: Background,
+                      fontSize: 16.0);
+                } else {
+                  await reportController
+                      .createReport("User", widget.meeting.organizer["_id"])
+                      .then((value) {
+                    if (value == "Report saved") {
+                      Fluttertoast.showToast(
+                          msg: AppLocalizations.of(context)!.reportSent,
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: ButtonBlack,
+                          textColor: Background,
+                          fontSize: 16.0);
+                      Get.back();
+                    } else {
+                      print(value);
+                      Fluttertoast.showToast(
+                          msg: value,
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: ButtonBlack,
+                          textColor: Background,
+                          fontSize: 16.0);
+                    }
+                  });
+                }
+              },
+              child: Text(AppLocalizations.of(context)!.confirm,
+                  style: TextStyle(
+                      color: _themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> createEvent(String eventName) async {
+    print("Creating event");
+    final response = await http.post(
+      Uri.parse('http://10.0.2.2:5432/api/events/createevent'),
+      body: {
+        'title': eventName,
+        'date': DateFormat('yyyy-MM-dd')
+            .parse(widget.meeting.date)
+            .toUtc()
+            .toIso8601String(),
+        'user': currentUser.id,
+        'meeting': widget.meeting.id,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // Event created successfully
+      print("Event created successfully");
+    } else {
+      // Handle error
+      print('Error creating event: ${response.body}');
+    }
+  }
+
+  Future<void> deleteEventMeeting(String meetingid) async {
+    final response = await http.delete(
+      Uri.parse(
+          'http://10.0.2.2:5432/api/events/deleteeventbymeetingid/$meetingid'),
+    );
+
+    if (response.statusCode == 200) {
+      // Event deleted successfully
+      print("Event deleted successfully");
+    } else {
+      // Handle error
+      print('Error deleting event: ${response.body}');
+    }
   }
 }

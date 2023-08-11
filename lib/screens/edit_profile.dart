@@ -12,6 +12,7 @@ import 'package:frontend/screens/home.dart';
 import 'package:frontend/screens/profile.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:frontend/theme_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class EditProfile extends StatefulWidget {
   final User user;
@@ -247,13 +248,13 @@ class _EditProfileState extends State<EditProfile> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
-          title: Text('Please choose media to select',
+          title: Text(AppLocalizations.of(context)!.plsSelectImage,
               style: TextStyle(
                   color: _themeMode == ThemeMode.dark
                       ? Colors.white
                       : Colors.black)),
           content: Container(
-            height: MediaQuery.of(context).size.height / 6,
+            height: MediaQuery.of(context).size.height / 2,
             child: Column(
               children: [
                 ElevatedButton(
@@ -271,7 +272,7 @@ class _EditProfileState extends State<EditProfile> {
                   child: Row(
                     children: [
                       Icon(Icons.image, color: ButtonBlack),
-                      Text('From Gallery',
+                      Text(AppLocalizations.of(context)!.fromGallery,
                           style: TextStyle(color: ButtonBlack)),
                     ],
                   ),
@@ -291,7 +292,8 @@ class _EditProfileState extends State<EditProfile> {
                   child: Row(
                     children: [
                       Icon(Icons.camera, color: ButtonBlack),
-                      Text('From Camera', style: TextStyle(color: ButtonBlack)),
+                      Text(AppLocalizations.of(context)!.fromCamera,
+                          style: TextStyle(color: ButtonBlack)),
                     ],
                   ),
                 ),
@@ -310,8 +312,6 @@ class _EditProfileState extends State<EditProfile> {
         String currentPassword = '';
         String newPassword = '';
 
-        // Create empty TextEditingController instances
-
         return AlertDialog(
           backgroundColor: _themeMode == ThemeMode.dark
               ? Color.fromARGB(255, 72, 70, 70)
@@ -319,13 +319,13 @@ class _EditProfileState extends State<EditProfile> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
-          title: Text('Change Password',
+          title: Text(AppLocalizations.of(context)!.changePassword,
               style: TextStyle(
                   color: _themeMode == ThemeMode.dark
                       ? Colors.white
                       : Colors.black)),
           content: Container(
-            height: MediaQuery.of(context).size.height / 6,
+            height: MediaQuery.of(context).size.height / 4,
             child: Column(
               children: [
                 TextField(
@@ -339,13 +339,14 @@ class _EditProfileState extends State<EditProfile> {
                         : Colors.black,
                   ),
                   decoration: InputDecoration(
-                    labelText: 'Current Password',
+                    labelText: AppLocalizations.of(context)!.currentPassword,
                     labelStyle: TextStyle(
                         color: _themeMode == ThemeMode.dark
                             ? Colors.white
                             : Colors.black),
-                    errorText:
-                        _validatepassword ? 'Enter a valid password' : null,
+                    errorText: _validatepassword
+                        ? AppLocalizations.of(context)!.enterValidPassword
+                        : null,
                   ),
                   obscureText: isObscurePassword,
                 ),
@@ -360,13 +361,14 @@ class _EditProfileState extends State<EditProfile> {
                         : Colors.black,
                   ),
                   decoration: InputDecoration(
-                    labelText: 'New Password',
+                    labelText: AppLocalizations.of(context)!.newPassword,
                     labelStyle: TextStyle(
                         color: _themeMode == ThemeMode.dark
                             ? Colors.white
                             : Colors.black),
-                    errorText:
-                        _validatepassword ? 'Enter a valid password' : null,
+                    errorText: _validatepassword
+                        ? AppLocalizations.of(context)!.enterValidPassword
+                        : null,
                   ),
                   obscureText: isObscurePassword,
                 ),
@@ -380,16 +382,39 @@ class _EditProfileState extends State<EditProfile> {
                   // Validate the entered passwords
                   _validatepassword =
                       currentPassword.isEmpty || newPassword.isEmpty;
+
                   // If passwords are valid, perform the password change logic
                   if (!_validatepassword) {
                     // Password changed, set the flag to true
                     isPasswordChanged = true;
+                    Navigator.of(context).pop(); // Close the dialog
                   }
                 });
 
-                Navigator.of(context).pop();
+                // If newPassword is empty, show an error message
+                if (newPassword.isEmpty) {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('Error'),
+                        content: Text(
+                            AppLocalizations.of(context)!.newPasswordNotEmpty),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context)
+                                  .pop(); // Close the error dialog
+                            },
+                            child: Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
               },
-              child: Text('Confirm'),
+              child: Text(AppLocalizations.of(context)!.confirm),
             ),
           ],
         );
@@ -410,8 +435,8 @@ class _EditProfileState extends State<EditProfile> {
             icon: Icon(Icons.arrow_back),
             onPressed: () => Navigator.pop(context),
           ),
-          title:
-              Text("Edit your profile", style: TextStyle(color: ButtonBlack)),
+          title: Text(AppLocalizations.of(context)!.editProfile,
+              style: TextStyle(color: ButtonBlack)),
           iconTheme: IconThemeData(color: ButtonBlack),
           backgroundColor: Background,
         ),
@@ -425,7 +450,7 @@ class _EditProfileState extends State<EditProfile> {
               children: [
                 buildTop(),
                 SizedBox(height: 30),
-                Text("Name",
+                Text(AppLocalizations.of(context)!.profileName,
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -437,7 +462,9 @@ class _EditProfileState extends State<EditProfile> {
                   child: TextField(
                     controller: userController.nameController,
                     decoration: InputDecoration(
-                      errorText: _validatename ? 'Can\'t Be Empty' : null,
+                      errorText: _validatename
+                          ? AppLocalizations.of(context)!.notEmpty
+                          : null,
                     ),
                     style: TextStyle(
                       fontSize: 16,
@@ -448,7 +475,7 @@ class _EditProfileState extends State<EditProfile> {
                     ),
                   ),
                 ),
-                Text("Username",
+                Text(AppLocalizations.of(context)!.profileUsername,
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -460,7 +487,9 @@ class _EditProfileState extends State<EditProfile> {
                   child: TextField(
                     controller: userController.usernameController,
                     decoration: InputDecoration(
-                      errorText: _validateusername ? 'Can\'t Be Empty' : null,
+                      errorText: _validateusername
+                          ? AppLocalizations.of(context)!.notEmpty
+                          : null,
                     ),
                     style: TextStyle(
                       fontSize: 16,
@@ -471,7 +500,7 @@ class _EditProfileState extends State<EditProfile> {
                     ),
                   ),
                 ),
-                Text("Birthday",
+                Text(AppLocalizations.of(context)!.profileBirthday,
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -526,7 +555,9 @@ class _EditProfileState extends State<EditProfile> {
                       }
                     },
                     decoration: InputDecoration(
-                      errorText: _validatedate ? 'Can\'t Be Empty' : null,
+                      errorText: _validatedate
+                          ? AppLocalizations.of(context)!.notEmpty
+                          : null,
                     ),
                     style: TextStyle(
                       fontSize: 16,
@@ -559,7 +590,7 @@ class _EditProfileState extends State<EditProfile> {
                     enableInteractiveSelection: false,
                   ),
                 ),
-                Text("Password",
+                Text(AppLocalizations.of(context)!.profilePassword,
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -594,7 +625,8 @@ class _EditProfileState extends State<EditProfile> {
                         onPressed: () {
                           passwordChange();
                         },
-                        child: Text("Change"),
+                        child:
+                            Text(AppLocalizations.of(context)!.profileChange),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Background,
                           foregroundColor: ButtonBlack,
@@ -606,7 +638,7 @@ class _EditProfileState extends State<EditProfile> {
                     ],
                   ),
                 ),
-                Text("About",
+                Text(AppLocalizations.of(context)!.about,
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -623,7 +655,7 @@ class _EditProfileState extends State<EditProfile> {
                         Navigator.pop(context);
                       },
                       child: Text(
-                        "CANCEL",
+                        AppLocalizations.of(context)!.cancel,
                         style: TextStyle(
                             fontSize: 15,
                             letterSpacing: 2,
@@ -691,7 +723,7 @@ class _EditProfileState extends State<EditProfile> {
                                 builder: (context) => Profile(updatedUser)),
                           );
                           Fluttertoast.showToast(
-                            msg: 'Profile updated successfully',
+                            msg: AppLocalizations.of(context)!.profileUpdated,
                             toastLength: Toast.LENGTH_LONG,
                           );
                           userController.nameController.clear();
@@ -701,14 +733,16 @@ class _EditProfileState extends State<EditProfile> {
                           userController.aboutController.clear();
                           userController.dateController.clear();
                         } else if (success == 1) {
-                          openDialog("Wrong password");
+                          openDialog(
+                              AppLocalizations.of(context)!.wrongPassword);
                         } else if (success == 2) {
-                          openDialog("Username already exists");
+                          openDialog(
+                              AppLocalizations.of(context)!.usernameExists);
                         } else if (success == 3) {
                           openDialog("An error occurred");
                         }
                       },
-                      child: Text("SAVE",
+                      child: Text(AppLocalizations.of(context)!.save,
                           style: TextStyle(
                               fontSize: 15,
                               letterSpacing: 2,
@@ -736,7 +770,8 @@ class _EditProfileState extends State<EditProfile> {
       child: TextField(
         controller: labelText,
         decoration: InputDecoration(
-          errorText: _validatename ? 'Can\'t Be Empty' : null,
+          errorText:
+              _validatename ? AppLocalizations.of(context)!.notEmpty : null,
         ),
         style: TextStyle(
           fontSize: 16,

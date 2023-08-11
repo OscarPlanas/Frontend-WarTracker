@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/user.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class NumbersWidget extends StatefulWidget {
   final User user;
@@ -12,17 +13,19 @@ class NumbersWidget extends StatefulWidget {
 }
 
 class _NumbersWidgetState extends State<NumbersWidget> {
-  //late ThemeMode themeMode;
-
   @override
   Widget build(BuildContext context) => Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           //buildButton(text: 'Comments', value: comments),
           buildDivider(),
-          buildButton(text: 'Following', value: widget.user.following.length),
+          buildButton(
+              text: AppLocalizations.of(context)!.following,
+              value: widget.user.following.length),
           buildDivider(),
-          buildButton(text: 'Followers', value: widget.followersCount),
+          buildButton(
+              text: AppLocalizations.of(context)!.followers,
+              value: widget.followersCount),
         ],
       );
 
