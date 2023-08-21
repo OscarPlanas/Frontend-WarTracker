@@ -521,8 +521,7 @@ class _EditProfileState extends State<EditProfile> {
                         builder: (BuildContext context, Widget? child) {
                           return Theme(
                             data: ThemeData().copyWith(
-                              primaryColor: Colors
-                                  .green, // Set the color of the header and selected date
+                              primaryColor: Colors.green,
                               colorScheme: _themeMode == ThemeMode.dark
                                   ? ColorScheme.dark(
                                       brightness: Brightness.dark,
@@ -530,8 +529,7 @@ class _EditProfileState extends State<EditProfile> {
                                       onPrimary: Colors.black)
                                   : ColorScheme.light(
                                       primary: Background,
-                                      onPrimary: Colors
-                                          .black), // Set the color of the selected date circle
+                                      onPrimary: Colors.black),
                               dialogBackgroundColor:
                                   _themeMode == ThemeMode.dark
                                       ? Colors.grey[900]

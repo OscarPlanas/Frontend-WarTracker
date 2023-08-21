@@ -50,7 +50,6 @@ class _GameScreenState extends State<GameScreen> {
         game['id'] = _nextId++;
         DataRow newRow = DataRow(
           cells: [
-            //DataCell(Text(game['tournament']['title'])),
             DataCell(TextField(
               controller:
                   TextEditingController(text: game['player']['username']),
@@ -83,9 +82,7 @@ class _GameScreenState extends State<GameScreen> {
                 try {
                   game['victory_points_against'] = int.parse(newValue);
                 } catch (e) {
-                  // Handle the exception, such as displaying an error message
                   print('Invalid input for points against: $newValue');
-                  // You can choose to set a fallback value or perform any other error handling here
                 }
               },
             )),
@@ -96,9 +93,7 @@ class _GameScreenState extends State<GameScreen> {
                 try {
                   game['difference_points'] = int.parse(newValue);
                 } catch (e) {
-                  // Handle the exception, such as displaying an error message
                   print('Invalid input for points difference: $newValue');
-                  // You can choose to set a fallback value or perform any other error handling here
                 }
               },
             )),
@@ -109,9 +104,7 @@ class _GameScreenState extends State<GameScreen> {
                 try {
                   game['games_played'] = int.parse(newValue);
                 } catch (e) {
-                  // Handle the exception, such as displaying an error message
                   print('Invalid input for games played: $newValue');
-                  // You can choose to set a fallback value or perform any other error handling here
                 }
               },
             )),
@@ -122,9 +115,7 @@ class _GameScreenState extends State<GameScreen> {
                 try {
                   game['leaders_eliminated'] = int.parse(newValue);
                 } catch (e) {
-                  // Handle the exception, such as displaying an error message
                   print('Invalid input for leaders eliminated: $newValue');
-                  // You can choose to set a fallback value or perform any other error handling here
                 }
               },
             )),
@@ -215,7 +206,7 @@ class _GameScreenState extends State<GameScreen> {
           }
 
           // Handle other types or incompatible types
-          // You can customize this logic based on your requirements
+
           return 0; // Do not change the order if types are different
         }
       });

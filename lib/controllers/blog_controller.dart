@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
 import 'package:frontend/data/data.dart';
 import 'package:frontend/models/comment.dart';
+import 'package:frontend/constants.dart';
 
 class BlogController extends GetxController {
   TextEditingController titleController = TextEditingController();
@@ -22,8 +23,6 @@ class BlogController extends GetxController {
 
   Future<String> createBlog(String imageUrl) async {
     try {
-      print("imageUrl: " + imageUrl);
-      print("createBlog: " + currentUser.id);
       var headers = {'Content-Type': 'application/json'};
       var url = Uri.parse('http://10.0.2.2:5432/api/blogs');
       Map body = {
@@ -64,7 +63,7 @@ class BlogController extends GetxController {
 
   Future<List<Blog>> getBlogs() async {
     List<Blog> blogs = [];
-    final data = await http.get(Uri.parse('http://10.0.2.2:5432/api/blogs/'));
+    final data = await http.get(Uri.parse(weburl + '/api/blogs/'));
     var jsonData = json.decode(data.body);
     for (var u in jsonData) {
       Blog blog = Blog(

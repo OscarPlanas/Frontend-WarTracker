@@ -30,7 +30,6 @@ Widget customListTile(Blog blog, BuildContext context, ThemeMode themeMode) {
             blurRadius: 3.0,
           ),
         ],
-        // Add a border
         border: Border.all(color: Colors.grey, width: 1.0),
       ),
       child: Column(

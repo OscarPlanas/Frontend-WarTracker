@@ -15,7 +15,7 @@ class ConfigurationScreen extends StatefulWidget {
 
 class _ConfigurationScreenState extends State<ConfigurationScreen> {
   ThemeMode _themeMode = ThemeMode.system;
-  Locale _selectedLocale = Locale('en'); // Add this line
+  Locale _selectedLocale = Locale('en');
 
   final String themeModeKey = 'theme_mode';
 

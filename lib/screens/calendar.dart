@@ -119,12 +119,6 @@ class _CalendarState extends State<Calendar> {
                     ),
                     onPressed: () {
                       setState(() {
-                        //final newEvent = Event(_eventController.text);
-                        // events.update(
-                        //   _selectedDay!,
-                        //   (existingEvents) => [...existingEvents, newEvent],
-                        //   ifAbsent: () => [newEvent],
-                        // );
                         createEvent(_eventController.text);
                         Navigator.of(context).pop();
                         _selectedEvents.value = _getEventsForDay(_selectedDay!);

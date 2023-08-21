@@ -112,16 +112,21 @@ class _ProfileState extends State<Profile> {
     final data = await http
         .get(Uri.parse('http://10.0.2.2:5432/api/users/' + widget.user.id));
     var jsonData = json.decode(data.body);
+    print(jsonData);
 
     List<dynamic> blogsFollowedData = jsonData['blogsLiked'];
+    print("blogsFollowedData: $blogsFollowedData");
 
     var futures = blogsFollowedData.map((blogData) async {
+      print("blogData: $blogData");
       var authorId = blogData['author'];
+      print("authorId: $authorId");
 
       UserController userController = Get.put(UserController());
       User user = await userController.getOneUser(authorId);
 
       Map<String, dynamic> authorData = user.toMap();
+      print("authorData: $authorData");
 
       return Blog(
         id: blogData['_id'],

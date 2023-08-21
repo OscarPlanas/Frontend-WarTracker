@@ -208,8 +208,6 @@ class _BlogScreenState extends State<BlogScreen> {
                                               AppLocalizations.of(context)!
                                                   .sendMessage),
                                           onTap: () {
-                                            // Handle the "Send Message" option
-                                            // Show a dialog or navigate to the messaging screen
                                             print("Sending message to user");
 
                                             sendMessageToUser(
@@ -331,12 +329,10 @@ class _BlogScreenState extends State<BlogScreen> {
     if (_hasLiked == true) {
       setState(() {
         _flagLiked = false;
-        //listParticipants += 1;
       });
     } else {
       setState(() {
         _flagLiked = true;
-        //listParticipants -= 1;
       });
     }
   }
@@ -393,7 +389,6 @@ class _BlogScreenState extends State<BlogScreen> {
     }
 
     Get.to(MessagesScreen(user));
-    // Perform the logic for sending a message to a user
   }
 
   void sendReportUser() {

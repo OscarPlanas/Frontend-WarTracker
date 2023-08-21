@@ -62,15 +62,6 @@ class Body extends StatelessWidget {
       ),
     );
   }
-
-  /*void checkLogin() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    String? val = storage1.getItem("token");
-    if (val != null) {
-      Get.off(HomeScreen());
-    }
-    print("pasa por este login");
-  }*/
 }
 
 class WelcomeScreen extends StatefulWidget {
@@ -85,23 +76,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   void initState() {
     super.initState();
-    //getCred();
     checkLogin();
   }
 
-  /*void getCred() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    print(storage1.getItem('My App'));
-    print("pasamos al token");
-    setState(() {
-      token = storage1.getItem("token");
-    });
-    print(token);
-    print("fffff");
-  }*/
-
   void checkLogin() async {
-    //SharedPreferences pref = await SharedPreferences.getInstance();
     await storage1.ready;
     final val1 = await storage1.getItem('token');
     print("print de val1");

@@ -8,7 +8,6 @@ import 'package:http/http.dart' as http;
 
 class ChatController extends GetxController {
   void createChat(idUserOpening, idUserReceiver) async {
-    print("createChat");
     try {
       var headers = {'Content-Type': 'application/json'};
 
@@ -25,20 +24,14 @@ class ChatController extends GetxController {
       } else {
         print("incorrecto");
       }
-    } catch (error) {
-      //Get.back();
-    }
+    } catch (error) {}
   }
 
   Future<List<ChatModel>> getChats(idUser) async {
-    print("getChats");
-
-    //try {
     List<ChatModel> chats = [];
     final data = await http.get(Uri.parse(
         'http://10.0.2.2:5432/api/chats/getAllChatsOfUser/' + currentUser.id));
     var jsonData = json.decode(data.body);
-    print("jsonData " + jsonData.toString());
     for (var u in jsonData) {
       ChatModel chat = ChatModel.fromJson({
         "_id": u["_id"],
@@ -46,21 +39,13 @@ class ChatController extends GetxController {
         "client2": u["client2"],
         "messages": u["messages"],
       });
-      print(chat.id);
 
       chats.add(chat);
     }
-    print("chats " + json.encode(chats));
     return chats;
-    //} catch (error) {
-    //  print(error);
-    // return [];
-    // }
   }
 
   Future<ChatModel?> getChat(idUserOpening, idUserRecieving) async {
-    print("getChat");
-
     try {
       final data = await http.get(Uri.parse(
           'http://10.0.2.2:5432/api/chats/getChatByUsers/' +
@@ -68,7 +53,6 @@ class ChatController extends GetxController {
               '/' +
               idUserRecieving));
       var jsonData = json.decode(data.body);
-      print("getChat json: " + jsonData.toString());
 
       if (jsonData is List && jsonData.isNotEmpty) {
         // Extract the first chat object from the array
@@ -80,11 +64,8 @@ class ChatController extends GetxController {
           "messages": chatData["messages"],
         });
 
-        print("chat " + json.encode(chat));
-        print("chat id dentro del controller: " + chat.id);
         return chat;
       } else {
-        print("chat vacio");
         // If the JSON response is empty or not an array, return null
         return null;
       }
@@ -95,10 +76,6 @@ class ChatController extends GetxController {
   }
 
   void saveMessage(idChat, idUser, message) async {
-    print("saveMessage");
-    print(idChat);
-    print(idUser);
-    print(message);
     try {
       var headers = {'Content-Type': 'application/json'};
 
@@ -125,14 +102,10 @@ class ChatController extends GetxController {
   }
 
   Future<List<MessageModel>> getMessages(idChat) async {
-    print("getMessages");
-
-    //try {
     List<MessageModel> messages = [];
     final data = await http
         .get(Uri.parse('http://10.0.2.2:5432/api/messages/' + idChat));
     var jsonData = json.decode(data.body);
-    print("jsonData " + jsonData.toString());
     for (var u in jsonData) {
       MessageModel message = MessageModel.fromJson({
         "chat": u["chat"],
@@ -144,7 +117,6 @@ class ChatController extends GetxController {
 
       messages.add(message);
     }
-    //print("messages " + json.encode(messages));
     return messages;
   }
 }

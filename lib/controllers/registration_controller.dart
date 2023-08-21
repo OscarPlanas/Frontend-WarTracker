@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:frontend/constants.dart';
 import 'package:frontend/screens/home.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -21,7 +22,7 @@ class RegistrationController extends GetxController {
     try {
       var headers = {'Content-Type': 'application/json'};
       print('por aqui');
-      var url = Uri.parse('http://10.0.2.2:5432/api/users/register');
+      var url = Uri.parse(weburl + '/api/users/register');
 
       Map body = {
         'name': nameController.text,
@@ -58,7 +59,6 @@ class RegistrationController extends GetxController {
           Get.off(HomeScreen());
 
           return "correcto";
-          //Get.off(HomeScreen());
         } else if (json['auth'] == false) {
           var message = jsonDecode(response.body)['message'];
           return message;

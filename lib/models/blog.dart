@@ -20,7 +20,7 @@ class Blog {
 
   factory Blog.fromJson(Map<String, dynamic> json) {
     return Blog(
-        id: json['id'],
+        id: json['_id'],
         title: json['title'],
         description: json['description'],
         body_text: json['body_text'],

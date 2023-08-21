@@ -77,7 +77,6 @@ class _MeetingScreenState extends State<MeetingScreen> {
         iconTheme: IconThemeData(color: ButtonBlack),
         backgroundColor: Background,
         actions: [
-          // Add a report button to the app bar
           IconButton(
             icon: Icon(Icons.report),
             onPressed: () {
@@ -364,8 +363,8 @@ class _MeetingScreenState extends State<MeetingScreen> {
                                 : Colors.black),
                       ),
                       Container(
-                        width: 350, // Adjust the width as needed
-                        height: 200, // Adjust the height as needed
+                        width: 350,
+                        height: 200,
                         child: FlutterMap(
                           options: MapOptions(
                             center:

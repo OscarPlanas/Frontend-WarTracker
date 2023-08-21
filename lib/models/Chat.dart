@@ -15,8 +15,6 @@ class ChatModel {
 
   Map<String, dynamic> toJson() {
     return {
-      //'client1': client1.toJson(), // Remove this line
-      //'client2': client2.toJson(), // Remove this line
       'messages': messages,
     };
   }

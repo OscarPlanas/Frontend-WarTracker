@@ -45,11 +45,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
 
   TextEditingController textController = TextEditingController();
 
-  //LatLng? selectedLatLng;
   LatLng? selectedMapLatLng;
-  //LatLng initialMapCenter = LatLng(0, 0); // Initial center of the map
-
-  //MapController mapController = MapController();
 
   final StreamController<LatLng> _mapCenterStreamController =
       StreamController<LatLng>.broadcast();
@@ -509,8 +505,8 @@ class _CreateMeetingState extends State<CreateMeeting> {
                     ),
                     if (selectedMapLatLng != null)
                       Container(
-                        width: 200, // Adjust the width as needed
-                        height: 200, // Adjust the height as needed
+                        width: 200,
+                        height: 200,
                         child: map.FlutterMap(
                           options: map.MapOptions(
                             center: selectedMapLatLng!,
@@ -622,90 +618,6 @@ class _CreateMeetingState extends State<CreateMeeting> {
                             textColor: ButtonBlack,
                             fontSize: 16.0)
                       },
-                    /*setState(() {
-                      meetingController.titleController.text.isEmpty
-                          ? _validatetitle = true
-                          : _validatetitle = false;
-                      meetingController.descriptionController.text.isEmpty
-                          ? _validatedesc = true
-                          : _validatedesc = false;
-                      meetingController.locationController.text.isEmpty
-                          ? _validatelocation = true
-                          : _validatelocation = false;
-                      meetingController.dateController.text.isEmpty
-                          ? _validatedate = true
-                          : _validatedate = false;
-                      meetingController.feeController.text.isEmpty
-                          ? _validatefee = true
-                          : _validatefee = false;
-                      meetingController.latController.text.isEmpty
-                          ? _validatelocation = true
-                          : _validatelocation = false;
-                      meetingController.lngController.text.isEmpty
-                          ? _validatelocation = true
-                          : _validatelocation = false;
-                    }),
-                    if (meetingController.titleController.text.isNotEmpty &&
-                        meetingController
-                            .descriptionController.text.isNotEmpty &&
-                        meetingController.feeController.text.isNotEmpty &&
-                        meetingController.locationController.text.isNotEmpty &&
-                        meetingController.dateController.text.isNotEmpty &&
-                        meetingController.locationController.text.isNotEmpty &&
-                        meetingController.dateController.text.isNotEmpty &&
-                        selectedImage != null &&
-                        meetingController.latController.text.isNotEmpty &&
-                        meetingController.lngController.text.isNotEmpty)
-                      {
-                        await meetingController.createMeeting(currentPhoto),
-                        change = "",
-                        currentPhoto = "",
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return TournamentScreen();
-                        })),
-                      }
-                    else if (selectedImage == null)
-                      {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              backgroundColor: _themeMode == ThemeMode.dark
-                                  ? Color.fromARGB(255, 32, 30, 30)
-                                  : Colors.white,
-                              title: Text('Error',
-                                  style: TextStyle(
-                                      color: _themeMode == ThemeMode.dark
-                                          ? Colors.white
-                                          : Colors.black)),
-                              content: Text(
-                                  AppLocalizations.of(context)!.plsSelectImage,
-                                  style: TextStyle(
-                                      color: _themeMode == ThemeMode.dark
-                                          ? Colors.white
-                                          : Colors.black)),
-                              actions: [
-                                TextButton(
-                                  child: Text('OK'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      }
-                    else if (meetingController.latController.text.isEmpty &&
-                        meetingController.lngController.text.isEmpty)
-                      {
-                        Fluttertoast.showToast(
-                          msg: "Please select location",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.SNACKBAR,
-                        ),
-                      }*/
                   },
                   child: Text(
                     AppLocalizations.of(context)!.buttonSubmit,

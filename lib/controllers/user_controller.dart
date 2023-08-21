@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
 import 'package:frontend/data/data.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:frontend/constants.dart';
 
 class UserController extends GetxController {
   TextEditingController titleController = TextEditingController();
@@ -25,7 +26,6 @@ class UserController extends GetxController {
   final LocalStorage storage = new LocalStorage('My App');
 
   Future<void> getUser() async {
-    //User user;
     String? token = storage.getItem('token');
 
     try {
@@ -33,8 +33,7 @@ class UserController extends GetxController {
 
       String? userId = decodedToken['id'];
 
-      final data = await http
-          .get(Uri.parse('http://10.0.2.2:5432/api/users/' + userId!));
+      final data = await http.get(Uri.parse(weburl + '/api/users/' + userId!));
       var jsonData = json.decode(data.body);
 
       User user = User(

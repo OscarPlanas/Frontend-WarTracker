@@ -47,13 +47,6 @@ class _MessagesScreenState extends State<MessagesScreen> {
   FocusNode focusNode = FocusNode();
 
   bool isUserOnline = false;
-  @override
-  void dispose() {
-    // Dispose the ScrollController when the widget is disposed
-    _scrollController.dispose();
-    socket!.emit('userOffline', currentUser.id);
-    super.dispose();
-  }
 
   @override
   void initState() {
@@ -68,6 +61,16 @@ class _MessagesScreenState extends State<MessagesScreen> {
       fetchChat();
     }
     _loadThemeMode();
+  }
+
+  @override
+  void dispose() {
+    // Dispose the ScrollController when the widget is disposed
+    _scrollController.dispose();
+    socket!.emit('userOffline', currentUser.id);
+    socket?.disconnect();
+    socket?.dispose();
+    super.dispose();
   }
 
   void _loadThemeMode() async {

@@ -25,19 +25,11 @@ class GameController extends GetxController {
     try {
       var headers = {'Content-Type': 'application/json'};
 
-      print('Crear game');
       var url = Uri.parse('http://10.0.2.2:5432/api/games/tournament/' + id);
       Map body = jsonData;
 
-      print(body);
-      print('todos datos de crear game');
-      print(body);
-
       http.Response response =
           await http.post(url, body: jsonEncode(body), headers: headers);
-
-      print('response de crear game');
-      print(response.body);
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
@@ -61,26 +53,18 @@ class GameController extends GetxController {
 
   Future<List<dynamic>> getGames() async {
     final data = await http.get(Uri.parse('http://10.0.2.2:5432/api/games'));
-    print("data de get games");
-    print(data.body);
     var jsonData = json.decode(data.body);
-    print("json data de get games");
-    print(jsonData);
     return jsonData;
   }
 
   Future<List<Map<String, dynamic>>> fetchGames(meetingid) async {
-    print("fetch games1");
     var url =
         Uri.parse('http://10.0.2.2:5432/api/games/tournament/' + meetingid);
     var response = await http.get(url);
-    print("fetch games");
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body);
       final List<Map<String, dynamic>> games =
           jsonData.cast<Map<String, dynamic>>();
-      print("games");
-      print(games);
       return games;
     } else {
       throw Exception('Failed to fetch games');
@@ -112,11 +96,7 @@ class GameController extends GetxController {
   Future<List<dynamic>> getGameByTournament(idTournament) async {
     final data = await http.get(
         Uri.parse('http://10.0.2.2:5432/api/games/tournament/' + idTournament));
-    print("data de get games" + data.body);
-    print("get game by tournament");
     var jsonData = json.decode(data.body);
-    print("json data de get games");
-    print(jsonData);
     return jsonData;
   }
 }

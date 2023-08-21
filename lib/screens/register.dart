@@ -36,7 +36,7 @@ class _BodyState extends State<Body> {
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: 40, vertical: 100),
       child: Form(
-        key: _formKey, // Add the form key
+        key: _formKey,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -69,6 +69,23 @@ class _BodyState extends State<Body> {
                   initialDate: initialDate,
                   firstDate: DateTime(1930),
                   lastDate: DateTime.now(),
+                  builder: (BuildContext context, Widget? child) {
+                    return Theme(
+                      data: ThemeData().copyWith(
+                        primaryColor: Colors
+                            .green, // Set the color of the header and selected date
+                        colorScheme: ColorScheme.light(
+                            primary: Background,
+                            onPrimary: Colors
+                                .black), // Set the color of the selected date circle
+                        dialogBackgroundColor: Colors.white,
+                        buttonTheme: ButtonThemeData(
+                          textTheme: ButtonTextTheme.primary,
+                        ),
+                      ),
+                      child: child!,
+                    );
+                  },
                 );
 
                 if (pickedDate != null) {

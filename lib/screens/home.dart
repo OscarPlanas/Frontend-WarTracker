@@ -163,13 +163,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           ? Colors.white
                           : Colors.black),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color: Background), // Change the border color
+                    borderSide: BorderSide(color: Background),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color: Colors.grey), // Change the border color
+                    borderSide: BorderSide(color: Colors.grey),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   border: OutlineInputBorder(

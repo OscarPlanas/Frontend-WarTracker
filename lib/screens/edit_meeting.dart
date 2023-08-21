@@ -361,8 +361,8 @@ class _EditMeetingState extends State<EditMeeting> {
                         fontWeight: FontWeight.bold)),
                 SizedBox(height: 2),
                 Container(
-                  width: 350, // Adjust the width as needed
-                  height: 200, // Adjust the height as needed
+                  width: 350,
+                  height: 200,
                   child: FlutterMap(
                     options: MapOptions(
                       center: LatLng(widget.meeting.lat, widget.meeting.lng),
@@ -437,8 +437,8 @@ class _EditMeetingState extends State<EditMeeting> {
                     ),
                     if (selectedMapLatLng != null)
                       Container(
-                        width: 200, // Adjust the width as needed
-                        height: 200, // Adjust the height as needed
+                        width: 200,
+                        height: 200,
                         child: FlutterMap(
                           options: MapOptions(
                             center: selectedMapLatLng!,

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:localstorage/localstorage.dart';
+import 'package:frontend/constants.dart';
 
 class LoginController extends GetxController {
   TextEditingController emailController = TextEditingController();
@@ -16,23 +17,17 @@ class LoginController extends GetxController {
     try {
       var headers = {'Content-Type': 'application/json'};
 
-      print('por aqui');
-      var url = Uri.parse('http://10.0.2.2:5432/api/auth/login');
+      var url = Uri.parse(weburl + '/api/auth/login');
+      print(url);
       Map body = {
         'email': emailController.text.trim(),
         'password': passwordController.text
       };
-      print('por aqui2');
       http.Response response =
           await http.post(url, body: jsonEncode(body), headers: headers);
 
-      print('por aqui3');
-      print(response.body);
-      print(body);
-
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
-        print("correcto");
         if (json['auth'] == true) {
           var token = json['token'];
           final SharedPreferences? prefs = await _prefs;

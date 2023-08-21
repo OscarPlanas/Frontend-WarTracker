@@ -11,7 +11,6 @@ class User {
   List<dynamic> meetingsFollowed;
   List<dynamic> followers;
   List<dynamic> following;
-  //final String date;
 
   User({
     required this.id,
@@ -26,8 +25,6 @@ class User {
     required this.meetingsFollowed,
     required this.followers,
     required this.following,
-
-    //required this.date
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -44,7 +41,6 @@ class User {
       meetingsFollowed: json['meetingsFollowed'],
       followers: json['followers'],
       following: json['following'],
-      //date: json['date']
     );
   }
   Map<String, dynamic> toMap() {
@@ -60,8 +56,6 @@ class User {
       'meetingsFollowed': meetingsFollowed,
       'followers': followers,
       'following': following,
-
-      // add other properties as needed
     };
   }
 }

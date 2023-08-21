@@ -26,7 +26,7 @@ class Meeting {
 
   factory Meeting.fromJson(Map<String, dynamic> json) {
     return Meeting(
-        id: json['id'],
+        id: json['_id'],
         title: json['title'],
         description: json['description'],
         imageUrl: json['imageUrl'],

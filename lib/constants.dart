@@ -9,3 +9,6 @@ const DetailsColor = Color(0xffb5e51d);
 const FadeDetailsColor = Color(0x55ffde59);
 const FadeDetailsColor2 = Color(0xbbffde59);
 const ButtonBlack = Color(0xFF000000);
+
+const weburl = 'http://app.oscarplanas.com:5432';
+const localurl = 'http://localhost:5432';

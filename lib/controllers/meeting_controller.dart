@@ -304,7 +304,6 @@ class MeetingController extends GetxController {
       List<Map<String, dynamic>> dislikes = (u["dislikes"] != null)
           ? (u["dislikes"] as List<dynamic>).cast<Map<String, dynamic>>()
           : []; // Convert to List<Map<String, dynamic>>
-      //print(data.body);
       Comments comment = Comments(
         id: u["_id"],
         content: u["content"],

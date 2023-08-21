@@ -41,7 +41,7 @@ class ReplyCard extends StatelessWidget {
                     bottom: 10,
                   ),
                   child: Text(
-                    messageModel.time, // Display the timestamp here
+                    messageModel.time,
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey[600],
