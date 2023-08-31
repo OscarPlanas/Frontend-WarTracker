@@ -135,6 +135,18 @@
 
     "calendarEvent": "Nombre del evento",
     "calendarDelete": "¿Está seguro de que desea eliminar este evento? (Si el evento es un meeting y desea salirse, deberá ir a su página)",
-    "calendarDeleteTitle": "Eliminar evento"
+    "calendarDeleteTitle": "Eliminar evento",
+    "searchBlog": "Buscar blog...",
+    "searchMeeting": "Buscar meeting...",
+    "month": "Mes",
+    "week": "Semana",
+    "twoWeeks": "2 semanas",
+    "buttonYes": "Sí",
+    "deleteBlog": "Eliminar blog",
+    "confirmDeleteBlog": "¿Está seguro de eliminar el blog? No podrá deshacerse",
+    "deleteMeeting": "Eliminar meeting",
+    "confirmDeleteMeeting": "¿Está seguro de eliminar el meeting? No podrá deshacerse",
+    "participantsUsernames": "Usernames de los participantes",
+    "messageTo": "Enviar un mensaje a"
     
 }

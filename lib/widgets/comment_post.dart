@@ -3,22 +3,22 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:frontend/constants.dart';
-import 'package:frontend/controllers/blog_controller.dart';
-import 'package:frontend/controllers/chat_controller.dart';
-import 'package:frontend/data/data.dart';
-import 'package:frontend/models/Chat.dart';
-import 'package:frontend/models/blog.dart';
-import 'package:frontend/models/comment.dart';
-import 'package:frontend/models/user.dart';
-import 'package:frontend/screens/messages.dart';
-import 'package:frontend/screens/profile.dart';
+import 'package:war_tracker/constants.dart';
+import 'package:war_tracker/controllers/blog_controller.dart';
+import 'package:war_tracker/controllers/chat_controller.dart';
+import 'package:war_tracker/data/data.dart';
+import 'package:war_tracker/models/Chat.dart';
+import 'package:war_tracker/models/blog.dart';
+import 'package:war_tracker/models/comment.dart';
+import 'package:war_tracker/models/user.dart';
+import 'package:war_tracker/screens/messages.dart';
+import 'package:war_tracker/screens/profile.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:frontend/theme_provider.dart';
+import 'package:war_tracker/theme_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:frontend/controllers/report_controller.dart';
+import 'package:war_tracker/controllers/report_controller.dart';
 
 class CommentPost extends StatefulWidget {
   final Blog blog; // New parameter to hold the blog ID
@@ -884,8 +884,7 @@ class _CommentPostState extends State<CommentPost> {
   }
 
   Future<void> navigateToUserProfile(idUser) async {
-    final data =
-        await http.get(Uri.parse('http://10.0.2.2:5432/api/users/' + idUser));
+    final data = await http.get(Uri.parse(localurl + '/api/users/' + idUser));
     var jsonData = json.decode(data.body);
     print(jsonData);
     User user = User(
@@ -909,8 +908,8 @@ class _CommentPostState extends State<CommentPost> {
 
   Future<void> sendMessageToUser(recipientId) async {
     print("Sending message to user with ID: " + recipientId);
-    final data = await http
-        .get(Uri.parse('http://10.0.2.2:5432/api/users/' + recipientId));
+    final data =
+        await http.get(Uri.parse(localurl + '/api/users/' + recipientId));
     var jsonData = json.decode(data.body);
 
     User user = User(

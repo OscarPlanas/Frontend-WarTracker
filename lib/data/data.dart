@@ -1,4 +1,4 @@
-import 'package:frontend/models/user.dart';
+import 'package:war_tracker/models/user.dart';
 
 User currentUser = User(
   id: "",

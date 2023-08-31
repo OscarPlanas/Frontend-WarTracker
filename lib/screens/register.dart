@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import 'package:frontend/components/input_fields.dart';
-import 'package:frontend/components/submit_button.dart';
-import 'package:frontend/components/already_have_an_account_acheck.dart';
+import 'package:war_tracker/components/input_fields.dart';
+import 'package:war_tracker/components/submit_button.dart';
+import 'package:war_tracker/components/already_have_an_account_acheck.dart';
 
-import 'package:frontend/constants.dart';
+import 'package:war_tracker/constants.dart';
 
-import 'package:frontend/controllers/registration_controller.dart';
-import 'package:frontend/screens/login.dart';
+import 'package:war_tracker/controllers/registration_controller.dart';
+import 'package:war_tracker/screens/login.dart';
 import 'package:get/get.dart';
 
 import 'package:intl/intl.dart';
@@ -193,7 +193,7 @@ class _BodyState extends State<Body> {
           backgroundColor: Color.fromARGB(255, 230, 241, 248),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-          title: Text("WarTracker", style: TextStyle(fontSize: 17)),
+          title: Text("war_tracker", style: TextStyle(fontSize: 17)),
           content: Text(
             text,
             style: TextStyle(fontSize: 15),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/models/user.dart';
+import 'package:war_tracker/models/user.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class NumbersWidget extends StatefulWidget {
@@ -17,7 +17,6 @@ class _NumbersWidgetState extends State<NumbersWidget> {
   Widget build(BuildContext context) => Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          //buildButton(text: 'Comments', value: comments),
           buildDivider(),
           buildButton(
               text: AppLocalizations.of(context)!.following,

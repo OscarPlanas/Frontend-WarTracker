@@ -1,7 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
-import 'package:frontend/constants.dart';
+import 'package:war_tracker/constants.dart';
 
 class InputTextFieldWidget extends StatelessWidget {
   final TextEditingController textEditingController;

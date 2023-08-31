@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/constants.dart';
+import 'package:war_tracker/constants.dart';
 
 class SubmitButton extends StatelessWidget {
   final VoidCallback onPressed;

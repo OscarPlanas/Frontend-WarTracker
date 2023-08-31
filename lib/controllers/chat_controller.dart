@@ -1,8 +1,9 @@
 import 'dart:convert';
 
-import 'package:frontend/data/data.dart';
-import 'package:frontend/models/Chat.dart';
-import 'package:frontend/models/message.dart';
+import 'package:war_tracker/constants.dart';
+import 'package:war_tracker/data/data.dart';
+import 'package:war_tracker/models/Chat.dart';
+import 'package:war_tracker/models/message.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
@@ -11,7 +12,7 @@ class ChatController extends GetxController {
     try {
       var headers = {'Content-Type': 'application/json'};
 
-      var url = Uri.parse('http://10.0.2.2:5432/api/chats/createchat');
+      var url = Uri.parse(localurl + '/api/chats/createchat');
       Map body = {
         'idUserOpening': idUserOpening,
         'idUserReceiver': idUserReceiver,
@@ -29,8 +30,8 @@ class ChatController extends GetxController {
 
   Future<List<ChatModel>> getChats(idUser) async {
     List<ChatModel> chats = [];
-    final data = await http.get(Uri.parse(
-        'http://10.0.2.2:5432/api/chats/getAllChatsOfUser/' + currentUser.id));
+    final data = await http.get(
+        Uri.parse(localurl + '/api/chats/getAllChatsOfUser/' + currentUser.id));
     var jsonData = json.decode(data.body);
     for (var u in jsonData) {
       ChatModel chat = ChatModel.fromJson({
@@ -47,11 +48,11 @@ class ChatController extends GetxController {
 
   Future<ChatModel?> getChat(idUserOpening, idUserRecieving) async {
     try {
-      final data = await http.get(Uri.parse(
-          'http://10.0.2.2:5432/api/chats/getChatByUsers/' +
-              idUserOpening +
-              '/' +
-              idUserRecieving));
+      final data = await http.get(Uri.parse(localurl +
+          '/api/chats/getChatByUsers/' +
+          idUserOpening +
+          '/' +
+          idUserRecieving));
       var jsonData = json.decode(data.body);
 
       if (jsonData is List && jsonData.isNotEmpty) {
@@ -79,7 +80,7 @@ class ChatController extends GetxController {
     try {
       var headers = {'Content-Type': 'application/json'};
 
-      var url = Uri.parse('http://10.0.2.2:5432/api/messages/saveMessage');
+      var url = Uri.parse(localurl + '/api/messages/saveMessage');
       Map body = {
         'chat': idChat,
         'user': idUser,
@@ -103,8 +104,8 @@ class ChatController extends GetxController {
 
   Future<List<MessageModel>> getMessages(idChat) async {
     List<MessageModel> messages = [];
-    final data = await http
-        .get(Uri.parse('http://10.0.2.2:5432/api/messages/' + idChat));
+    final data =
+        await http.get(Uri.parse(localurl + '/api/messages/' + idChat));
     var jsonData = json.decode(data.body);
     for (var u in jsonData) {
       MessageModel message = MessageModel.fromJson({
@@ -118,5 +119,11 @@ class ChatController extends GetxController {
       messages.add(message);
     }
     return messages;
+  }
+
+  void deleteChat(idChat) async {
+    await http.delete(
+      Uri.parse(localurl + '/api/chats/' + idChat),
+    );
   }
 }

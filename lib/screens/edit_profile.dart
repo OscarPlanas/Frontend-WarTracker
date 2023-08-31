@@ -4,14 +4,14 @@ import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:frontend/constants.dart';
-import 'package:frontend/controllers/user_controller.dart';
-import 'package:frontend/data/data.dart';
-import 'package:frontend/models/user.dart';
-import 'package:frontend/screens/home.dart';
-import 'package:frontend/screens/profile.dart';
+import 'package:war_tracker/constants.dart';
+import 'package:war_tracker/controllers/user_controller.dart';
+import 'package:war_tracker/data/data.dart';
+import 'package:war_tracker/models/user.dart';
+import 'package:war_tracker/screens/home.dart';
+import 'package:war_tracker/screens/profile.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:frontend/theme_provider.dart';
+import 'package:war_tracker/theme_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class EditProfile extends StatefulWidget {

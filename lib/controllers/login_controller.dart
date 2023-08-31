@@ -1,11 +1,11 @@
 import 'dart:convert';
-import 'package:frontend/screens/home.dart';
+import 'package:war_tracker/screens/home.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:frontend/constants.dart';
+import 'package:war_tracker/constants.dart';
 
 class LoginController extends GetxController {
   TextEditingController emailController = TextEditingController();
@@ -17,7 +17,7 @@ class LoginController extends GetxController {
     try {
       var headers = {'Content-Type': 'application/json'};
 
-      var url = Uri.parse(weburl + '/api/auth/login');
+      var url = Uri.parse(localurl + '/api/auth/login');
       print(url);
       Map body = {
         'email': emailController.text.trim(),

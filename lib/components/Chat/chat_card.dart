@@ -1,6 +1,6 @@
-import 'package:frontend/models/Chat.dart';
+import 'package:war_tracker/models/Chat.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/data/data.dart';
+import 'package:war_tracker/data/data.dart';
 
 class ChatCard extends StatelessWidget {
   const ChatCard({

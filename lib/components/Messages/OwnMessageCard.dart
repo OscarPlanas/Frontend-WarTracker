@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/models/message.dart';
+import 'package:war_tracker/models/message.dart';
 
 class OwnMessageCard extends StatelessWidget {
   final MessageModel messageModel;

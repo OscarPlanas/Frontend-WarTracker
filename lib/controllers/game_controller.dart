@@ -1,9 +1,10 @@
 import 'dart:convert';
 
-import 'package:frontend/models/meeting.dart';
+import 'package:war_tracker/constants.dart';
+import 'package:war_tracker/models/meeting.dart';
 
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/tournaments.dart';
+import 'package:war_tracker/screens/tournaments.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
@@ -25,7 +26,7 @@ class GameController extends GetxController {
     try {
       var headers = {'Content-Type': 'application/json'};
 
-      var url = Uri.parse('http://10.0.2.2:5432/api/games/tournament/' + id);
+      var url = Uri.parse(localurl + '/api/games/tournament/' + id);
       Map body = jsonData;
 
       http.Response response =
@@ -52,14 +53,13 @@ class GameController extends GetxController {
   }
 
   Future<List<dynamic>> getGames() async {
-    final data = await http.get(Uri.parse('http://10.0.2.2:5432/api/games'));
+    final data = await http.get(Uri.parse(localurl + '/api/games'));
     var jsonData = json.decode(data.body);
     return jsonData;
   }
 
   Future<List<Map<String, dynamic>>> fetchGames(meetingid) async {
-    var url =
-        Uri.parse('http://10.0.2.2:5432/api/games/tournament/' + meetingid);
+    var url = Uri.parse(localurl + '/api/games/tournament/' + meetingid);
     var response = await http.get(url);
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body);
@@ -73,7 +73,7 @@ class GameController extends GetxController {
 
   Future<List<Meeting>> getMeetings() async {
     List<Meeting> meetings = [];
-    final data = await http.get(Uri.parse('http://10.0.2.2:5432/api/meetings'));
+    final data = await http.get(Uri.parse(localurl + '/api/meetings'));
     var jsonData = json.decode(data.body);
     for (var u in jsonData) {
       Meeting meeting = Meeting(
@@ -94,8 +94,8 @@ class GameController extends GetxController {
   }
 
   Future<List<dynamic>> getGameByTournament(idTournament) async {
-    final data = await http.get(
-        Uri.parse('http://10.0.2.2:5432/api/games/tournament/' + idTournament));
+    final data = await http
+        .get(Uri.parse(localurl + '/api/games/tournament/' + idTournament));
     var jsonData = json.decode(data.body);
     return jsonData;
   }

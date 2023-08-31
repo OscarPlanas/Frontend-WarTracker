@@ -134,6 +134,19 @@
 
     "calendarEvent": "Event Name",
     "calendarDelete": "Are you sure you want to delete this event? (If the event is a meeting and you want to sign out, you will need to go to its meeting page)",
-    "calendarDeleteTitle": "Delete Event"
+    "calendarDeleteTitle": "Delete Event",
+    "searchBlog": "Search blog...",
+    "searchMeeting": "Search meeting...",
+    "month": "Month",
+    "week": "Week",
+    "twoWeeks": "2 weeks",
+    "buttonYes": "Yes",
+    "deleteBlog": "Delete blog",
+    "confirmDeleteBlog": "Are you sure to delete the blog? You will not be able to undo it",
+    "deleteMeeting": "Delete meeting",
+    "confirmDeleteMeeting": "Are you sure to delete the meeting? You will not be able to undo it",
+    "participantsUsernames": "Participants usernames",
+    "messageTo": "Send a message to"
+
 
 }

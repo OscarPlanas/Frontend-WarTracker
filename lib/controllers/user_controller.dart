@@ -1,14 +1,14 @@
 import 'dart:convert';
 
-import 'package:frontend/models/user.dart';
+import 'package:war_tracker/models/user.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
-import 'package:frontend/data/data.dart';
+import 'package:war_tracker/data/data.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:frontend/constants.dart';
+import 'package:war_tracker/constants.dart';
 
 class UserController extends GetxController {
   TextEditingController titleController = TextEditingController();
@@ -33,7 +33,8 @@ class UserController extends GetxController {
 
       String? userId = decodedToken['id'];
 
-      final data = await http.get(Uri.parse(weburl + '/api/users/' + userId!));
+      final data =
+          await http.get(Uri.parse(localurl + '/api/users/' + userId!));
       var jsonData = json.decode(data.body);
 
       User user = User(
@@ -78,8 +79,7 @@ class UserController extends GetxController {
   }
 
   Future<User> getOneUser(idUser) async {
-    final data =
-        await http.get(Uri.parse('http://10.0.2.2:5432/api/users/' + idUser));
+    final data = await http.get(Uri.parse(localurl + '/api/users/' + idUser));
 
     var jsonData = json.decode(data.body);
 
@@ -105,7 +105,7 @@ class UserController extends GetxController {
       currentPassword, newPassword, isPasswordChanged) async {
     try {
       var headers = {'Content-Type': 'application/json'};
-      var url = Uri.parse('http://10.0.2.2:5432/api/users/edit/' + idUser);
+      var url = Uri.parse(localurl + '/api/users/edit/' + idUser);
 
       Map<String, dynamic> body = {
         'name': nameController.text.trim(),
@@ -169,10 +169,7 @@ class UserController extends GetxController {
 
   void followUser(String userId) async {
     final response = await http.post(Uri.parse(
-        'http://10.0.2.2:5432/api/users/followUser/' +
-            currentUser.id +
-            '/' +
-            userId));
+        localurl + '/api/users/followUser/' + currentUser.id + '/' + userId));
     if (response.statusCode == 200) {
       // Like added successfully
 
@@ -185,10 +182,7 @@ class UserController extends GetxController {
 
   void unfollowUser(String userId) async {
     final response = await http.delete(Uri.parse(
-        'http://10.0.2.2:5432/api/users/unfollowUser/' +
-            currentUser.id +
-            '/' +
-            userId));
+        localurl + '/api/users/unfollowUser/' + currentUser.id + '/' + userId));
     if (response.statusCode == 200) {
       // Like added successfully
 
@@ -209,5 +203,30 @@ class UserController extends GetxController {
     }
 
     return isFollowed;
+  }
+
+  Future<List<User>> getUsers() async {
+    List<User> users = [];
+    final data = await http.get(Uri.parse(localurl + '/api/users/'));
+    var jsonData = json.decode(data.body);
+    for (var u in jsonData) {
+      User user = User(
+        id: u["_id"],
+        username: u["username"],
+        password: u["password"],
+        email: u["email"],
+        date: u["date"],
+        name: u["name"],
+        imageUrl: u["imageUrl"],
+        backgroundImageUrl: u["backgroundImageUrl"],
+        about: u["about"],
+        meetingsFollowed: u["meetingsFollowed"],
+        followers: u["followers"],
+        following: u["following"],
+      );
+
+      users.add(user);
+    }
+    return users;
   }
 }

@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/chats.dart';
-import 'package:frontend/screens/configuration.dart';
-import 'package:frontend/screens/welcome.dart';
+import 'package:war_tracker/screens/chats.dart';
+import 'package:war_tracker/screens/configuration.dart';
+import 'package:war_tracker/screens/welcome.dart';
 import 'package:get/get.dart';
-import 'package:frontend/constants.dart';
+import 'package:war_tracker/constants.dart';
 import 'package:localstorage/localstorage.dart';
 
-import 'package:frontend/screens/home.dart';
-import 'package:frontend/screens/tournaments.dart';
-import 'package:frontend/screens/profile.dart';
-import 'package:frontend/data/data.dart';
-import 'package:frontend/theme_provider.dart';
+import 'package:war_tracker/screens/home.dart';
+import 'package:war_tracker/screens/tournaments.dart';
+import 'package:war_tracker/screens/profile.dart';
+import 'package:war_tracker/data/data.dart';
+import 'package:war_tracker/theme_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:frontend/screens/about.dart';
-import 'package:frontend/screens/calendar.dart';
+import 'package:war_tracker/screens/about.dart';
+import 'package:war_tracker/screens/calendar.dart';
 
 class Sidebar extends StatefulWidget {
   Sidebar({Key? key}) : super(key: key);
@@ -60,18 +60,33 @@ class _SidebarState extends State<Sidebar> {
         ),
         child: Column(
           children: [
-            CircleAvatar(
-              radius: 52,
-              backgroundImage: currentUser.imageUrl != ""
-                  ? NetworkImage(currentUser.imageUrl)
-                  : AssetImage('assets/images/groguplaceholder.png')
-                      as ImageProvider,
+            GestureDetector(
+              onTap: () {
+                Get.offAll(Profile(currentUser));
+              },
+              child: CircleAvatar(
+                radius: 52,
+                backgroundImage: currentUser.imageUrl != ""
+                    ? NetworkImage(currentUser.imageUrl)
+                    : AssetImage('assets/images/groguplaceholder.png')
+                        as ImageProvider,
+              ),
             ),
             SizedBox(height: 6),
-            Text(currentUser.username,
-                style: TextStyle(color: ButtonBlack, fontSize: 22)),
-            Text(currentUser.email,
-                style: TextStyle(color: ButtonBlack, fontSize: 14)),
+            GestureDetector(
+              onTap: () {
+                Get.offAll(Profile(currentUser));
+              },
+              child: Text(currentUser.username,
+                  style: TextStyle(color: ButtonBlack, fontSize: 22)),
+            ),
+            GestureDetector(
+              onTap: () {
+                Get.offAll(Profile(currentUser));
+              },
+              child: Text(currentUser.email,
+                  style: TextStyle(color: ButtonBlack, fontSize: 14)),
+            ),
           ],
         ),
       );

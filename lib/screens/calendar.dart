@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:frontend/constants.dart';
-import 'package:frontend/data/data.dart';
-import 'package:frontend/sidebar.dart';
-import 'package:frontend/theme_provider.dart';
+import 'package:war_tracker/constants.dart';
+import 'package:war_tracker/data/data.dart';
+import 'package:war_tracker/sidebar.dart';
+import 'package:war_tracker/theme_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:table_calendar/table_calendar.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -149,6 +149,11 @@ class _CalendarState extends State<Calendar> {
         children: [
           Container(
               child: TableCalendar(
+            availableCalendarFormats: {
+              CalendarFormat.month: AppLocalizations.of(context)!.month,
+              CalendarFormat.week: AppLocalizations.of(context)!.week,
+              CalendarFormat.twoWeeks: AppLocalizations.of(context)!.twoWeeks,
+            },
             calendarStyle: CalendarStyle(
               outsideDaysVisible: false,
               todayDecoration: BoxDecoration(
@@ -347,7 +352,7 @@ class _CalendarState extends State<Calendar> {
   Future<void> createEvent(String eventName) async {
     print("Creating event");
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:5432/api/events/createevent'),
+      Uri.parse(localurl + '/api/events/createevent'),
       body: {
         'title': eventName,
         'date': _selectedDay!.toIso8601String(),
@@ -375,8 +380,7 @@ class _CalendarState extends State<Calendar> {
 
   Future<void> fetchUserEvents() async {
     final response = await http.get(
-      Uri.parse(
-          'http://10.0.2.2:5432/api/events/geteventbyuser/${currentUser.id}'),
+      Uri.parse(localurl + '/api/events/geteventbyuser/${currentUser.id}'),
     );
     print(response.body);
     if (response.statusCode == 200) {
@@ -408,7 +412,7 @@ class _CalendarState extends State<Calendar> {
 
   Future<void> deleteEvent(String eventId) async {
     final response = await http.delete(
-      Uri.parse('http://10.0.2.2:5432/api/events/deleteevent/$eventId'),
+      Uri.parse(localurl + '/api/events/deleteevent/$eventId'),
     );
 
     if (response.statusCode == 200) {

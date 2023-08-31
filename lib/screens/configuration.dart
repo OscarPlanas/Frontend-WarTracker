@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/sidebar.dart';
-import 'package:frontend/constants.dart';
+import 'package:war_tracker/sidebar.dart';
+import 'package:war_tracker/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get/get.dart';

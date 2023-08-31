@@ -2,27 +2,28 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:frontend/constants.dart';
-import 'package:frontend/controllers/meeting_controller.dart';
-import 'package:frontend/controllers/chat_controller.dart';
-import 'package:frontend/data/data.dart';
-import 'package:frontend/models/Chat.dart';
-import 'package:frontend/models/meeting.dart';
-import 'package:frontend/models/user.dart';
-import 'package:frontend/screens/edit_meeting.dart';
-import 'package:frontend/screens/game.dart';
-import 'package:frontend/screens/messages.dart';
-import 'package:frontend/screens/profile.dart';
-import 'package:frontend/screens/tournaments.dart';
-import 'package:frontend/widgets/comment_meeting.dart';
+import 'package:war_tracker/constants.dart';
+import 'package:war_tracker/controllers/meeting_controller.dart';
+import 'package:war_tracker/controllers/chat_controller.dart';
+import 'package:war_tracker/data/data.dart';
+import 'package:war_tracker/models/Chat.dart';
+import 'package:war_tracker/models/meeting.dart';
+import 'package:war_tracker/models/user.dart';
+import 'package:war_tracker/screens/edit_meeting.dart';
+import 'package:war_tracker/screens/game.dart';
+import 'package:war_tracker/screens/messages.dart';
+import 'package:war_tracker/screens/profile.dart';
+import 'package:war_tracker/screens/tournaments.dart';
+import 'package:war_tracker/widgets/comment_meeting.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:frontend/theme_provider.dart';
+import 'package:war_tracker/theme_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:frontend/controllers/report_controller.dart';
+import 'package:war_tracker/controllers/report_controller.dart';
 import 'package:intl/intl.dart';
+import 'package:war_tracker/screens/participants.dart';
 
 class MeetingScreen extends StatefulWidget {
   final Meeting meeting;
@@ -37,6 +38,7 @@ class _MeetingScreenState extends State<MeetingScreen> {
   ChatController chatController = Get.put(ChatController());
 
   var listParticipants = 0;
+  List<dynamic> listParticipants2 = [];
 
   bool _flag2 = false;
 
@@ -345,13 +347,24 @@ class _MeetingScreenState extends State<MeetingScreen> {
                       ),
 
                       const SizedBox(height: 8.0),
-                      Text(
-                          AppLocalizations.of(context)!
-                              .participantsTotals(listParticipants.toString()),
-                          style: TextStyle(
-                              color: _themeMode == ThemeMode.dark
-                                  ? Colors.white
-                                  : Colors.grey)),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context)
+                              .push(MaterialPageRoute(builder: (context) {
+                            return ParticipantsScreen(
+                                listParticipants: listParticipants2);
+                            ;
+                          }));
+                        },
+                        child: Text(
+                            AppLocalizations.of(context)!.participantsTotals(
+                                listParticipants.toString()),
+                            style: TextStyle(
+                                color: _themeMode == ThemeMode.dark
+                                    ? Colors.white
+                                    : Colors.grey,
+                                decoration: TextDecoration.underline)),
+                      ),
                       const SizedBox(height: 30.0),
                       Text(
                         AppLocalizations.of(context)!.meetingPlace,
@@ -510,8 +523,7 @@ class _MeetingScreenState extends State<MeetingScreen> {
   }
 
   Future<void> checkIsOwner() async {
-    var url =
-        Uri.parse('http://10.0.2.2:5432/api/meetings/' + widget.meeting.id);
+    var url = Uri.parse(localurl + '/api/meetings/' + widget.meeting.id);
     var response = await http.get(url);
     var data = jsonDecode(response.body);
 
@@ -524,20 +536,47 @@ class _MeetingScreenState extends State<MeetingScreen> {
 
   Future<void> updateParticipantsList() async {
     final meeting = widget.meeting;
-    final url = Uri.parse('http://10.0.2.2:5432/api/meetings/${meeting.id}');
+    final url = Uri.parse(localurl + '/api/meetings/${meeting.id}');
     final response = await http.get(url);
     final data = jsonDecode(response.body);
     final participants = data['participants'];
+    final participants2 = List<dynamic>.from(data['participants']);
 
+    /*List<Map<String, dynamic>> fetchedParticipants = [];
+
+    for (final participantId in participants2) {
+      final userUrl = Uri.parse(localurl +
+          '/api/users/$participantId'); // Adjust the URL as per your API
+      final userResponse = await http.get(userUrl);
+      final userData = jsonDecode(userResponse.body);
+      fetchedParticipants.add(userData);
+    }*/
+    print(participants2);
+    print(participants);
     setState(() {
       listParticipants = participants.length;
+      listParticipants2 = participants2;
+
       print("listParticipants: $listParticipants");
     });
+    /*    final participantIds = List<String>.from(data['participants']);
+
+  List<Map<String, dynamic>> fetchedParticipants = [];
+
+  for (final participantId in participantIds) {
+    final userUrl = Uri.parse(localurl + '/api/users/$participantId'); // Adjust the URL as per your API
+    final userResponse = await http.get(userUrl);
+    final userData = jsonDecode(userResponse.body);
+    fetchedParticipants.add(userData);
+  }
+
+  setState(() {
+    listParticipants = fetchedParticipants;
+  });*/
   }
 
   Future<void> navigateToUserProfile(idUser) async {
-    final data =
-        await http.get(Uri.parse('http://10.0.2.2:5432/api/users/' + idUser));
+    final data = await http.get(Uri.parse(localurl + '/api/users/' + idUser));
     var jsonData = json.decode(data.body);
 
     User user = User(
@@ -561,8 +600,8 @@ class _MeetingScreenState extends State<MeetingScreen> {
 
   Future<void> sendMessageToUser(recipientId) async {
     print("Sending message to user with ID: " + recipientId);
-    final data = await http
-        .get(Uri.parse('http://10.0.2.2:5432/api/users/' + recipientId));
+    final data =
+        await http.get(Uri.parse(localurl + '/api/users/' + recipientId));
     var jsonData = json.decode(data.body);
 
     User user = User(
@@ -774,7 +813,7 @@ class _MeetingScreenState extends State<MeetingScreen> {
   Future<void> createEvent(String eventName) async {
     print("Creating event");
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:5432/api/events/createevent'),
+      Uri.parse(localurl + '/api/events/createevent'),
       body: {
         'title': eventName,
         'date': DateFormat('yyyy-MM-dd')
@@ -797,8 +836,7 @@ class _MeetingScreenState extends State<MeetingScreen> {
 
   Future<void> deleteEventMeeting(String meetingid) async {
     final response = await http.delete(
-      Uri.parse(
-          'http://10.0.2.2:5432/api/events/deleteeventbymeetingid/$meetingid'),
+      Uri.parse(localurl + '/api/events/deleteeventbymeetingid/$meetingid'),
     );
 
     if (response.statusCode == 200) {

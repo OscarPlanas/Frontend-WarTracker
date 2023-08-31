@@ -1,15 +1,15 @@
 import 'dart:convert';
 
 import 'package:date_format/date_format.dart';
-import 'package:frontend/models/blog.dart';
-import 'package:frontend/screens/home.dart';
+import 'package:war_tracker/models/blog.dart';
+import 'package:war_tracker/screens/home.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
-import 'package:frontend/data/data.dart';
-import 'package:frontend/models/comment.dart';
-import 'package:frontend/constants.dart';
+import 'package:war_tracker/data/data.dart';
+import 'package:war_tracker/models/comment.dart';
+import 'package:war_tracker/constants.dart';
 
 class BlogController extends GetxController {
   TextEditingController titleController = TextEditingController();
@@ -24,7 +24,7 @@ class BlogController extends GetxController {
   Future<String> createBlog(String imageUrl) async {
     try {
       var headers = {'Content-Type': 'application/json'};
-      var url = Uri.parse('http://10.0.2.2:5432/api/blogs');
+      var url = Uri.parse(localurl + '/api/blogs');
       Map body = {
         'title': titleController.text.trim(),
         'description': descriptionController.text,
@@ -63,7 +63,7 @@ class BlogController extends GetxController {
 
   Future<List<Blog>> getBlogs() async {
     List<Blog> blogs = [];
-    final data = await http.get(Uri.parse(weburl + '/api/blogs/'));
+    final data = await http.get(Uri.parse(localurl + '/api/blogs/'));
     var jsonData = json.decode(data.body);
     for (var u in jsonData) {
       Blog blog = Blog(
@@ -86,8 +86,7 @@ class BlogController extends GetxController {
     try {
       var headers = {'Content-Type': 'application/json'};
 
-      var url =
-          Uri.parse('http://10.0.2.2:5432/api/blogs/addcomment/' + idBlog);
+      var url = Uri.parse(localurl + '/api/blogs/addcomment/' + idBlog);
       Map body = {
         'content': commentController.text.trim(),
         'owner': currentUser.id,
@@ -111,8 +110,7 @@ class BlogController extends GetxController {
     try {
       var headers = {'Content-Type': 'application/json'};
 
-      var url =
-          Uri.parse('http://10.0.2.2:5432/api/blogs/addreply/' + idComment);
+      var url = Uri.parse(localurl + '/api/blogs/addreply/' + idComment);
       Map body = {
         'content': replyController.text.trim(),
         'owner': currentUser.id,
@@ -136,7 +134,7 @@ class BlogController extends GetxController {
     try {
       var headers = {'Content-Type': 'application/json'};
 
-      var url = Uri.parse('http://10.0.2.2:5432/api/blogs/edit/' + idBlog);
+      var url = Uri.parse(localurl + '/api/blogs/edit/' + idBlog);
 
       Map body = {
         'title': titleController.text.trim(),
@@ -162,8 +160,8 @@ class BlogController extends GetxController {
 
   Future<List<Comments>> getComments(idBlog) async {
     List<Comments> comments = [];
-    final data = await http
-        .get(Uri.parse('http://10.0.2.2:5432/api/blogs/comments/' + idBlog));
+    final data =
+        await http.get(Uri.parse(localurl + '/api/blogs/comments/' + idBlog));
     var jsonData = json.decode(data.body);
     for (var u in jsonData) {
       List<Map<String, dynamic>> replies =
@@ -201,10 +199,7 @@ class BlogController extends GetxController {
   void addLikeToComment(String commentId) async {
     final comment = await getOneComment(commentId);
     final response = await http.post(Uri.parse(
-        'http://10.0.2.2:5432/api/blogs/like/' +
-            commentId +
-            '/' +
-            currentUser.id));
+        localurl + '/api/blogs/like/' + commentId + '/' + currentUser.id));
     if (response.statusCode == 200) {
       // Like added successfully
       comment.liked = true;
@@ -217,11 +212,11 @@ class BlogController extends GetxController {
 
   void cancelLikeToComment(String commentId) async {
     final comment = await getOneComment(commentId);
-    final response = await http.delete(Uri.parse(
-        'http://10.0.2.2:5432/api/blogs/cancellike/' +
-            commentId +
-            '/' +
-            currentUser.id));
+    final response = await http.delete(Uri.parse(localurl +
+        '/api/blogs/cancellike/' +
+        commentId +
+        '/' +
+        currentUser.id));
     if (response.statusCode == 200) {
       // Like added successfully
       comment.liked = false;
@@ -235,10 +230,7 @@ class BlogController extends GetxController {
   void addDislikeToComment(String commentId) async {
     final comment = await getOneComment(commentId);
     final response = await http.post(Uri.parse(
-        'http://10.0.2.2:5432/api/blogs/dislike/' +
-            commentId +
-            '/' +
-            currentUser.id));
+        localurl + '/api/blogs/dislike/' + commentId + '/' + currentUser.id));
 
     if (response.statusCode == 200) {
       // Like added successfully
@@ -253,11 +245,11 @@ class BlogController extends GetxController {
   void cancelDislikeToComment(String commentId) async {
     final comment = await getOneComment(commentId);
 
-    final response = await http.delete(Uri.parse(
-        'http://10.0.2.2:5432/api/blogs/canceldislike/' +
-            commentId +
-            '/' +
-            currentUser.id));
+    final response = await http.delete(Uri.parse(localurl +
+        '/api/blogs/canceldislike/' +
+        commentId +
+        '/' +
+        currentUser.id));
     if (response.statusCode == 200) {
       // Like added successfully
       comment.disliked = false;
@@ -269,8 +261,8 @@ class BlogController extends GetxController {
   }
 
   Future<Comments> getOneComment(commentId) async {
-    final data = await http.get(
-        Uri.parse('http://10.0.2.2:5432/api/blogs/getonecomment/' + commentId));
+    final data = await http
+        .get(Uri.parse(localurl + '/api/blogs/getonecomment/' + commentId));
     var jsonData = json.decode(data.body);
 
     List<Map<String, dynamic>> replies =
@@ -294,8 +286,7 @@ class BlogController extends GetxController {
   }
 
   Future<Blog> getOneBlog(idBlog) async {
-    final data =
-        await http.get(Uri.parse('http://10.0.2.2:5432/api/blogs/' + idBlog));
+    final data = await http.get(Uri.parse(localurl + '/api/blogs/' + idBlog));
 
     var jsonData = json.decode(data.body);
 
@@ -329,19 +320,21 @@ class BlogController extends GetxController {
 
   void addUserLike(idBlog) async {
     await http.put(
-      Uri.parse('http://10.0.2.2:5432/api/blogs/likeblog/' +
-          currentUser.id +
-          '/' +
-          idBlog),
+      Uri.parse(
+          localurl + '/api/blogs/likeblog/' + currentUser.id + '/' + idBlog),
     );
   }
 
   void deleteUserLike(idBlog) async {
     await http.put(
-      Uri.parse('http://10.0.2.2:5432/api/blogs/dislikeblog/' +
-          currentUser.id +
-          '/' +
-          idBlog),
+      Uri.parse(
+          localurl + '/api/blogs/dislikeblog/' + currentUser.id + '/' + idBlog),
+    );
+  }
+
+  void deleteBlog(idBlog) async {
+    await http.delete(
+      Uri.parse(localurl + '/api/blogs/' + idBlog),
     );
   }
 }

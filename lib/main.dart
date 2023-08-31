@@ -1,7 +1,7 @@
-import 'package:frontend/screens/welcome.dart';
+import 'package:war_tracker/screens/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:frontend/l10n/l10n.dart';
+import 'package:war_tracker/l10n/l10n.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 

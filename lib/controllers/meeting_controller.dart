@@ -1,14 +1,15 @@
 import 'dart:convert';
 
-import 'package:frontend/models/meeting.dart';
+import 'package:war_tracker/constants.dart';
+import 'package:war_tracker/models/meeting.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
-import 'package:frontend/data/data.dart';
-import 'package:frontend/models/comment.dart';
-import 'package:frontend/screens/home.dart';
+import 'package:war_tracker/data/data.dart';
+import 'package:war_tracker/models/comment.dart';
+import 'package:war_tracker/screens/home.dart';
 
 class MeetingController extends GetxController {
   TextEditingController titleController = TextEditingController();
@@ -31,7 +32,7 @@ class MeetingController extends GetxController {
       print("controller arriba");
 
       print('Crear meeting');
-      var url = Uri.parse('http://10.0.2.2:5432/api/meetings');
+      var url = Uri.parse(localurl + '/api/meetings');
       Map body = {
         'title': titleController.text.trim(),
         'description': descriptionController.text,
@@ -86,8 +87,7 @@ class MeetingController extends GetxController {
       print(replyController.text);
 
       print('Crear comentario');
-      var url =
-          Uri.parse('http://10.0.2.2:5432/api/meetings/edit/' + idMeeting);
+      var url = Uri.parse(localurl + '/api/meetings/edit/' + idMeeting);
 
       Map body = {
         'title': titleController.text.trim(),
@@ -127,7 +127,7 @@ class MeetingController extends GetxController {
 
   Future<List<Meeting>> getMeetings() async {
     List<Meeting> meetings = [];
-    final data = await http.get(Uri.parse('http://10.0.2.2:5432/api/meetings'));
+    final data = await http.get(Uri.parse(localurl + '/api/meetings'));
     var jsonData = json.decode(data.body);
     for (var u in jsonData) {
       Meeting meeting = Meeting(
@@ -150,8 +150,8 @@ class MeetingController extends GetxController {
   }
 
   Future<Meeting> getOneMeeting(idMeeting) async {
-    final data = await http
-        .get(Uri.parse('http://10.0.2.2:5432/api/meetings/' + idMeeting));
+    final data =
+        await http.get(Uri.parse(localurl + '/api/meetings/' + idMeeting));
 
     var jsonData = json.decode(data.body);
 
@@ -176,10 +176,8 @@ class MeetingController extends GetxController {
     print("Vemos id del meeting a unirse " + idMeeting);
 
     await http.put(
-      Uri.parse('http://10.0.2.2:5432/api/meetings/join/' +
-          currentUser.id +
-          '/' +
-          idMeeting),
+      Uri.parse(
+          localurl + '/api/meetings/join/' + currentUser.id + '/' + idMeeting),
     );
 
     print("ha pasado " + currentUser.id);
@@ -189,10 +187,8 @@ class MeetingController extends GetxController {
     print("Vemos id del jugador a desapuntarse " + currentUser.id);
     print("Vemos id del meeting a desapuntarse " + idMeeting);
     await http.put(
-      Uri.parse('http://10.0.2.2:5432/api/meetings/leave/' +
-          currentUser.id +
-          '/' +
-          idMeeting),
+      Uri.parse(
+          localurl + '/api/meetings/leave/' + currentUser.id + '/' + idMeeting),
     );
     print("ha pasado para desapuntarse " + currentUser.id);
   }
@@ -227,8 +223,7 @@ class MeetingController extends GetxController {
       print(commentController.text);
 
       print('Crear comentario');
-      var url = Uri.parse(
-          'http://10.0.2.2:5432/api/meetings/addcomment/' + idMeeting);
+      var url = Uri.parse(localurl + '/api/meetings/addcomment/' + idMeeting);
       Map body = {
         'content': commentController.text.trim(),
         'owner': currentUser.id,
@@ -262,8 +257,7 @@ class MeetingController extends GetxController {
       print(replyController.text);
 
       print('Crear comentario');
-      var url =
-          Uri.parse('http://10.0.2.2:5432/api/meetings/addreply/' + idComment);
+      var url = Uri.parse(localurl + '/api/meetings/addreply/' + idComment);
       Map body = {
         'content': replyController.text.trim(),
         'owner': currentUser.id,
@@ -292,8 +286,8 @@ class MeetingController extends GetxController {
   Future<List<Comments>> getComments(idMeeting) async {
     List<Comments> comments = [];
     print("id Meeting " + idMeeting);
-    final data = await http.get(
-        Uri.parse('http://10.0.2.2:5432/api/meetings/comments/' + idMeeting));
+    final data = await http
+        .get(Uri.parse(localurl + '/api/meetings/comments/' + idMeeting));
     var jsonData = json.decode(data.body);
     for (var u in jsonData) {
       List<Map<String, dynamic>> replies =
@@ -332,10 +326,7 @@ class MeetingController extends GetxController {
     print(commentId);
     final comment = await getOneComment(commentId);
     final response = await http.post(Uri.parse(
-        'http://10.0.2.2:5432/api/meetings/like/' +
-            commentId +
-            '/' +
-            currentUser.id));
+        localurl + '/api/meetings/like/' + commentId + '/' + currentUser.id));
     print(response.statusCode);
     print(response.body);
     if (response.statusCode == 200) {
@@ -351,11 +342,11 @@ class MeetingController extends GetxController {
   void cancelLikeToComment(String commentId) async {
     print(commentId);
     final comment = await getOneComment(commentId);
-    final response = await http.delete(Uri.parse(
-        'http://10.0.2.2:5432/api/meetings/cancellike/' +
-            commentId +
-            '/' +
-            currentUser.id));
+    final response = await http.delete(Uri.parse(localurl +
+        '/api/meetings/cancellike/' +
+        commentId +
+        '/' +
+        currentUser.id));
     print(response.statusCode);
     if (response.statusCode == 200) {
       // Like added successfully
@@ -370,11 +361,11 @@ class MeetingController extends GetxController {
   void addDislikeToComment(String commentId) async {
     print(commentId);
     final comment = await getOneComment(commentId);
-    final response = await http.post(Uri.parse(
-        'http://10.0.2.2:5432/api/meetings/dislike/' +
-            commentId +
-            '/' +
-            currentUser.id));
+    final response = await http.post(Uri.parse(localurl +
+        '/api/meetings/dislike/' +
+        commentId +
+        '/' +
+        currentUser.id));
     print(response.statusCode);
     print(response.body);
     if (response.statusCode == 200) {
@@ -391,11 +382,11 @@ class MeetingController extends GetxController {
     print(commentId);
     final comment = await getOneComment(commentId);
 
-    final response = await http.delete(Uri.parse(
-        'http://10.0.2.2:5432/api/meetings/canceldislike/' +
-            commentId +
-            '/' +
-            currentUser.id));
+    final response = await http.delete(Uri.parse(localurl +
+        '/api/meetings/canceldislike/' +
+        commentId +
+        '/' +
+        currentUser.id));
     print(response.statusCode);
     if (response.statusCode == 200) {
       // Like added successfully
@@ -408,8 +399,8 @@ class MeetingController extends GetxController {
   }
 
   Future<Comments> getOneComment(commentId) async {
-    final data = await http.get(Uri.parse(
-        'http://10.0.2.2:5432/api/meetings/getonecomment/' + commentId));
+    final data = await http
+        .get(Uri.parse(localurl + '/api/meetings/getonecomment/' + commentId));
     var jsonData = json.decode(data.body);
 
     List<Map<String, dynamic>> replies =
@@ -430,5 +421,11 @@ class MeetingController extends GetxController {
     );
 
     return comment;
+  }
+
+  void deleteMeeting(idMeeting) async {
+    await http.delete(
+      Uri.parse(localurl + '/api/meetings/' + idMeeting),
+    );
   }
 }

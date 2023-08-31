@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/login.dart';
-import 'package:frontend/screens/register.dart';
+import 'package:war_tracker/screens/login.dart';
+import 'package:war_tracker/screens/register.dart';
 
-import 'package:frontend/components/rounded_button.dart';
-import 'package:frontend/constants.dart';
+import 'package:war_tracker/components/rounded_button.dart';
+import 'package:war_tracker/constants.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:frontend/screens/home.dart';
+import 'package:war_tracker/screens/home.dart';
 import 'package:get/get.dart';
 
 class Body extends StatelessWidget {

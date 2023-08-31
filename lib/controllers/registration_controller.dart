@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:frontend/constants.dart';
-import 'package:frontend/screens/home.dart';
+import 'package:war_tracker/constants.dart';
+import 'package:war_tracker/screens/home.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -22,7 +22,7 @@ class RegistrationController extends GetxController {
     try {
       var headers = {'Content-Type': 'application/json'};
       print('por aqui');
-      var url = Uri.parse(weburl + '/api/users/register');
+      var url = Uri.parse(localurl + '/api/users/register');
 
       Map body = {
         'name': nameController.text,

@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:frontend/constants.dart';
-import 'package:frontend/models/Chat.dart';
-import 'package:frontend/models/blog.dart';
-import 'package:frontend/screens/messages.dart';
-import 'package:frontend/widgets/comment_post.dart';
+import 'package:war_tracker/constants.dart';
+import 'package:war_tracker/models/Chat.dart';
+import 'package:war_tracker/models/blog.dart';
+import 'package:war_tracker/screens/messages.dart';
+import 'package:war_tracker/widgets/comment_post.dart';
 import 'package:get/get.dart';
-import 'package:frontend/screens/edit_blog.dart';
-import 'package:frontend/screens/home.dart';
-import 'package:frontend/controllers/blog_controller.dart';
-import 'package:frontend/data/data.dart';
+import 'package:war_tracker/screens/edit_blog.dart';
+import 'package:war_tracker/screens/home.dart';
+import 'package:war_tracker/controllers/blog_controller.dart';
+import 'package:war_tracker/data/data.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:frontend/models/user.dart';
-import 'package:frontend/screens/profile.dart';
-import 'package:frontend/controllers/chat_controller.dart';
-import 'package:frontend/controllers/report_controller.dart';
-import 'package:frontend/theme_provider.dart';
+import 'package:war_tracker/models/user.dart';
+import 'package:war_tracker/screens/profile.dart';
+import 'package:war_tracker/controllers/chat_controller.dart';
+import 'package:war_tracker/controllers/report_controller.dart';
+import 'package:war_tracker/theme_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BlogScreen extends StatefulWidget {
@@ -59,7 +59,7 @@ class _BlogScreenState extends State<BlogScreen> {
   }
 
   Future<void> checkIsOwner() async {
-    var url = Uri.parse('http://10.0.2.2:5432/api/blogs/' + widget.blog.id);
+    var url = Uri.parse(localurl + '/api/blogs/' + widget.blog.id);
     var response = await http.get(url);
     var data = jsonDecode(response.body);
 
@@ -338,8 +338,7 @@ class _BlogScreenState extends State<BlogScreen> {
   }
 
   Future<void> navigateToUserProfile(idUser) async {
-    final data =
-        await http.get(Uri.parse('http://10.0.2.2:5432/api/users/' + idUser));
+    final data = await http.get(Uri.parse(localurl + '/api/users/' + idUser));
     var jsonData = json.decode(data.body);
 
     User user = User(
@@ -363,8 +362,8 @@ class _BlogScreenState extends State<BlogScreen> {
 
   Future<void> sendMessageToUser(recipientId) async {
     print("Sending message to user with ID: " + recipientId);
-    final data = await http
-        .get(Uri.parse('http://10.0.2.2:5432/api/users/' + recipientId));
+    final data =
+        await http.get(Uri.parse(localurl + '/api/users/' + recipientId));
     var jsonData = json.decode(data.body);
 
     User user = User(

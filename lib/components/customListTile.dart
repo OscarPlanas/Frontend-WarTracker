@@ -1,7 +1,7 @@
-import 'package:frontend/constants.dart';
-import 'package:frontend/models/blog.dart';
+import 'package:war_tracker/constants.dart';
+import 'package:war_tracker/models/blog.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/blog.dart';
+import 'package:war_tracker/screens/blog.dart';
 
 Widget customListTile(Blog blog, BuildContext context, ThemeMode themeMode) {
   Color? backgroundColor =

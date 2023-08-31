@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/controllers/user_controller.dart';
-import 'package:frontend/screens/blog.dart';
-import 'package:frontend/screens/edit_profile.dart';
-import 'package:frontend/screens/meeting.dart';
-import 'package:frontend/sidebar.dart';
-import 'package:frontend/components/numbers_widget.dart';
-import 'package:frontend/constants.dart';
-import 'package:frontend/data/data.dart';
+import 'package:war_tracker/controllers/user_controller.dart';
+import 'package:war_tracker/screens/blog.dart';
+import 'package:war_tracker/screens/edit_profile.dart';
+import 'package:war_tracker/screens/meeting.dart';
+import 'package:war_tracker/sidebar.dart';
+import 'package:war_tracker/components/numbers_widget.dart';
+import 'package:war_tracker/constants.dart';
+import 'package:war_tracker/data/data.dart';
 import 'package:get/get.dart';
-import 'package:frontend/models/user.dart';
+import 'package:war_tracker/models/user.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:frontend/models/meeting.dart';
-import 'package:frontend/models/blog.dart';
-import 'package:frontend/theme_provider.dart';
+import 'package:war_tracker/models/meeting.dart';
+import 'package:war_tracker/models/blog.dart';
+import 'package:war_tracker/theme_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Profile extends StatefulWidget {
@@ -67,7 +67,7 @@ class _ProfileState extends State<Profile> {
   }
 
   Future<void> checkIsUser() async {
-    var url = Uri.parse('http://10.0.2.2:5432/api/users/' + widget.user.id);
+    var url = Uri.parse(localurl + '/api/users/' + widget.user.id);
     var response = await http.get(url);
     var data = jsonDecode(response.body);
 
@@ -77,8 +77,8 @@ class _ProfileState extends State<Profile> {
   }
 
   Future<void> fetchMeetingsFollowed() async {
-    final data = await http
-        .get(Uri.parse('http://10.0.2.2:5432/api/users/' + widget.user.id));
+    final data =
+        await http.get(Uri.parse(localurl + '/api/users/' + widget.user.id));
     var jsonData = json.decode(data.body);
     List<dynamic> meetingsFollowedData = jsonData['meetingsFollowed'];
 
@@ -109,8 +109,8 @@ class _ProfileState extends State<Profile> {
   }
 
   Future<void> fetchBlogsFollowed() async {
-    final data = await http
-        .get(Uri.parse('http://10.0.2.2:5432/api/users/' + widget.user.id));
+    final data =
+        await http.get(Uri.parse(localurl + '/api/users/' + widget.user.id));
     var jsonData = json.decode(data.body);
     print(jsonData);
 
@@ -568,7 +568,7 @@ class _ProfileState extends State<Profile> {
           backgroundColor: Color.fromARGB(255, 230, 241, 248),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-          title: Text("WarTracker", style: TextStyle(fontSize: 17)),
+          title: Text("war_tracker", style: TextStyle(fontSize: 17)),
           content: Text(
             text,
             style: TextStyle(fontSize: 15),
@@ -604,8 +604,8 @@ class _ProfileState extends State<Profile> {
   }
 
   Future<void> fetchFollowersCount() async {
-    final data = await http
-        .get(Uri.parse('http://10.0.2.2:5432/api/users/' + widget.user.id));
+    final data =
+        await http.get(Uri.parse(localurl + '/api/users/' + widget.user.id));
     var jsonData = json.decode(data.body);
     int count = jsonData['followers'].length;
     setState(() {

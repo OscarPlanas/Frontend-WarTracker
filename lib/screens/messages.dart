@@ -1,22 +1,22 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
-import 'package:frontend/components/Messages/OwnMessageCard.dart';
-import 'package:frontend/components/Messages/ReplyCard.dart';
-import 'package:frontend/constants.dart';
-import 'package:frontend/controllers/chat_controller.dart';
-import 'package:frontend/data/data.dart';
-import 'package:frontend/models/Chat.dart';
-import 'package:frontend/models/message.dart';
-import 'package:frontend/models/user.dart';
-import 'package:frontend/screens/chats.dart';
-import 'package:get/get.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
-import 'package:frontend/theme_provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/foundation.dart' as foundation;
+import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:war_tracker/components/Messages/OwnMessageCard.dart';
+import 'package:war_tracker/components/Messages/ReplyCard.dart';
+import 'package:war_tracker/constants.dart';
+import 'package:war_tracker/controllers/chat_controller.dart';
+import 'package:war_tracker/data/data.dart';
+import 'package:war_tracker/models/Chat.dart';
+import 'package:war_tracker/models/message.dart';
+import 'package:war_tracker/models/user.dart';
+import 'package:war_tracker/screens/profile.dart';
+import 'package:war_tracker/theme_provider.dart';
 
 class MessagesScreen extends StatefulWidget {
   final User user;
@@ -96,6 +96,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
   }
 
   void connect() {
+    //socket = IO.io("http://app.oscarplanas.com:5432", <String, dynamic>{
     socket = IO.io("http://10.0.2.2:5432", <String, dynamic>{
       "transports": ["websocket"],
       "autoConnect": false,
@@ -394,6 +395,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
   Future<ChatModel> fetchChat() async {
     print("fetchChat");
     chat = await chatController.getChat(currentUser.id, widget.user.id);
+
     print(chat);
     print(chat?.id); // Update references to chat to use chat!
 
@@ -405,8 +407,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
     });
     socket!.emit('userOnline', currentUser.id);
     try {
-      final response = await http
-          .get(Uri.parse('http://10.0.2.2:5432/api/users/' + widget.user.id));
+      final response =
+          await http.get(Uri.parse(localurl + '/api/users/' + widget.user.id));
       final responseData = json.decode(response.body);
       setState(() {
         isUserOnline = responseData['online'];
@@ -453,43 +455,62 @@ class _MessagesScreenState extends State<MessagesScreen> {
     return AppBar(
       leading: IconButton(
         icon: Icon(Icons.arrow_back, color: ButtonBlack),
-        onPressed: () => Get.offAll(ChatsScreen()),
+        onPressed: () {
+          print("chat: " + chat.toString());
+          if (messages.length == 0) {
+            print("chat is null");
+            chatController.deleteChat(chat?.id);
+            setState(() {
+              chat = null; // Set the chat to null to trigger UI update
+            });
+          }
+          Navigator.pop(context);
+        },
       ),
       automaticallyImplyLeading: false,
       backgroundColor: Background,
       title: Row(
         children: [
-          //const BackButton(),
-          CircleAvatar(
-            backgroundImage: NetworkImage(
-                widget.user.imageUrl), // Replace AssetImage with NetworkImage
-            backgroundColor: isUserOnline == true
-                ? Colors.green
-                : Colors.grey, // Set background color based on online status
-            radius: 20,
-            child: isUserOnline == true
-                ? Align(
-                    alignment: Alignment.bottomRight,
-                    child: CircleAvatar(
-                      backgroundColor: Colors.green,
-                      radius: 5,
+          GestureDetector(
+            onTap: () {
+              Get.to(Profile(widget.user));
+            },
+            child: CircleAvatar(
+              backgroundImage: NetworkImage(
+                  widget.user.imageUrl), // Replace AssetImage with NetworkImage
+              backgroundColor: isUserOnline == true
+                  ? Colors.green
+                  : Colors.grey, // Set background color based on online status
+              radius: 20,
+              child: isUserOnline == true
+                  ? Align(
+                      alignment: Alignment.bottomRight,
+                      child: CircleAvatar(
+                        backgroundColor: Colors.green,
+                        radius: 5,
+                      ),
+                    )
+                  : Align(
+                      alignment: Alignment.bottomRight,
+                      child: CircleAvatar(
+                        backgroundColor: Colors.grey,
+                        radius: 5,
+                      ),
                     ),
-                  )
-                : Align(
-                    alignment: Alignment.bottomRight,
-                    child: CircleAvatar(
-                      backgroundColor: Colors.grey,
-                      radius: 5,
-                    ),
-                  ),
+            ),
           ),
           const SizedBox(width: 10 * 0.75),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                widget.user.name,
-                style: TextStyle(fontSize: 16, color: ButtonBlack),
+              GestureDetector(
+                onTap: () {
+                  Get.to(Profile(widget.user));
+                },
+                child: Text(
+                  widget.user.name,
+                  style: TextStyle(fontSize: 16, color: ButtonBlack),
+                ),
               ),
               Text(
                 isUserOnline == true ? "Online" : "Offline",

@@ -1,15 +1,16 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:frontend/components/Chat/chat_card.dart';
-import 'package:frontend/constants.dart';
-import 'package:frontend/controllers/chat_controller.dart';
-import 'package:frontend/data/data.dart';
-import 'package:frontend/models/Chat.dart';
-import 'package:frontend/screens/messages.dart';
-import 'package:frontend/sidebar.dart';
+import 'package:war_tracker/components/Chat/chat_card.dart';
+import 'package:war_tracker/constants.dart';
+import 'package:war_tracker/controllers/chat_controller.dart';
+import 'package:war_tracker/data/data.dart';
+import 'package:war_tracker/models/Chat.dart';
+import 'package:war_tracker/screens/messages.dart';
+import 'package:war_tracker/sidebar.dart';
 import 'package:get/get.dart';
-import 'package:frontend/theme_provider.dart';
+import 'package:war_tracker/theme_provider.dart';
+import 'package:war_tracker/screens/usersToChat.dart';
 
 class ChatsScreen extends StatefulWidget {
   const ChatsScreen({Key? key}) : super(key: key);
@@ -66,7 +67,15 @@ class _ChatsScreenState extends State<ChatsScreen> {
                   themeMode: _themeMode),
             ),
           ),
+          //open a new screen with all the users registered
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Get.to(() => UsersToChatScreen());
+        },
+        child: Icon(Icons.message, color: ButtonBlack),
+        backgroundColor: Background,
       ),
     );
   }

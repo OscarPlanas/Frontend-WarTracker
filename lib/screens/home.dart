@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/components/customListTile.dart';
-import 'package:frontend/constants.dart';
-import 'package:frontend/controllers/blog_controller.dart';
-import 'package:frontend/controllers/user_controller.dart';
-import 'package:frontend/models/blog.dart';
-import 'package:frontend/screens/create_blog.dart';
-import 'package:frontend/sidebar.dart';
+import 'package:war_tracker/components/customListTile.dart';
+import 'package:war_tracker/constants.dart';
+import 'package:war_tracker/controllers/blog_controller.dart';
+import 'package:war_tracker/controllers/user_controller.dart';
+import 'package:war_tracker/models/blog.dart';
+import 'package:war_tracker/screens/create_blog.dart';
+import 'package:war_tracker/sidebar.dart';
 import 'package:get/get.dart';
-import 'package:frontend/theme_provider.dart';
+import 'package:war_tracker/theme_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 
@@ -82,6 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               PopupMenuButton<String>(
+                color: _themeMode == ThemeMode.dark ? Colors.grey[700] : null,
                 icon: Icon(Icons.filter_list, color: ButtonBlack),
                 itemBuilder: (context) {
                   return _filterTranslations.keys.map((String key) {
@@ -90,7 +91,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Text(
                         _filterTranslations[key]!,
                         style: TextStyle(
-                          color: Colors.black,
+                          color: _themeMode == ThemeMode.dark
+                              ? Colors.white
+                              : Colors.black,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -109,6 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 visible: _filterTranslations[_selectedFilter] ==
                     _filterTranslations['Date'],
                 child: PopupMenuButton<String>(
+                  color: _themeMode == ThemeMode.dark ? Colors.grey[700] : null,
                   icon: Icon(Icons.sort, color: ButtonBlack),
                   itemBuilder: (context) {
                     return _directionTranslations.keys.map((String key) {
@@ -117,7 +121,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Text(
                           _directionTranslations[key]!,
                           style: TextStyle(
-                            color: Colors.black,
+                            color: _themeMode == ThemeMode.dark
+                                ? Colors.white
+                                : Colors.black,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -146,6 +152,10 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Container(
               width: double.infinity,
               child: TextField(
+                style: TextStyle(
+                    color: _themeMode == ThemeMode.dark
+                        ? Colors.white
+                        : Colors.black),
                 onChanged: (value) {
                   setState(() {
                     _searchText = value;
@@ -153,7 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   _updateBlogsFuture();
                 },
                 decoration: InputDecoration(
-                  hintText: "Search blog...",
+                  hintText: AppLocalizations.of(context)!.searchBlog,
                   hintStyle: TextStyle(
                       color: _themeMode == ThemeMode.dark
                           ? Colors.white

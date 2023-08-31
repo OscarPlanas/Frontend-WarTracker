@@ -1,12 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:frontend/constants.dart';
-import 'package:frontend/controllers/game_controller.dart';
-import 'package:frontend/data/data.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:war_tracker/constants.dart';
+import 'package:war_tracker/controllers/game_controller.dart';
+import 'package:war_tracker/data/data.dart';
+import 'package:war_tracker/theme_provider.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class GameScreen extends StatefulWidget {
   final String meetingId;
@@ -23,12 +24,20 @@ class _GameScreenState extends State<GameScreen> {
   bool _sortAscending = true;
   int _nextId = 1;
   bool isOwner = false;
-
+  ThemeMode _themeMode = ThemeMode.system;
   List<List<TextEditingController>> controllersList = [];
 
+  void _loadThemeMode() async {
+    // Retrieve the saved theme mode from SharedPreferences
+    ThemeMode savedThemeMode = await ThemeHelper.getThemeMode();
+    print(savedThemeMode);
+    setState(() {
+      _themeMode = savedThemeMode;
+    });
+  }
+
   Future<List<Map<String, dynamic>>> fetchGames(String meetingId) async {
-    var url =
-        Uri.parse('http://10.0.2.2:5432/api/games/tournament/' + meetingId);
+    var url = Uri.parse(localurl + '/api/games/tournament/' + meetingId);
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -142,7 +151,7 @@ class _GameScreenState extends State<GameScreen> {
   void _deleteRow(Map<String, dynamic> game) async {
     var gameId = game['_id'];
     if (isOwner) {
-      var url = Uri.parse('http://10.0.2.2:5432/api/games/row/$gameId');
+      var url = Uri.parse(localurl + '/api/games/row/$gameId');
       var response = await http.delete(url);
 
       if (response.statusCode == 200) {
@@ -231,8 +240,7 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Future<void> checkIsOwner() async {
-    var url =
-        Uri.parse('http://10.0.2.2:5432/api/meetings/' + widget.meetingId);
+    var url = Uri.parse(localurl + '/api/meetings/' + widget.meetingId);
     var response = await http.get(url);
     var data = jsonDecode(response.body);
 
@@ -246,11 +254,14 @@ class _GameScreenState extends State<GameScreen> {
     super.initState();
     _updateTableData();
     checkIsOwner();
+    _loadThemeMode();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor:
+          _themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
@@ -265,6 +276,19 @@ class _GameScreenState extends State<GameScreen> {
         scrollDirection: Axis.horizontal,
         child: SingleChildScrollView(
           child: DataTable(
+            dataRowColor: _themeMode == ThemeMode.dark
+                ? MaterialStateProperty.resolveWith<Color?>(
+                    (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.selected))
+                      return Background;
+                    return Background;
+                  })
+                : MaterialStateProperty.resolveWith<Color?>(
+                    (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.selected))
+                      return Colors.grey[300];
+                    return Colors.grey[200];
+                  }),
             sortColumnIndex: _sortColumnIndex,
             sortAscending: _sortAscending,
             columns: [
@@ -588,12 +612,12 @@ class _GameScreenState extends State<GameScreen> {
       data.add(formattedRowData);
     }
 
-    var urldelete = Uri.parse(
-        'http://10.0.2.2:5432/api/games/tournament/' + widget.meetingId);
+    var urldelete =
+        Uri.parse(localurl + '/api/games/tournament/' + widget.meetingId);
     var responsedelete = await http.delete(urldelete);
     print(responsedelete.body);
 
-    var url = Uri.parse('http://10.0.2.2:5432/api/games');
+    var url = Uri.parse(localurl + '/api/games');
 
     var request = http.Request('POST', url);
     request.headers['Content-Type'] = 'application/json';
@@ -625,7 +649,7 @@ class _GameScreenState extends State<GameScreen> {
           backgroundColor: Color.fromARGB(255, 230, 241, 248),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-          title: Text("WarTracker", style: TextStyle(fontSize: 17)),
+          title: Text("war_tracker", style: TextStyle(fontSize: 17)),
           content: Text(
             text,
             style: TextStyle(fontSize: 15),

@@ -3,13 +3,14 @@ import 'dart:io';
 import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/constants.dart';
-import 'package:frontend/controllers/blog_controller.dart';
-import 'package:frontend/data/data.dart';
-import 'package:frontend/models/blog.dart';
+import 'package:war_tracker/constants.dart';
+import 'package:war_tracker/controllers/blog_controller.dart';
+import 'package:war_tracker/data/data.dart';
+import 'package:war_tracker/models/blog.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:frontend/theme_provider.dart';
+import 'package:war_tracker/theme_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:war_tracker/screens/home.dart';
 
 class EditBlog extends StatefulWidget {
   final Blog blog;
@@ -378,6 +379,71 @@ class _EditBlogState extends State<EditBlog> {
                   },
                   child: Text(
                     AppLocalizations.of(context)!.buttonSubmit,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
+                SizedBox(height: 10),
+                //Eliminate blog button
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                  ),
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            backgroundColor: _themeMode == ThemeMode.dark
+                                ? Color.fromARGB(255, 32, 30, 30)
+                                : Colors.white,
+                            title: Text(
+                                AppLocalizations.of(context)!.deleteBlog,
+                                style: TextStyle(
+                                    color: _themeMode == ThemeMode.dark
+                                        ? Colors.white
+                                        : Colors.black)),
+                            content: Text(
+                              AppLocalizations.of(context)!.confirmDeleteBlog,
+                              style: TextStyle(
+                                  color: _themeMode == ThemeMode.dark
+                                      ? Colors.white
+                                      : Colors.black),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text("No",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: _themeMode == ThemeMode.dark
+                                            ? Colors.white
+                                            : Colors.black)),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  blogController.deleteBlog(widget.blog.id);
+                                  Navigator.push(context, MaterialPageRoute(
+                                    builder: (context) {
+                                      return HomeScreen();
+                                    },
+                                  ));
+                                },
+                                child: Text(
+                                    AppLocalizations.of(context)!.buttonYes,
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: _themeMode == ThemeMode.dark
+                                            ? Colors.white
+                                            : Colors.black)),
+                              ),
+                            ],
+                          );
+                        });
+                  },
+                  child: Text(
+                    AppLocalizations.of(context)!.deleteBlog,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                 ),

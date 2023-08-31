@@ -1,7 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:frontend/data/data.dart';
+import 'package:war_tracker/constants.dart';
+import 'package:war_tracker/data/data.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
@@ -15,7 +16,7 @@ class ReportController extends GetxController {
       print("createBlog: " + currentUser.id);
       var headers = {'Content-Type': 'application/json'};
       print("a");
-      var url = Uri.parse('http://10.0.2.2:5432/api/report/report');
+      var url = Uri.parse(localurl + '/api/report/report');
       print(url);
       print("b");
       Map body = {
